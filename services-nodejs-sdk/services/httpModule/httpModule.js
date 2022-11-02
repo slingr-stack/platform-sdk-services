@@ -4,7 +4,7 @@ const {
     applicationName,
     environment,
     token,
-    svcssServicesApi,
+    svcsServicesApi,
 } = require('../configuration/configuration').settings;
 const axiosInstance = require('axios').create(
     {
