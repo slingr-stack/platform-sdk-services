@@ -1,6 +1,6 @@
 {
-  "name": "service-nodejs-sdk",
-  "version": "1.0.0",
+  "name": "services-nodejs-sdk",
+  "version": "0.0.1",
   "description": "Nodejs Framework for Slingr Services",
   "main": "index.js",
   "scripts": {
@@ -8,13 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/slingr-stack/service-nodejs-sdk"
+    "url": "https://github.com/slingr-stack/platform-services/tree/master/services-nodejs-sdk"
   },
   "keywords": [
     "slingr",
     "nodejs",
     "services",
-    "framework"
+    "framework",
+    "sdk"
   ],
   "dependencies": {
     "axios": "^0.26.1",
