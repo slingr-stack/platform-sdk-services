@@ -1,7 +1,7 @@
 setenv.sh
 node_modules
 *.iml
-/../.idea/
+../.idea/
 target/
 .project
 .classpath
