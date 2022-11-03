@@ -1,0 +1,677 @@
+package io.slingr.svcs.services.rest;
+
+import io.slingr.svcs.Svc;
+import io.slingr.svcs.exceptions.SvcException;
+import io.slingr.svcs.exceptions.ErrorCode;
+import io.slingr.svcs.services.Files;
+import io.slingr.svcs.services.exchange.Parameter;
+import io.slingr.svcs.utils.FilesUtils;
+import io.slingr.svcs.utils.FormUtils;
+import io.slingr.svcs.utils.Json;
+import io.slingr.svcs.utils.XmlUtils;
+import io.slingr.svcs.utils.converters.ContentTypeFormat;
+import io.slingr.svcs.utils.converters.JsonConverter;
+import io.slingr.svcs.utils.converters.JsonSource;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.glassfish.jersey.apache.connector.ApacheClientProperties;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.HttpUrlConnectorProvider;
+import org.glassfish.jersey.client.RequestEntityProcessing;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.client.spi.ConnectorProvider;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.media.multipart.Boundary;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.mail.Multipart;
+import javax.net.ssl.*;
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.*;
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
+
+/**
+ * Factory of the REST clients. This class helps to create clients over different URIs but without properties a different
+ * Javax client for each one.
+ *
+ * <p>Created by lefunes on 14/06/16.
+ */
+public class RestClientFactory {
+    private static final Logger logger = LoggerFactory.getLogger(RestClientFactory.class);
+
+    // FEFF because this is the Unicode char represented by the UTF-8 byte order mark (EF BB BF).
+    public static final String UTF8_BOM = "\uFEFF";
+
+    private Client client = null;
+    protected boolean debug = false;
+    private boolean rememberCookies = false;
+    private final ReentrantLock cookiesLock = new ReentrantLock();
+    private final List<Cookie> cookies = new ArrayList<>();
+    private final String[] acceptedMediaTypes;
+
+    /**
+     * Initialize factory
+     */
+    public RestClientFactory(){
+        try {
+            final ClientConfig clientConfig = new ClientConfig();
+            clientConfig.register(MultiPartFeature.class);
+            clientConfig.register(JacksonFeature.class);
+            clientConfig.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
+            clientConfig.property(ClientProperties.FOLLOW_REDIRECTS, true);
+
+            // the request entity will be buffered in the memory in order to determine content length that will be send as a Content-Length header in the request
+            clientConfig.property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
+
+            final Registry<ConnectionSocketFactory> registry;
+            registry = RegistryBuilder.<ConnectionSocketFactory>create()
+                    .register("https", configureSSL())
+                    .register("http", new PlainConnectionSocketFactory())
+                    .build();
+            final PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(registry);
+            connectionManager.setMaxTotal(100);
+            connectionManager.setDefaultMaxPerRoute(100);
+            clientConfig.property(ApacheClientProperties.CONNECTION_MANAGER, connectionManager);
+            clientConfig.property(ApacheClientProperties.CONNECTION_MANAGER_SHARED, true);
+
+            final ConnectorProvider provider = new ApacheConnectorProvider();
+            clientConfig.connectorProvider(provider);
+
+            client = ClientBuilder.newClient(clientConfig);
+
+            client.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
+
+            acceptedMediaTypes = ContentTypeFormat.getAcceptedFormats();
+        } catch (Exception e) {
+            logger.error("Error creating rest client", e);
+            throw new RuntimeException("Error creating rest client", e);
+        }
+    }
+
+    /**
+     * Configures TLS/SSL to be used on REST clients
+     *
+     * @return socket factory for TLS/SSL connections
+     */
+    private static SSLConnectionSocketFactory configureSSL() throws KeyManagementException, NoSuchAlgorithmException {
+        // Create a trust manager that does not validate certificate chains
+        final TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) { }
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) { }
+                }
+        };
+        final SSLContext sslContext = SSLContext.getInstance("SSL");
+        sslContext.init(null, trustAllCerts, new SecureRandom());
+        return new SSLConnectionSocketFactory(sslContext, new TrustAllHostNameVerifier());
+    }
+
+    /**
+     * Hostname verifier implementation to accept all the hosts
+     */
+    private static class TrustAllHostNameVerifier implements HostnameVerifier {
+        public boolean verify(String hostname, SSLSession session) {
+            return true;
+        }
+    }
+
+    /**
+     * Set true to enable debug logging
+     *
+     * @param debug true to enable logging
+     */
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
+    /**
+     * True if the client save and send cookies automatically
+     */
+    public void setRememberCookies(boolean rememberCookies) {
+        this.rememberCookies = rememberCookies;
+    }
+
+    public WebTarget uri(String apiUri){
+        return client.target(apiUri);
+    }
+
+    /**
+     * Configures basic authentication in the client so calls will use it.
+     *  @param username the username to authenticate
+     * @param password the password of the user
+     */
+    public WebTarget setupBasicAuthentication(WebTarget uri, String username, String password) {
+        final HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(username, password);
+        client.register(feature);
+        return this.client.target(uri.getUri());
+    }
+
+    /**
+     * Configures digest authentication in the client so calls will use it.
+     *  @param username the username to authenticate
+     * @param password the password of the user
+     */
+    public WebTarget setupDigestAuthentication(WebTarget uri, String username, String password) {
+        final HttpAuthenticationFeature feature = HttpAuthenticationFeature.digest(username, password);
+        client.register(feature);
+        return this.client.target(uri.getUri());
+    }
+
+    /**
+     * Processes the response to be returned to clients
+     *
+     * @param response response of HTTP request
+     * @param method method used to obtain the response
+     * @param fullResponse true if the response must include extended information about response
+     * @return Json with the processed response
+     * @throws SvcException if there ir an error when process the response
+     */
+    Json processResponse(Response response, RestMethod method, boolean fullResponse) throws SvcException {
+        if (response == null) {
+            throw SvcException.permanent(ErrorCode.CLIENT, "Invalid response");
+        }
+        try {
+            final InputStream responseContent;
+            if (method == RestMethod.HEAD) {
+                final Object entity = response.getEntity();
+                if (entity instanceof InputStream) {
+                    responseContent = (InputStream) entity;
+                } else if(entity != null){
+                    responseContent = new ByteArrayInputStream(response.getEntity().toString().getBytes());
+                } else {
+                    responseContent = new ByteArrayInputStream("".getBytes());
+                }
+            } else {
+                responseContent = response.readEntity(InputStream.class);
+            }
+            final byte[] responseAsBytes = IOUtils.toByteArray(responseContent);
+            final String responseAsString = IOUtils.toString(responseAsBytes, "UTF-8");
+
+            // try to convert string to json
+            final String contentType = response.getHeaderString(Parameter.CONTENT_TYPE);
+            Json responseAsJson = JsonConverter.convertString(removeUTF8BOM(responseAsString), contentType, true);
+
+            boolean errorResponse = response.getStatus() < 200 || response.getStatus() > 299;
+            if(errorResponse && !fullResponse && responseAsJson != null && responseAsJson.json("data") != null && responseAsJson.json("data").isMap() && responseAsJson.json("data").bool(Parameter.EXCEPTION_FLAG)){
+                // an Service Exception error when process the request
+                response.close();
+
+                final Json jsonData = responseAsJson.json("data");
+                final Json errorData = jsonData.json("error");
+                final ErrorCode errorCode = errorData == null || StringUtils.isBlank(errorData.string("code")) ? ErrorCode.CLIENT : ErrorCode.fromString(errorData.string("code"));
+
+                throw SvcException.permanent(
+                        errorCode != null ? errorCode : ErrorCode.CLIENT,
+                        jsonData.string(Parameter.EXCEPTION_MESSAGE),
+                        jsonData.json(Parameter.EXCEPTION_ADDITIONAL_INFO)
+                );
+
+            } else if(errorResponse || fullResponse) {
+                // if is a HTTP error or full request is required
+                Object res;
+                if(responseAsJson != null){
+                    res = responseAsJson;
+                } else {
+                    boolean asBytes = false;
+                    if(StringUtils.isNotBlank(contentType)) {
+                        final String ct = contentType.toLowerCase();
+                        if(ct.contains("image") || ct.contains("audio") || ct.contains("video") || ct.contains("application") || ct.contains("multipart")) {
+                            // return content as bytes
+                            asBytes = true;
+                        }
+                    }
+
+                    if(asBytes){
+                        res = responseAsBytes;
+                    } else {
+                        res = responseAsString;
+                    }
+                }
+                responseAsJson = processFullResponse(response, res);
+            }
+
+            response.close();
+            if(errorResponse){
+                // these might be retryable status codes according to W3: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html + Cloudflare Connection Timed Out (522)
+                if (response.getStatus() == 408 || response.getStatus() == 500 || response.getStatus() == 502 || response.getStatus() == 503 || response.getStatus() == 504 || response.getStatus() == 522) {
+                    throw SvcException.retryable(ErrorCode.API, String.format("%s[%s]", SvcException.REST_CODE_EXCEPTION, response.getStatus()), responseAsJson).returnCode(response.getStatus());
+                } else {
+                    throw SvcException.permanent(ErrorCode.API, String.format("%s[%s]", SvcException.REST_CODE_EXCEPTION, response.getStatus()), responseAsJson).returnCode(response.getStatus());
+                }
+            }
+
+            return responseAsJson;
+        } catch (SvcException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw SvcException.permanent(ErrorCode.CONVERSION, ex.getMessage(), ex);
+        }
+    }
+
+    private static String removeUTF8BOM(String s) {
+        if (s.startsWith(UTF8_BOM)) {
+            s = s.substring(1);
+        }
+        return s;
+    }
+
+    /**
+     * Converts the response to wrap a downloaded file
+     *
+     * @param response original HTTP response
+     * @return wrapped downloaded file
+     * @throws SvcException if the request cannot be built or if the server returns an error message
+     */
+    DownloadedFile processDownloadedFile(Response response) throws SvcException {
+        try {
+            if(response != null) {
+                final Json headers = Json.map();
+                for (String header : response.getHeaders().keySet()) {
+                    headers.set(header, response.getHeaders().getFirst(header));
+                }
+
+                String contentType = headers.string(Parameter.CONTENT_TYPE);
+
+                // workaround to download files from Fama
+                if (StringUtils.isNotBlank(contentType) && contentType.startsWith("data:")) {
+                    contentType = contentType.substring(5);
+                    headers.set(Parameter.CONTENT_TYPE, contentType);
+                    response.getHeaders().putSingle(Parameter.CONTENT_TYPE, contentType);
+                }
+
+                final InputStream inputStream = response.readEntity(InputStream.class);
+                final int status = response.getStatus();
+                if (inputStream != null && status >= 200 && status < 300) {
+                    return new DownloadedFile(status, inputStream, headers);
+                } else {
+                    String message = "Exception when try to download a file";
+
+                    Json json = null;
+                    if (inputStream != null) {
+                        json = JsonConverter.convertString(IOUtils.toString(inputStream, "UTF-8"), contentType);
+                        if (json != null && json.contains("message")) {
+                            message = json.string("message");
+                        }
+                    }
+                    throw SvcException.permanent(ErrorCode.CLIENT, message, json);
+                }
+            }
+            throw SvcException.permanent(ErrorCode.CLIENT, "Exception when try to download a file");
+        } catch (SvcException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw SvcException.permanent(ErrorCode.CONVERSION, ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Converts the request to a multipart object
+     *
+     * @param request the request to convert to multipart
+     * @param files the files service to download files from the app
+     * @return content to send to REST service
+     * @throws SvcException if the request cannot be built or if the server returns an error message
+     */
+    Object processMultipart(HttpRequest request, Files files) throws SvcException {
+        if (!request.isMultipart()) {
+            throw SvcException.permanent(ErrorCode.ARGUMENT, "Request is not multipart");
+        }
+        try {
+            final FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
+            for (HttpRequest.Part part : request.getParts()) {
+                if (part.getType() == HttpRequest.PartType.FILE) {
+                    final Json descriptor = files.metadata(part.getFileId());
+                    if (descriptor != null && !descriptor.isEmpty()) {
+                        final DownloadedFile file = files.download(part.getFileId());
+                        final StreamDataBodyPart filePart = new StreamDataBodyPart(part.getName(), file.getFile(), descriptor.string(Parameter.FILE_NAME));
+                        final MediaType mediaType = FilesUtils.getMediaTypeForMultipart(descriptor.string(Parameter.FILE_CONTENT_TYPE), descriptor.string(Parameter.FILE_NAME));
+                        filePart.setMediaType(mediaType);
+                        formDataMultiPart.bodyPart(filePart);
+                    } else {
+                        throw SvcException.permanent(ErrorCode.ARGUMENT, String.format("File with id [%s] not found", part.getFileId()));
+                    }
+                } else {
+                    Object content = part.getContent();
+                    if (content instanceof JsonSource){
+                        formDataMultiPart.field(part.getName(), ((JsonSource) content).toJson().toString(), MediaType.APPLICATION_JSON_TYPE);
+                    } else {
+                        if (!StringUtils.isBlank(part.getContentType())) {
+                            formDataMultiPart.field(part.getName(), content.toString(), MediaType.valueOf(part.getContentType()));
+                        } else {
+                            formDataMultiPart.field(part.getName(), content.toString());
+                        }
+                    }
+                }
+            }
+            return formDataMultiPart;
+        } catch (SvcException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw SvcException.permanent(ErrorCode.CONVERSION, ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Converts the request to wrap the file to upload
+     *
+     * @param inputStream file part of the HTTP multipart request
+     * @param filename filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param contentType MIME type of the {@code streamEntity} attachment.
+     * @param fileParameter name of the parameter to use when upload a file to the REST service
+     * @param contentParameter name of the body part to use when upload a file to the REST service; can be null
+     *                         no need to upload content
+     * @param content body part of the HTTP multipart request; only will be sent if contentParameter is not null
+     * @return content to send to REST service
+     * @throws SvcException if the request cannot be built or if the server returns an error message
+     */
+    Object processUploadFile(InputStream inputStream, String filename, String contentType, String fileParameter, String contentParameter, Object content) throws SvcException {
+        if (inputStream == null) {
+            throw SvcException.permanent(ErrorCode.ARGUMENT, "Invalid file to upload");
+        }
+        try {
+            final FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
+
+            final String paramName = StringUtils.isNotBlank(fileParameter) ? fileParameter : Parameter.FILE_UPLOAD_PARAMETER;
+            final StreamDataBodyPart filePart = new StreamDataBodyPart(paramName, inputStream, filename);
+
+            final MediaType mediaType = FilesUtils.getMediaTypeForMultipart(contentType, filename);
+            if(mediaType != null){
+                filePart.setMediaType(mediaType);
+            }
+            formDataMultiPart.bodyPart(filePart);
+
+            // check if we also need to send more information together with the file
+            if (content != null) {
+                final String bodyName = StringUtils.isNotBlank(contentParameter) ? contentParameter : Parameter.FILE_UPLOAD_BODY;
+                if(content instanceof JsonSource){
+                    formDataMultiPart.field(bodyName, ((JsonSource) content).toJson().toString(), MediaType.APPLICATION_JSON_TYPE);
+                } else {
+                    formDataMultiPart.field(bodyName, content.toString());
+                }
+            }
+            return formDataMultiPart;
+        } catch (SvcException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw SvcException.permanent(ErrorCode.CONVERSION, ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Converts the response to include a complete HTTP response detail
+     *
+     * @param response original HTTP response
+     * @param body original response body
+     * @return complete response
+     */
+    static Json processFullResponse(Response response, Object body) {
+        int status = 0;
+        final Json headers = Json.map();
+
+        if(response != null){
+            status = response.getStatus();
+
+            if(response.getHeaders() != null) {
+                response.getHeaders()
+                        .forEach((k, objects) -> {
+                            if(objects != null && objects.size() > 0) {
+                                final Object header;
+                                if(objects.size() == 1){
+                                    header = objects.get(0);
+                                } else {
+                                    header = Json.fromList(objects);
+                                }
+                                if(header != null) {
+                                    headers.set(k, header);
+                                }
+                            }
+                        });
+            }
+        }
+        return processFullResponse(status, headers, body);
+    }
+
+    /**
+     * Converts the response to include a complete HTTP response detail
+     *
+     * @param status HTTP status code
+     * @param headers HTTP headers
+     * @param body response body
+     * @return complete response
+     */
+    static Json processFullResponse(int status, Json headers, Object body) {
+        if(headers == null){
+            headers = Json.map();
+        }
+
+        if(body instanceof JsonSource){
+            // convert json source instances
+            body = ((JsonSource) body).toJson();
+        }
+        if(body instanceof Json && ((Json) body).isMap() && ((Json) body).size() == 1 && ((Json) body).contains("body")){
+            // remove additional body level
+            body = ((Json) body).object( "body");
+        } else if(body instanceof Map && ((Map) body).size() == 1 && ((Map) body).containsKey("body")){
+            // remove additional body level
+            body = ((Map) body).get("body");
+        }
+        if(body == null){
+            body = Json.map();
+        }
+
+        return Json.map()
+                .set("status", status)
+                .set("headers", headers)
+                .set("body", body);
+    }
+
+    /**
+     * Perform the specified HTTP request to the target
+     *
+     * @param method HTTP method to execute on request
+     * @param target target of the request
+     * @param content body of the HTTP request. only processed for POST, PUT and PATCH methods.
+     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     *                properties
+     * @param connectionTimeout connect timeout interval, in milliseconds. null to use the default value (0: infinity).
+     * @param readTimeout read timeout interval, in milliseconds. null to use the default value (0: infinity).
+     * @param followRedirects automatic redirection. A value of {@code true} declares that the client will automatically
+     *                        redirect to the URI declared in 3xx responses.
+     * @return response of the request
+     * @throws SvcException if the request cannot be built or if the server returns an error message
+     */
+    protected Response request(RestMethod method, WebTarget target, Object content, Json headers, Integer connectionTimeout, Integer readTimeout, boolean followRedirects) throws SvcException {
+        if (target == null) {
+            throw SvcException.permanent(ErrorCode.ARGUMENT, "Web target is empty.");
+        }
+        final String uri = target.getUri().toString();
+
+        if (this.debug) {
+            logger.info(String.format("%s Preparing request [%s %s]...", Svc.DEBUG, method.name(), uri));
+        }
+
+        if(method == null){
+            // default HTTP method
+            method = RestMethod.GET;
+        }
+        if(headers == null){
+            headers = Json.map();
+        }
+
+        // prepare content to be sent on request
+        Entity postData = null;
+        if(method == RestMethod.POST || method == RestMethod.PUT || method == RestMethod.PATCH) {
+            if (content == null) {
+                content = Json.map();
+            }
+            if (content instanceof Json || content instanceof JsonSource || content instanceof Map || content instanceof List || content instanceof Multipart) {
+                content = Json.fromObject(content);
+
+                String contentType = headers.string(Parameter.CONTENT_TYPE);
+                if (StringUtils.isBlank(contentType) && headers.contains(Parameter.CONTENT_TYPE)) {
+                    contentType = headers.string(Parameter.CONTENT_TYPE);
+                }
+
+                if (StringUtils.isNotBlank(contentType)) {
+                    // there are some cases where we send JSON but content type is different
+                    if (ContentTypeFormat.isXmlContentType(contentType)) {
+                        final String xml = XmlUtils.jsonToXml((Json) content);
+                        postData = Entity.entity(xml, contentType);
+                    } else if (ContentTypeFormat.isUrlEncodedFormContentType(contentType)) {
+                        Form form = FormUtils.convertFromJsonToForm((Json) content);
+                        postData = Entity.form(form);
+                    } else {
+                        postData = Entity.entity(content.toString(), contentType);
+                    }
+                } else {
+                    postData = Entity.json(content.toString());
+                }
+            } else if (content instanceof Form) {
+                postData = Entity.form((Form) content);
+            } else if (content instanceof MultiPart) {
+                MediaType contentType = MediaType.MULTIPART_FORM_DATA_TYPE;
+                contentType = Boundary.addBoundary(contentType);
+                postData = Entity.entity(content, contentType);
+            } else {
+                postData = Entity.text(content);
+            }
+        }
+        target = target.property(ClientProperties.FOLLOW_REDIRECTS, followRedirects);
+
+        // builder of the request created from the target
+        final Invocation.Builder invocationBuilder = target.request();
+        invocationBuilder.accept(acceptedMediaTypes);
+        if (connectionTimeout != null) {
+            invocationBuilder.property(ClientProperties.CONNECT_TIMEOUT, connectionTimeout);
+        }
+        if (readTimeout != null) {
+            invocationBuilder.property(ClientProperties.READ_TIMEOUT, readTimeout);
+        }
+
+        // these headers override the previous defined headers on target with the same name
+        headers.forEachMap(invocationBuilder::header);
+
+        if(rememberCookies){
+            // use cookies received on previous requests
+            cookiesLock.lock();
+            try {
+                cookies.forEach(invocationBuilder::cookie);
+            } catch (Exception ex){
+                if(this.debug){
+                    logger.info(String.format("%s Exception when try to process cookies [%s]", Svc.DEBUG, ex.getMessage()), ex);
+                } else {
+                    logger.debug(String.format("Exception when try to process cookies [%s]", ex.getMessage()), ex);
+                }
+            } finally {
+                cookiesLock.unlock();
+            }
+        }
+
+        Response response;
+        try {
+            if (this.debug) {
+                logger.info(String.format("%s Executing method [%s %s] - Content [%s]", Svc.DEBUG, method.name(), uri, postData));
+            }
+
+            switch (method) {
+                case POST:
+                    response = invocationBuilder.post(postData);
+                    break;
+                case PUT:
+                    response = invocationBuilder.put(postData);
+                    break;
+                case PATCH:
+                    response = invocationBuilder.method(RestMethod.PATCH.name(), postData);
+                    break;
+                case DELETE:
+                    response = invocationBuilder.delete();
+                    break;
+                case HEAD:
+                    response = invocationBuilder.head();
+                    break;
+                case OPTIONS:
+                    response = invocationBuilder.options();
+                    break;
+                default:
+                    // GET by default
+                    response = invocationBuilder.get();
+                    break;
+            }
+
+            if (this.debug) {
+                logger.info(String.format("%s Response to method [%s %s] - Response [%s]", Svc.DEBUG, method.name(), uri, response.getStatus()));
+            }
+
+            if(rememberCookies){
+                // save cookies for the following requests
+                cookiesLock.lock();
+                try {
+                    cookies.clear();
+                    response.getCookies()
+                            .forEach((s, newCookie) -> cookies.add(newCookie));
+                } catch (Exception ex){
+                    if(this.debug) {
+                        logger.info(String.format("%s Exception when try to process cookies [%s]", Svc.DEBUG, ex.getMessage()), ex);
+                    } else {
+                        logger.debug(String.format("Exception when try to process cookies [%s]", ex.getMessage()), ex);
+                    }
+                } finally {
+                    cookiesLock.unlock();
+                }
+            }
+        } catch (SvcException ee) {
+            throw ee;
+        } catch (ResponseProcessingException rpe) {
+            throw SvcException.permanent(ErrorCode.API, String.format("Error processing response [%s]: %s", rpe.getMessage(), rpe.getResponse() != null ? rpe.getResponse() : "-"), rpe).returnCode(500);
+        } catch (ProcessingException pe) {
+            if(pe.getCause() instanceof IOException){
+                throw SvcException.permanent(ErrorCode.CLIENT, String.format("Error processing request [%s]", SvcException.getProcessingExceptionMessage(pe)), pe).returnCode(500);
+            } else {
+                throw SvcException.retryable(ErrorCode.API, String.format("Error processing request [%s]", pe.getMessage()), pe).returnCode(400);
+            }
+        } catch (WebApplicationException wae) {
+            Response r = wae.getResponse();
+            // these might be retryable status codes according to W3: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html + Cloudflare Connection Timed Out (522)
+            if (r != null && (r.getStatus() == 408 || r.getStatus() == 500 || r.getStatus() == 502 || r.getStatus() == 503 || r.getStatus() == 504 || r.getStatus() == 522)) {
+                throw SvcException.retryable(ErrorCode.API, wae.getMessage(), wae).returnCode(r.getStatus());
+            } else {
+                throw SvcException.permanent(ErrorCode.API, wae.getMessage(), wae).returnCode(r.getStatus());
+            }
+        } catch (Exception e) {
+            // we assume this is an unhandled exception is a programming error
+            throw SvcException.permanent(ErrorCode.GENERAL, e.getMessage(), e).returnCode(500);
+        }
+        return response;
+    }
+}

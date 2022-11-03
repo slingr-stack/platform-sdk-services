@@ -1,0 +1,39 @@
+
+Q
+java:S1141÷"5Extract this nested try block into a separate method.(¡»¢üùÿÿÿÿ
+W	java:S107Ò"<Method has 9 parameters, which is greater than 7 authorized.(İ®òıÿÿÿÿ
+R	java:S107û"<Method has 9 parameters, which is greater than 7 authorized.(Ôõî•
+X	java:S107¦"=Method has 10 parameters, which is greater than 7 authorized.(•ˆ½õùÿÿÿÿ
+S	java:S107ñ"=Method has 10 parameters, which is greater than 7 authorized.(°òÓÆ
+>
+java:S1604Ç"(Make this anonymous inner class a lambda(Óô´
+;
+java:S2629ˆ"$Invoke method(s) only conditionally.(¦öš
+@
+java:S2629°"$Invoke method(s) only conditionally.(ÖÿÊ•øÿÿÿÿ
+;
+java:S2629³"$Invoke method(s) only conditionally.(Ë×ğê
+@
+java:S2629¸"$Invoke method(s) only conditionally.(‡ãüûÿÿÿÿ
+;
+java:S2629Ñ"$Invoke method(s) only conditionally.(Ó…Òû
+@
+java:S2629•"$Invoke method(s) only conditionally.(¾‚Œßÿÿÿÿÿ
+@
+java:S2629¡"$Invoke method(s) only conditionally.(ïÊ¤£ıÿÿÿÿ
+]
+java:S2184Í"FCast one of the operands of this multiplication operation to a "long".(Ì¹°•
+b
+java:S2184‘"FCast one of the operands of this multiplication operation to a "long".(õî’Îûÿÿÿÿ
+[
+java:S3358ˆ"DExtract this nested ternary operation into an independent statement.(¦öš
+n
+java:S3776¦"RRefactor this method to reduce its Cognitive Complexity from 23 to the 15 allowed.(•ˆ½õùÿÿÿÿ
+R	java:S125©"<This block of commented-out lines of code should be removed.(µğ¶Ú
+`
+java:S3358°"DExtract this nested ternary operation into an independent statement.(ÖÿÊ•øÿÿÿÿ
+R	java:S125Õ"<This block of commented-out lines of code should be removed.(ä»˜¸
+i
+java:S3776ñ"RRefactor this method to reduce its Cognitive Complexity from 30 to the 15 allowed.(°òÓÆ
+u
+java:S2142’"^Either re-interrupt this method or rethrow the "InterruptedException" that can be caught here.(ä ¹€
