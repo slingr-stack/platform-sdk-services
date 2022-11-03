@@ -1,9 +1,0 @@
-
-^
-java:S1192y"HDefine a constant instead of duplicating this literal "WEBHOOK" 3 times.(Úšåİ
-o
-java:S1192ä"SDefine a constant instead of duplicating this literal "  - processor [%s]" 6 times.(‡èìàùÿÿÿÿ
-h
-java:S3776="RRefactor this method to reduce its Cognitive Complexity from 65 to the 15 allowed.(¯Âµø
-<	java:S131o""Add a default case to this switch.(àĞŠ¹ıÿÿÿÿ
-=	java:S131""Add a default case to this switch.(àĞŠ¹ıÿÿÿÿ
