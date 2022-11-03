@@ -2,7 +2,6 @@ setenv.sh
 node_modules
 *.iml
 ../.idea/
-.idea/
 target/
 .project
 .classpath
@@ -15,3 +14,4 @@ service_local.properties
 service_proxy.properties
 run_local.sh
 run_proxy.sh
+/.idea/
