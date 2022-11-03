@@ -16,3 +16,5 @@ run_local.sh
 run_proxy.sh
 /.idea/
 /service-java-sdk/.idea/
+./idea
+./.idea
