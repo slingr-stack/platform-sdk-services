@@ -1,7 +1,7 @@
 {
-  "name": "services-nodejs-sdk",
+  "name": "slingr-services",
   "version": "0.0.1",
-  "description": "Nodejs Framework for Slingr Services",
+  "description": "Nodejs SDK to create Slingr Services",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

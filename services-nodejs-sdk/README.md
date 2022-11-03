@@ -1,15 +1,15 @@
 ---
-title: Service Node SDK
+title: Services Nodejs SDK
 keywords: 
 last_updated: Nov 1, 2022
 tags: []
-summary: "Node SDK to create services."
+summary: "Nodejs SDK to create Slingr Services."
 sidebar: extensions_sidebar
 permalink: extensions_node_sdk.html
 folder: extensions
 ---
 
-This document will guide through the creation of a service using the Node SDK and will provide details about the
+This document will guide through the creation of a service using the Nodejs SDK and will provide details about the
 framework.
 
 # Create your new service project
@@ -40,8 +40,8 @@ To understand the other settings, you want to take a look at [Services features]
 You can access the service configuration like this (always inside a function):
 
 ```js
-service.functions.someFunction = (serviceRequest) => {
-    const configs = service.serviceConfig;
+svc.functions.someFunction = (svcRequest) => {
+    const configs = svc.svcConfig;
     //your code...
 } 
 ``` 
@@ -74,7 +74,7 @@ svc.hooks.onSvcStop = (cause) => {
 To implement a function that is defined in the `service.json` file, you should do the following:
 
 ```js
-svc.functions.yourFunctionName = (serviceRequest) => {
+svc.functions.yourFunctionName = (svcRequest) => {
     //You can access all the service services here like svc.svcConfig or svc.dataStores
     //Your custom code goes here...
     return { someInfo: 'someValue'}
@@ -103,14 +103,14 @@ svc.functions.fnThatSendsSyncEvent = (svcRequest) => {
 }
 ```
 
-Keep in mind that the `'someEventName'` should be defined in your `svc.json` file, under the `events` property. 
+Keep in mind that the `'someEventName'` should be defined in your `service.json` file, under the `events` property. 
 The `data` argument will be the data you want to receive on the event.
 Finally, `requestId` will be the request id which can be retrieved from the request parameter on the defined function like shown above.
 
 ## Data stores
 
 If you service needs to persist information, data stores are available for services. They need to be defined in the 
-`svc.json` file and then you can use them in the service.
+`service.json` file and then you can use them in the service.
 
 The available methods to access the various datastores are the following:
 
@@ -233,7 +233,7 @@ svc.functions.uploadFileAsyncFromSvc = (svcRequest) => {
 };
 ```
 
-{% include important.html content="Remember that the events must be defined in the **`svc.json`** file, and if you are using callbacks, also in the function's callbacks array property."%}
+{% include important.html content="Remember that the events must be defined in the **`service.json`** file, and if you are using callbacks, also in the function's callbacks array property."%}
 
 ## Logging
 
@@ -337,7 +337,7 @@ npm install
 Then you can run your service from the command line or using your IDE:
 
 ```
-node svc.js
+node service.js
 ```
 or
 ```
