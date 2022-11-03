@@ -1,0 +1,83 @@
+
+^
+java:S1192µ"GDefine a constant instead of duplicating this literal "<null>" 5 times.(î¦÷í
+R	java:S107’"<Method has 8 parameters, which is greater than 7 authorized.(ÀŠÀÄ
+W	java:S107Å"<Method has 9 parameters, which is greater than 7 authorized.(œ•µÔúÿÿÿÿ
+?
+java:S2629Q"$Invoke method(s) only conditionally.(•Õ»´øÿÿÿÿ
+:
+java:S2629R"$Invoke method(s) only conditionally.(üÁÏ±
+?
+java:S2629S"$Invoke method(s) only conditionally.(•Õ»´øÿÿÿÿ
+@
+java:S2629­"$Invoke method(s) only conditionally.(»‰³•üÿÿÿÿ
+;
+java:S2629®"$Invoke method(s) only conditionally.(ý ýÊ
+;
+java:S2629¯"$Invoke method(s) only conditionally.(‡ýÊÈ
+;
+java:S2629µ"$Invoke method(s) only conditionally.(î¦÷í
+;
+java:S2629Ä"$Invoke method(s) only conditionally.(•è‚ò
+@
+java:S2629Ç"$Invoke method(s) only conditionally.(¢¹É¢øÿÿÿÿ
+@
+java:S2629³"$Invoke method(s) only conditionally.(»‰³•üÿÿÿÿ
+@
+java:S2629´"$Invoke method(s) only conditionally.(¼ý—åþÿÿÿÿ
+@
+java:S2629µ"$Invoke method(s) only conditionally.(™åÛéûÿÿÿÿ
+@
+java:S2629º"$Invoke method(s) only conditionally.(Í¾Ä“ÿÿÿÿÿ
+@
+java:S2629É"$Invoke method(s) only conditionally.(¤±££þÿÿÿÿ
+@
+java:S2629Ì"$Invoke method(s) only conditionally.(¢¹É¢øÿÿÿÿ
+@
+java:S2629ú"$Invoke method(s) only conditionally.(ÞŒ ýúÿÿÿÿ
+@
+java:S2629†"$Invoke method(s) only conditionally.(³ü¬úÿÿÿÿ
+;
+java:S2629‘"$Invoke method(s) only conditionally.(äè‰Ú
+;
+java:S2629›"$Invoke method(s) only conditionally.(­ù¡ì
+;
+java:S2629¥"$Invoke method(s) only conditionally.(Þ¦Ð¶
+;
+java:S2629¯"$Invoke method(s) only conditionally.(°Žë«
+@
+java:S2629¹"$Invoke method(s) only conditionally.(…¦âÙúÿÿÿÿ
+;
+java:S2629Ã"$Invoke method(s) only conditionally.(¶Ž•á
+@
+java:S2629Í"$Invoke method(s) only conditionally.(Ò²ðªøÿÿÿÿ
+;
+java:S2629Ù"$Invoke method(s) only conditionally.(ÃþÑÌ
+@
+java:S2629ä"$Invoke method(s) only conditionally.(ªœÑ÷ûÿÿÿÿ
+@
+java:S2629î"$Invoke method(s) only conditionally.(ÿÄ˜ýÿÿÿÿ
+@
+java:S2629ú"$Invoke method(s) only conditionally.(´ã­¾úÿÿÿÿ
+;
+java:S2629…"$Invoke method(s) only conditionally.(î‹µ¨
+;
+java:S2629‘"$Invoke method(s) only conditionally.(Ïýù
+@
+java:S2629¤"$Invoke method(s) only conditionally.(ªî™Úúÿÿÿÿ
+;
+java:S2629²"$Invoke method(s) only conditionally.(ž˜Ñù
+@
+java:S2629Ë"$Invoke method(s) only conditionally.(‡ú¤ÿüÿÿÿÿ
+@
+java:S2629è"$Invoke method(s) only conditionally.(›Æ‹Þùÿÿÿÿ
+@
+java:S2629ò"$Invoke method(s) only conditionally.(ûÕßùÿÿÿÿ
+@
+java:S2629þ"$Invoke method(s) only conditionally.(ïÝÐËÿÿÿÿÿ
+G
+java:S3011F",This accessibility update should be removed.(¤—¶³øÿÿÿÿ
+t
+java:S2139¿"XEither log this exception and handle it, or rethrow it with some contextual information.(±Ÿ—±ÿÿÿÿÿ
+t
+java:S2139Ä"XEither log this exception and handle it, or rethrow it with some contextual information.(±Ÿ—±ÿÿÿÿÿ
