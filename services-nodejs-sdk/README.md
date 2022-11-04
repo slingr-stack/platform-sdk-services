@@ -71,7 +71,7 @@ svc.hooks.onSvcStop = (cause) => {
 
 ## Functions
 
-To implement a function that is defined in the `appService.json` file, you should do the following:
+To implement a function that is defined in the `service.json` file, you should do the following:
 
 ```js
 svc.functions.yourFunctionName = (svcRequest) => {
