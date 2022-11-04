@@ -27,7 +27,7 @@ The `package.json` contains a few things that you may want to modify:
   
 ## Service descriptor
 
-The file `appService.json` contains at least two fields that you will want to update:
+The file `service.json` contains at least two fields that you will want to update:
 
 - `label`: this is the human-friendly name of the service.
 - `name`: this is the internal name of the service and must match the name you use to register the service
@@ -103,14 +103,14 @@ svc.functions.fnThatSendsSyncEvent = (svcRequest) => {
 }
 ```
 
-Keep in mind that the `'someEventName'` should be defined in your `appService.json` file, under the `events` property. 
+Keep in mind that the `'someEventName'` should be defined in your `service.json` file, under the `events` property. 
 The `data` argument will be the data you want to receive on the event.
 Finally, `requestId` will be the request id which can be retrieved from the request parameter on the defined function like shown above.
 
 ## Data stores
 
 If you service needs to persist information, data stores are available for services. They need to be defined in the 
-`appService.json` file and then you can use them in the service.
+`service.json` file and then you can use them in the service.
 
 The available methods to access the various datastores are the following:
 
@@ -233,7 +233,7 @@ svc.functions.uploadFileAsyncFromSvc = (svcRequest) => {
 };
 ```
 
-{% include important.html content="Remember that the events must be defined in the **`appService.json`** file, and if you are using callbacks, also in the function's callbacks array property."%}
+{% include important.html content="Remember that the events must be defined in the **`service.json`** file, and if you are using callbacks, also in the function's callbacks array property."%}
 
 ## Logging
 
