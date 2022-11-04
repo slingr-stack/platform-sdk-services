@@ -34,7 +34,6 @@ let svc = {
     appLogger: null,
     events: null,
     files: null,
-    scripts: null,
     users: null,
     application: null,
     locks: null,
@@ -48,7 +47,6 @@ let settings,
     events,
     files,
     dataStores,
-    scripts,
     users,
     application,
     locks,
@@ -63,7 +61,6 @@ const loadSvcServices = async () => {
     events = require('./services/events/events');
     files = require('./services/files/files');
     dataStores = require('./services/dataStores/dataStores');
-    scripts = require('./services/scripts/scripts');
     users = require('./services/users/users');
     application = require('./services/application/application');
     locks = require('./services/locks/locks');
@@ -77,7 +74,6 @@ const loadSvcServices = async () => {
     svc.events = events;
     svc.files = files;
     svc.dataStores = dataStores;
-    svc.scripts = scripts;
     svc.users = users;
     svc.application = application;
     svc.locks = locks;
@@ -188,22 +184,6 @@ const loadPlatformWebServices = () => {
                 }
                 if (!!definitions.userConfigurationButtons) {
                     response.userConfButtons = definitions.userConfigurationButtons;
-                }
-                if (!!definitions.scripts) {
-                    let scripts = '';
-                    for (let i in definitions.scripts) {
-                        try {
-                            let fileContent = fs.readFileSync('./scripts/' + definitions.scripts[i], 'utf8');
-                            if (fileContent) {
-                                scripts += '\n/* */\n';
-                                scripts += fileContent;
-                                scripts += '\n/* */\n';
-                            }
-                        } catch (err) {
-                            logger.warn('JS file [' + definitions.scripts[i] + '] can not be read: ' + convertException(err));
-                        }
-                    }
-                    response.js = scripts;
                 }
                 if (!!definitions.listeners) {
                     let listeners = '';

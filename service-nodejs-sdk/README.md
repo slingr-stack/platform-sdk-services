@@ -22,7 +22,6 @@ The `package.json` contains a few things that you may want to modify:
 - `version`: This is the version of your service. You can leave `1.0.0` as this version has nothing
   to do with the versions registered in SLINGR, which uses the tags in your repository instead.
 - `description`: Description of your what this service is about.
-- `scripts`: Here you can set scripts for execution of your services or tests.
 - `keywords`: Here you can set some keywords related to your service.
   
 ## Service descriptor
