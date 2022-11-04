@@ -197,7 +197,7 @@ public class Properties implements SvcsProperties {
     @Override
     public Json toJson() {
         return Json.map()
-                .set(Configuration.PROPERTY_SERVICE_NAME, getSvcName())
+                .set(Configuration.PROPERTY_SVC_NAME, getSvcName())
                 .set(Configuration.PROPERTY_APPLICATION_NAME, getApplicationName())
                 .set(Configuration.PROPERTY_ENVIRONMENT, getEnvironment())
                 .set(Configuration.PROPERTY_POD_ID, getPodId())

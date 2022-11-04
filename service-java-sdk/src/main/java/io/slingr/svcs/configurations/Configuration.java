@@ -23,7 +23,7 @@ public class Configuration {
     private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
     // properties name
-    public static final String PROPERTY_SERVICE_NAME = "_service_name";
+    public static final String PROPERTY_SVC_NAME = "_svc_name";
     public static final String PROPERTY_APPLICATION_NAME = "_app_name";
     public static final String PROPERTY_ENVIRONMENT = "_environment";
     public static final String PROPERTY_POD_ID = "_pod_id";
@@ -37,7 +37,7 @@ public class Configuration {
     public static final String PROPERTY_EXTENSION_BROKER_VERSION = "_extension_broker_version";
     public static final String PROPERTY_LOCAL_DEPLOYMENT = "_local_deployment";
     public static final String PROPERTY_TOKEN = "_token";
-    public static final String PROPERTY_SVC_CONFIG = "_service_config";
+    public static final String PROPERTY_SVC_CONFIG = "_svc_config";
     public static final String PROPERTY_DEBUG = "_debug";
     public static final String PROPERTY_IS_SHARED = "_shared";
     public static final String PROPERTY_USING_PROXY = "_using_proxy";
@@ -183,7 +183,7 @@ public class Configuration {
         this.sources.add(new PropertiesFileSource("default.properties", true));
 
         // definition file
-        this.definitionsFile = StringUtils.isNotBlank(definitionsFile) ? definitionsFile : "service.json";
+        this.definitionsFile = StringUtils.isNotBlank(definitionsFile) ? definitionsFile : "appService.json";
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -376,7 +376,7 @@ public class Configuration {
     public SvcsProperties properties() throws SvcException {
         final PropertiesBuilder builder = new PropertiesBuilder();
         try {
-            final String svcName = resolveProperty(sources, PROPERTY_SERVICE_NAME);
+            final String svcName = resolveProperty(sources, PROPERTY_SVC_NAME);
             if(StringUtils.isBlank(svcName)){
                 throw SvcException.permanent(ErrorCode.GENERAL, String.format("Empty service name on properties [%s]. Service name is required.", svcName));
             }

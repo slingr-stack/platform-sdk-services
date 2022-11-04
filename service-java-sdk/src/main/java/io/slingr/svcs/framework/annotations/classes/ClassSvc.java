@@ -37,9 +37,9 @@ public class ClassSvc {
     public final static String SE_NAME = SlingrService.class.getSimpleName();
 
     private static final String _methodMain = "main";
-    private static final String _methodStartSvc = "startService";
+    private static final String _methodStartSvc = "startSvc";
     private static final String _methodExtractArgument = "extractArgument";
-    private static final String _methodCreateSvc = "createService";
+    private static final String _methodCreateSvc = "createSvc";
 
     private static final String _generatedClassName = "Runner";
     private static final String _staticLogger = "logger";
@@ -47,15 +47,15 @@ public class ClassSvc {
     private static final String _commandLineParameterConfigurationFile = "configurationFile";
     private static final String _commandLineParameterDefaultWebServiceUri = "defaultWebServiceUri";
 
-    private static final String _parameterSvc = "serviceInstance";
+    private static final String _parameterSvc = "svcInstance";
     private static final String _parameterConfigurationFile = _commandLineParameterConfigurationFile;
     private static final String _parameterDefaultWebServiceUri = _commandLineParameterDefaultWebServiceUri;
     private static final String _parameterArgs = "args";
     private static final String _parameterKey = "key";
 
     private static final String _literalEquals = "=";
-    private static final String _variableSvc = "service";
-    private static final String _variableSvcType = "serviceType";
+    private static final String _variableSvc = "svc";
+    private static final String _variableSvcType = "svcType";
     private static final String _variableConfigurationFile = _parameterConfigurationFile;
     private static final String _variableDefaultWebServiceUri = _parameterDefaultWebServiceUri;
     private static final String _variableField = "field";
