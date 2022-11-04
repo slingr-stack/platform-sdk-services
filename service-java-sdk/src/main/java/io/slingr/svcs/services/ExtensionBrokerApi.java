@@ -28,7 +28,7 @@ public interface ExtensionBrokerApi {
      * @param date Timestamp that represents the moment when the event was generated. It takes the value of the
      *             milliseconds from '01/01/1970 12:00 AM'. Per example 1465928711524 is '06/14/2016 6:25:11 PM'
      * @param event Name of the event. This must be a valid event name (an event name is valid when is declared on the
-     *              service.json file)
+     *              appService.json file)
      * @param data Information related to the event that we pretend to send to the application
      * @param fromFunctionId Id of a function related to the event. It is useful to permit to known to the application
      *                       if the event is a callback of a previous executed function
