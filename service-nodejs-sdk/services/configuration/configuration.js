@@ -98,9 +98,9 @@ const USER_CONNECTED_EVENT = 'userConnected',
 const logger = require('../loggers/logs');
 let definitions;
 try {
-    definitions = JSON.parse(fs.readFileSync('./svc.json', 'utf8'));
+    definitions = JSON.parse(fs.readFileSync('./appService.json', 'utf8'));
 } catch (error) {
-    logger.error('Service definitions could not be loaded from \'services.json\' file: ',error);
+    logger.error('Service definitions could not be loaded from \'appService.json\' file: ',error);
 }
 
 //If the service is a PER-USER service, we have to load the user datastore, and the user related events 
