@@ -197,20 +197,6 @@ public interface SvcDefinitions extends JsonSource {
     Json getFunction(String functionName);
 
     /**
-     * Returns a concatenation of the content of scripts files
-     *
-     * @return script files content
-     */
-    String getScripts();
-
-    /**
-     * Returns a concatenation of the content of listener files
-     *
-     * @return listener files content
-     */
-    String getListeners();
-
-    /**
      * Gets a list of the UI configurations to show on the App Builder app
      *
      * @return UI configurations list
