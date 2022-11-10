@@ -40,13 +40,6 @@ public interface ISvc extends JsonSource {
     Events events();
 
     /**
-     * Returns the manager over all messages related to configuration scripts
-     *
-     * @return configuration scripts manager
-     */
-    Scripts scripts();
-
-    /**
      * Returns the manager over all messages related to application logs
      *
      * @return application logs manager

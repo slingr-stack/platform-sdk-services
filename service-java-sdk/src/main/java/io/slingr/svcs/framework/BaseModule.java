@@ -55,7 +55,6 @@ public class BaseModule implements ISvc, IBaseSvc {
     // services
     private ExtensionBrokerApi extensionBroker;
     private Events events;
-    private Scripts scripts;
     private AppLogs appLogs;
     private Locks locks;
     private Files files;
@@ -196,7 +195,6 @@ public class BaseModule implements ISvc, IBaseSvc {
 
                 // initialize helper managers
                 this.events = new Events(this.extensionBroker, this.properties.isDebug());
-                this.scripts = new Scripts(this.extensionBroker, this.properties.isDebug());
                 this.appLogs = new AppLogs(this.extensionBroker, this.properties.isDebug());
                 this.locks = new Locks(this.extensionBroker, this.properties.isDebug());
                 this.files = new Files(this.extensionBroker, this.properties.isDebug());
@@ -371,12 +369,6 @@ public class BaseModule implements ISvc, IBaseSvc {
     }
 
     @Override
-    public Scripts scripts() {
-        errorIfExtensionBrokerNotConfigured();
-        return this.scripts;
-    }
-
-    @Override
     public AppLogs appLogs() {
         errorIfExtensionBrokerNotConfigured();
         return this.appLogs;
@@ -466,8 +458,6 @@ public class BaseModule implements ISvc, IBaseSvc {
                     .setIfNotEmpty(Parameter.METADATA_CONF, this.definitions.getUIConfiguration())
                     .setIfNotEmpty(Parameter.METADATA_USER_CONF, this.definitions.getUIUserConfiguration())
                     .setIfNotEmpty(Parameter.METADATA_USER_CONF_BUTTONS, this.definitions.getUIUserConfigurationButtons())
-                    .setIfNotEmpty(Parameter.METADATA_JS, this.definitions.getScripts())
-                    .setIfNotEmpty(Parameter.METADATA_LISTENERS, this.definitions.getListeners());
         } catch (SvcException e) {
             throw e;
         } catch (Exception ex) {

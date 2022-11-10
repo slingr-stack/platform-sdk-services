@@ -4,7 +4,7 @@ import io.slingr.svcs.exceptions.SvcException;
 import io.slingr.svcs.utils.Json;
 
 /**
- * Interface to be implemented by the tests that want to return custom responses when process events or scripts. The
+ * Interface to be implemented by the tests that want to return custom responses when process events. The
  * behavior mimic an script on the application side.
  *
  * <p>Created by lefunes on 18/06/18.

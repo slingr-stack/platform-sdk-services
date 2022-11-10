@@ -36,10 +36,6 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
     private final List<Json> receivedEvents = new ArrayList<>();
     private final Map<String, MessageProcessor> eventProcessors = new HashMap<>();
 
-    // scripts
-    private final ReentrantLock scriptsLock = new ReentrantLock();
-    private final Map<String, MessageProcessor> scriptsProcessors = new HashMap<>();
-
     // locks
     private final ReentrantLock locksLock = new ReentrantLock();
     private final Map<String, Boolean> locks = new HashMap<>();
@@ -194,94 +190,6 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
             eventProcessors.clear();
         } finally {
             eventsLock.unlock();
-        }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: Scripts
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public Object executeScript(Long date, String scriptName, Object parameters) throws SvcException {
-        // review parameters
-        ExtensionBroker.isNotBlank(scriptName, "empty script name");
-        if(date == null){
-            date = System.currentTimeMillis();
-        }
-
-        final Json scriptContent = Json.map()
-                .set(Parameter.DATE, date)
-                .set(Parameter.CONFIG_SCRIPT_NAME, scriptName)
-                .setIfNotNull(Parameter.CONFIG_SCRIPT_PARAMS, parameters);
-
-        logger.info(String.format("%s --------------", SvcTests.TEST));
-        logger.info(String.format("%s ES: execute script: %s", SvcTests.TEST, scriptContent));
-
-        Object response = null;
-        scriptsLock.lock();
-        try {
-            if(scriptsProcessors.containsKey(scriptName)){
-                logger.info(String.format("%s ES: script processor found for [%s]", SvcTests.TEST, scriptName));
-                response = scriptsProcessors.get(scriptName).processMessage(scriptContent);
-            } else {
-                logger.info(String.format("%s ES: default script response for [%s]", SvcTests.TEST, scriptName));
-            }
-        } finally {
-            scriptsLock.unlock();
-        }
-        if(response == null){
-            response = Json.map();
-        }
-        logger.info(String.format("%s ES: script response: %s", SvcTests.TEST, response));
-        logger.info(String.format("%s --------------", SvcTests.TEST));
-        return response;
-
-    }
-
-    /**
-     * Registers a processor for the script name
-     */
-    public void registerScriptProcessor(String scriptName, MessageProcessor processor){
-        if(StringUtils.isEmpty(scriptName)){
-            throw new IllegalArgumentException("Invalid script name");
-        }
-        if(processor == null){
-            throw new IllegalArgumentException("Invalid processor");
-        }
-
-        scriptsLock.lock();
-        try {
-            scriptsProcessors.put(scriptName, processor);
-        } finally {
-            scriptsLock.unlock();
-        }
-    }
-
-    /**
-     * Removes the script processor for the given script name
-     */
-    public void removeScriptProcessor(String scriptName){
-        if(StringUtils.isEmpty(scriptName)){
-            throw new IllegalArgumentException("Invalid script name");
-        }
-
-        scriptsLock.lock();
-        try {
-            scriptsProcessors.remove(scriptName);
-        } finally {
-            scriptsLock.unlock();
-        }
-    }
-
-    /**
-     * Clears the script processors
-     */
-    public void clearScriptProcessors(){
-        scriptsLock.lock();
-        try {
-            scriptsProcessors.clear();
-        } finally {
-            scriptsLock.unlock();
         }
     }
 

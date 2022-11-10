@@ -110,34 +110,6 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: Properties scripts
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public Object executeScript(Long date, String scriptName, Object parameters) throws SvcException {
-        // review parameters
-        isNotBlank(scriptName, "empty script name");
-        if (date == null) {
-            date = System.currentTimeMillis();
-        }
-
-        final Json restContent = Json.map()
-                .set(Parameter.DATE, date)
-                .set(Parameter.CONFIG_SCRIPT_NAME, scriptName)
-                .setIfNotNull(Parameter.CONFIG_SCRIPT_PARAMS, parameters);
-
-        try {
-            final Json jsonResponse = post(target(ApiUri.ES_URL_CONFIG_SCRIPT), restContent, buildHeaders());
-            return getSyncObject(jsonResponse);
-        } catch (SvcException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            throw SvcException.retryable(ErrorCode.CLIENT, String.format("Exception when try to execute the script [%s]: %s", scriptName, ex.getMessage()), ex);
-        }
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
     // ES API: App logs
     ///////////////////////////////////////////////////////////////////////////////////////////////
 

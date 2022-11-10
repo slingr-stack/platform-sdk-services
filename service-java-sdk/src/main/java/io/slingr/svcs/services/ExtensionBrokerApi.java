@@ -67,29 +67,6 @@ public interface ExtensionBrokerApi {
     Object newSyncEvent(Long date, String event, Object data, String fromFunctionId, String userId, String userEmail) throws SvcException;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Properties scripts
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Sends a request to execute a config script on the application and waits the response.
-     *
-     * <p>The service uses this method to send a request to the app to execute a script with the given parameters.
-     * Extension Broker sends immediately the request to the app and return the response of the execution to the
-     * service.
-     *
-     * <p>The response depends of the script processing on application side. It can be a string, json or list
-     *
-     * @param date Timestamp that represents the moment when the execution request was generated. It takes the value of
-     *             the milliseconds from '01/01/1970 12:00 AM'. Per example 1465928711524 is '06/14/2016 6:25:11 PM'
-     * @param scriptName Name of the execution script. This must be a valid script name defined on the service
-     *                   configuration.
-     * @param parameters Parameters of the script
-     * @return response from application
-     * @throws SvcException if there is an issue with the exchange
-     */
-    Object executeScript(Long date, String scriptName, Object parameters) throws SvcException;
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
     // App logs
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
