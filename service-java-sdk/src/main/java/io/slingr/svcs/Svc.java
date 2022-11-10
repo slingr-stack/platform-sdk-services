@@ -72,11 +72,6 @@ public abstract class Svc extends DefaultSvcLifecycleListener implements ISvc {
     }
 
     @Override
-    public Scripts scripts() {
-        return baseModule.scripts();
-    }
-
-    @Override
     public AppLogs appLogs() {
         return baseModule.appLogs();
     }

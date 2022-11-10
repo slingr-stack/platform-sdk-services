@@ -55,7 +55,6 @@ public class BaseModule implements ISvc, IBaseSvc {
     // services
     private ExtensionBrokerApi extensionBroker;
     private Events events;
-    private Scripts scripts;
     private AppLogs appLogs;
     private Locks locks;
     private Files files;
@@ -196,7 +195,6 @@ public class BaseModule implements ISvc, IBaseSvc {
 
                 // initialize helper managers
                 this.events = new Events(this.extensionBroker, this.properties.isDebug());
-                this.scripts = new Scripts(this.extensionBroker, this.properties.isDebug());
                 this.appLogs = new AppLogs(this.extensionBroker, this.properties.isDebug());
                 this.locks = new Locks(this.extensionBroker, this.properties.isDebug());
                 this.files = new Files(this.extensionBroker, this.properties.isDebug());
@@ -368,12 +366,6 @@ public class BaseModule implements ISvc, IBaseSvc {
     public Events events() {
         errorIfExtensionBrokerNotConfigured();
         return this.events;
-    }
-
-    @Override
-    public Scripts scripts() {
-        errorIfExtensionBrokerNotConfigured();
-        return this.scripts;
     }
 
     @Override

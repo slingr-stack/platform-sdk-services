@@ -23,11 +23,7 @@ public final class Parameter {
     // sync responses
     public static final String SYNC_RESPONSE = "__sync_response__";
     public static final String SYNC_ERROR_RESPONSE = "__sync_error_response__";
-
-    // configuration scripts
-    public static final String CONFIG_SCRIPT_NAME = "scriptName";
-    public static final String CONFIG_SCRIPT_PARAMS = "scriptParameters";
-
+    
     // app logs
     public static final String APP_LOG_LEVEL = "level";
     public static final String APP_LOG_MESSAGE = "message";

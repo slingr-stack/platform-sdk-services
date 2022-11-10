@@ -25,7 +25,6 @@ public final class ApiUri {
     public static final String ES_PART_COUNT = "count";
     public static final String ES_URL_ASYNC_EVENT = ES_URL_SVCS_PREFIX + "events";
     public static final String ES_URL_SYNC_EVENT = ES_URL_SVCS_PREFIX + "events/sync";
-    public static final String ES_URL_CONFIG_SCRIPT = ES_URL_SVCS_PREFIX + "scripts";
     public static final String ES_URL_APP_LOG = ES_URL_SVCS_PREFIX + "logs";
     private static final String ES_URL_LOCK = ES_URL_SVCS_PREFIX + ES_PART_LOCK + "/%s";
     public static final String ES_URL_FILE_UPLOAD = ES_URL_SVCS_PREFIX + ES_PART_FILE + "";
