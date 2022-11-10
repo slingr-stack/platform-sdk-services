@@ -290,54 +290,6 @@ public class Configuration {
                 builder.functions = functions;
             }
 
-//            final List<String> scriptsList = definitions.strings(DEFINITION_SCRIPTS);
-//            if(scriptsList != null){
-//                // parse scripts
-//                final StringBuilder sb = new StringBuilder();
-//                for (String script : scriptsList) {
-//                    try {
-//                        final String content = FilesUtils.readLocalFile(String.format("scripts/%s", script));
-//                        if(content != null){
-//                            sb.append("\n/* ------------ SCRIPT [").append(script).append("]------------ */\n");
-//                            sb.append(content);
-//                            sb.append("\n/* ------------ END SCRIPT [").append(script).append("]------------ */\n");
-//                        }
-//                    } catch (Exception ex){
-//                        throw SvcException.permanent(ErrorCode.GENERAL, String.format("Exception when read script file [%s]: %s", script, ex.getMessage()), ex);
-//                    }
-//                }
-//                builder.scripts = sb.toString();
-//            } else {
-//                final String scripts = definitions.string(DEFINITION_SCRIPTS);
-//                if(StringUtils.isNotBlank(scripts)){
-//                    builder.scripts = scripts;
-//                }
-//            }
-
-//            final List<String> listenersList = definitions.strings(DEFINITION_LISTENERS);
-//            if(listenersList != null){
-//                // parse scripts
-//                final StringBuilder sb = new StringBuilder();
-//                for (String listener : listenersList) {
-//                    try {
-//                        final String content = FilesUtils.readLocalFile(String.format("listeners/%s", listener));
-//                        if(content != null){
-//                            sb.append("\n/* ------------ LISTENER [").append(listener).append("]------------ */\n");
-//                            sb.append(content);
-//                            sb.append("\n/* ------------ END LISTENER [").append(listener).append("]------------ */\n");
-//                        }
-//                    } catch (Exception ex){
-//                        throw SvcException.permanent(ErrorCode.GENERAL, String.format("Exception when read listener file [%s]: %s", listener, ex.getMessage()), ex);
-//                    }
-//                }
-//                builder.listeners = sb.toString();
-//            } else {
-//                final String listeners = definitions.string(DEFINITION_LISTENERS);
-//                if(StringUtils.isNotBlank(listeners)){
-//                    builder.listeners = listeners;
-//                }
-//            }
-
             final List<Json> configuration = definitions.jsons(DEFINITION_UI_CONFIGURATION);
             if(configuration != null && !configuration.isEmpty()){
                 builder.configuration = configuration;
@@ -661,8 +613,6 @@ public class Configuration {
         private List<Json> dataStores = new ArrayList<>();
         private List<Json> events = new ArrayList<>();
         private List<Json> functions = new ArrayList<>();
-//        private String scripts = "";
-//        private String listeners = "";
         private List<Json> configuration = new ArrayList<>();
         private List<Json> userConfiguration = new ArrayList<>();
         private Json userConfigurationButtons = Json.map();
@@ -675,7 +625,6 @@ public class Configuration {
         public SvcDefinitions build(){
             return new Definitions(label, type, apiVersion, internal, perUserSvc, deploymentProfiles,
                     allowMultipleInstances, icon, configurationHelpUrl, active, dataStores, events, functions,
-//                    scripts, listeners,
                     configuration, userConfiguration, userConfigurationButtons);
         }
     }

@@ -48,8 +48,6 @@ public class Definitions implements SvcDefinitions {
      * @param dataStores data stores list
      * @param events events list
      * @param functions functions list
-//     * @param scripts script files content
-//     * @param listeners listener files content
      * @param configuration UI configurations list
      * @param userConfiguration user UI configurations list
      * @param userConfigurationButtons button configuration for user UI
@@ -57,7 +55,6 @@ public class Definitions implements SvcDefinitions {
     Definitions(String label, String type, String apiVersion, boolean internal, boolean perUserSvc,
                        List<Json> deploymentProfiles, boolean allowMultipleInstances, String icon, String configurationHelpUrl,
                        boolean active, List<Json> dataStores, List<Json> events, List<Json> functions,
-//                String scripts, String listeners,
                 List<Json> configuration, List<Json> userConfiguration, Json userConfigurationButtons) {
         this.label = label;
         this.type = type;
@@ -68,8 +65,6 @@ public class Definitions implements SvcDefinitions {
         this.icon = icon;
         this.configurationHelpUrl = configurationHelpUrl;
         this.active = active;
-//        this.scripts = scripts;
-//        this.listeners = listeners;
         this.configuration = configuration;
         this.userConfiguration = userConfiguration;
         this.userConfigurationButtons = userConfigurationButtons;
@@ -318,16 +313,6 @@ public class Definitions implements SvcDefinitions {
         return null;
     }
 
-//    @Override
-//    public String getScripts() {
-//        return scripts;
-//    }
-//
-//    @Override
-//    public String getListeners() {
-//        return listeners;
-//    }
-
     @Override
     public List<Json> getUIConfiguration() {
         return configuration;
@@ -358,8 +343,6 @@ public class Definitions implements SvcDefinitions {
                 .setIfNotEmpty(Configuration.DEFINITION_DATA_STORES, getDataStores())
                 .setIfNotEmpty(Configuration.DEFINITION_EVENTS, getEvents())
                 .setIfNotEmpty(Configuration.DEFINITION_FUNCTIONS, getFunctions())
-//                .setIfNotEmpty(Configuration.DEFINITION_SCRIPTS, getScripts())
-//                .setIfNotEmpty(Configuration.DEFINITION_LISTENERS, getListeners())
                 .setIfNotEmpty(Configuration.DEFINITION_UI_CONFIGURATION, getUIConfiguration())
                 .setIfNotEmpty(Configuration.DEFINITION_UI_USER_CONFIGURATION, getUIUserConfiguration())
                 .setIfNotEmpty(Configuration.DEFINITION_UI_USER_CONFIGURATION_BUTTONS, getUIUserConfigurationButtons());
