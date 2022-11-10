@@ -457,7 +457,7 @@ public class BaseModule implements ISvc, IBaseSvc {
                     .setIfNotEmpty(Parameter.METADATA_HELP_URL, this.definitions.getConfigurationHelpUrl())
                     .setIfNotEmpty(Parameter.METADATA_CONF, this.definitions.getUIConfiguration())
                     .setIfNotEmpty(Parameter.METADATA_USER_CONF, this.definitions.getUIUserConfiguration())
-                    .setIfNotEmpty(Parameter.METADATA_USER_CONF_BUTTONS, this.definitions.getUIUserConfigurationButtons())
+                    .setIfNotEmpty(Parameter.METADATA_USER_CONF_BUTTONS, this.definitions.getUIUserConfigurationButtons());
         } catch (SvcException e) {
             throw e;
         } catch (Exception ex) {

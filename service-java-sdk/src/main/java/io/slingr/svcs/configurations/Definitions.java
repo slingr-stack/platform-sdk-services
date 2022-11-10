@@ -55,7 +55,7 @@ public class Definitions implements SvcDefinitions {
     Definitions(String label, String type, String apiVersion, boolean internal, boolean perUserSvc,
                        List<Json> deploymentProfiles, boolean allowMultipleInstances, String icon, String configurationHelpUrl,
                        boolean active, List<Json> dataStores, List<Json> events, List<Json> functions,
-                       List<Json> configuration, List<Json> userConfiguration, Json userConfigurationButtons) {
+                List<Json> configuration, List<Json> userConfiguration, Json userConfigurationButtons) {
         this.label = label;
         this.type = type;
         this.apiVersion = apiVersion;
