@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * <p>Created by lefunes on 20/03/18.
  */
 public class ESConfigurations {
-    private static final Logger logger = LoggerFactory.getLogger(Scripts.class);
+    private static final Logger logger = LoggerFactory.getLogger(ESConfigurations.class);
 
     private final ExtensionBrokerApi api;
     private final boolean debug;

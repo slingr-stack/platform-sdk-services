@@ -21,7 +21,7 @@ import java.io.InputStream;
  * <p>Created by lefunes on 20/03/18.
  */
 public class Files {
-    private static final Logger logger = LoggerFactory.getLogger(Scripts.class);
+    private static final Logger logger = LoggerFactory.getLogger(Files.class);
 
     private final ExtensionBrokerApi api;
     private final boolean debug;

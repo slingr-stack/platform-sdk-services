@@ -678,36 +678,6 @@ public class SvcTests {
     }
 
     /**
-     * Registers a processor for the script name
-     */
-    public void registerScriptProcessor(String scriptName, MessageProcessor processor){
-        isTestingModeEnabled();
-
-        extensionBroker.registerScriptProcessor(scriptName, processor);
-        logger.info(String.format("%s registered script processor [%s]", TEST, scriptName));
-    }
-
-    /**
-     * Removes the script processor for the given script name
-     */
-    public void removeScriptProcessor(String scriptName){
-        isTestingModeEnabled();
-
-        extensionBroker.removeScriptProcessor(scriptName);
-        logger.info(String.format("%s script processor removed [%s]", TEST, scriptName));
-    }
-
-    /**
-     * Clears the script processors
-     */
-    public void clearScriptProcessors(){
-        isTestingModeEnabled();
-
-        extensionBroker.clearScriptProcessors();
-        logger.info(String.format("%s script processors cleaned", TEST));
-    }
-
-    /**
      * Clears the list of locks
      */
     public void clearLocks(){
