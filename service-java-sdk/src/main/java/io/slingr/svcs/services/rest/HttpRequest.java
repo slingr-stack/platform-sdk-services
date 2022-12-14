@@ -14,6 +14,7 @@ public class HttpRequest implements JsonSource {
     private String path = null;
     private final Json params = Json.map();
     private final Json headers = Json.map();
+    private final Json settings = Json.map();
     private Object body = null;
 
     private int connectionTimeout = RestClient.DEFAULT_CONNECTION_TIMEOUT;
@@ -201,6 +202,15 @@ public class HttpRequest implements JsonSource {
      */
     public Json getHeaders() {
         return headers;
+    }
+
+    /**
+     * Gets the settings to send to the HTTP service
+     *
+     * @return settings to send to the HTTP service
+     */
+    public Json getSettings() {
+        return settings;
     }
 
     /**

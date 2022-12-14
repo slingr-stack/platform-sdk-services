@@ -95,10 +95,11 @@ public final class Parameter {
     public static final String METADATA_USER_CONF_BUTTONS = "userConfButtons";
 
     // http requests
-    public static final String HTTP_REQUEST_PATH = "path";
+    public static final String HTTP_REQUEST_PATH = "url";
     public static final String HTTP_REQUEST_PARAMS = "params";
     public static final String HTTP_REQUEST_HEADERS = "headers";
     public static final String HTTP_REQUEST_BODY = "body";
+    public static final String HTTP_REQUEST_SETTINGS = "settings";
     public static final String HTTP_REQUEST_CONNECTION_TIMEOUT = "connectionTimeout";
     public static final String HTTP_REQUEST_READ_TIMEOUT = "readTimeout";
     public static final String HTTP_REQUEST_FOLLOW_REDIRECTS = "followRedirects";
@@ -106,6 +107,7 @@ public final class Parameter {
     public static final String HTTP_REQUEST_FILE_NAME = "fileName";
     public static final String HTTP_REQUEST_FORCE_DOWNLOAD = "forceDownload";
     public static final String HTTP_REQUEST_DOWNLOAD_SYNC = "downloadSync";
+    public static final String HTTP_REQUEST_AUTHORIZATION = "authorization";
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Parameter only used on applications side
