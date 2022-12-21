@@ -442,34 +442,40 @@ public class HttpRequest implements JsonSource {
                 request.setBody(body);
             }
 
-            final Integer connectionTimeout = json.integer(Parameter.HTTP_REQUEST_CONNECTION_TIMEOUT);
-            if (connectionTimeout != null) {
-                request.setConnectionTimeout(connectionTimeout);
-            }
+            final Json settings = json.json(Parameter.HTTP_REQUEST_SETTINGS);
+            if (settings != null) {
 
-            final Integer readTimeout = json.integer(Parameter.HTTP_REQUEST_READ_TIMEOUT);
-            if (readTimeout != null) {
-                request.setReadTimeout(readTimeout);
-            }
+                final Integer connectionTimeout = settings.integer(Parameter.HTTP_REQUEST_CONNECTION_TIMEOUT);
+                if (connectionTimeout != null) {
+                    request.setConnectionTimeout(connectionTimeout);
+                }
 
-            final Boolean followRedirects = json.bool(Parameter.HTTP_REQUEST_FOLLOW_REDIRECTS);
-            if (followRedirects != null) {
-                request.setFollowRedirects(followRedirects);
-            }
+                final Integer readTimeout = settings.integer(Parameter.HTTP_REQUEST_READ_TIMEOUT);
+                if (readTimeout != null) {
+                    request.setReadTimeout(readTimeout);
+                }
 
-            final Boolean fullResponse = json.bool(Parameter.HTTP_REQUEST_FULL_RESPONSE);
-            if (fullResponse != null) {
-                request.setFullResponse(fullResponse);
-            }
+                final Boolean followRedirects = settings.bool(Parameter.HTTP_REQUEST_FOLLOW_REDIRECTS);
+                if (followRedirects != null) {
+                    request.setFollowRedirects(followRedirects);
+                }
 
-            final Boolean forceDownload = json.bool(Parameter.HTTP_REQUEST_FORCE_DOWNLOAD);
-            if (forceDownload != null) {
-                request.setForceDownload(forceDownload);
-            }
+                final Boolean fullResponse = settings.bool(Parameter.HTTP_REQUEST_FULL_RESPONSE);
+                if (fullResponse != null) {
+                    request.setFullResponse(fullResponse);
+                }
 
-            final Boolean downloadSync = json.bool(Parameter.HTTP_REQUEST_DOWNLOAD_SYNC);
-            if (downloadSync != null) {
-                request.setDownloadSync(downloadSync);
+                final Boolean forceDownload = settings.bool(Parameter.HTTP_REQUEST_FORCE_DOWNLOAD);
+                if (forceDownload != null) {
+                    request.setForceDownload(forceDownload);
+                }
+
+                final Boolean downloadSync = settings.bool(Parameter.HTTP_REQUEST_DOWNLOAD_SYNC);
+                if (downloadSync != null) {
+                    request.setDownloadSync(downloadSync);
+                }
+
+
             }
 
             final String filename = json.string(Parameter.HTTP_REQUEST_FILE_NAME);
