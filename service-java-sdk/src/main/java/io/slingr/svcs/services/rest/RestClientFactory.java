@@ -535,13 +535,14 @@ public class RestClientFactory {
             if (content == null) {
                 content = Json.map();
             }
+
+            String contentType = headers.string(Parameter.CONTENT_TYPE);
+            if (StringUtils.isBlank(contentType) && headers.contains(Parameter.CONTENT_TYPE)) {
+                contentType = headers.string(Parameter.CONTENT_TYPE);
+            }
+
             if (content instanceof Json || content instanceof JsonSource || content instanceof Map || content instanceof List || content instanceof Multipart) {
                 content = Json.fromObject(content);
-
-                String contentType = headers.string(Parameter.CONTENT_TYPE);
-                if (StringUtils.isBlank(contentType) && headers.contains(Parameter.CONTENT_TYPE)) {
-                    contentType = headers.string(Parameter.CONTENT_TYPE);
-                }
 
                 if (StringUtils.isNotBlank(contentType)) {
                     // there are some cases where we send JSON but content type is different
@@ -560,11 +561,17 @@ public class RestClientFactory {
             } else if (content instanceof Form) {
                 postData = Entity.form((Form) content);
             } else if (content instanceof MultiPart) {
-                MediaType contentType = MediaType.MULTIPART_FORM_DATA_TYPE;
-                contentType = Boundary.addBoundary(contentType);
-                postData = Entity.entity(content, contentType);
-            } else {
-                postData = Entity.text(content);
+                MediaType mediaType = MediaType.MULTIPART_FORM_DATA_TYPE;
+                mediaType = Boundary.addBoundary(mediaType);
+                postData = Entity.entity(content, mediaType);
+            } else if (content instanceof String) {
+
+                if (StringUtils.isNotBlank(contentType) && ContentTypeFormat.isXmlContentType(contentType)) {
+                    postData = Entity.xml(content);
+                } else {
+                    postData = Entity.text(content);
+                }
+
             }
         }
         target = target.property(ClientProperties.FOLLOW_REDIRECTS, followRedirects);
