@@ -102,12 +102,18 @@ public final class Parameter {
     public static final String HTTP_REQUEST_SETTINGS = "settings";
     public static final String HTTP_REQUEST_CONNECTION_TIMEOUT = "connectionTimeout";
     public static final String HTTP_REQUEST_READ_TIMEOUT = "readTimeout";
+    public static final String HTTP_REQUEST_MAX_REDIRECTS = "maxRedirects";
     public static final String HTTP_REQUEST_FOLLOW_REDIRECTS = "followRedirects";
     public static final String HTTP_REQUEST_FULL_RESPONSE = "fullResponse";
     public static final String HTTP_REQUEST_FILE_NAME = "fileName";
     public static final String HTTP_REQUEST_FORCE_DOWNLOAD = "download";
     public static final String HTTP_REQUEST_DOWNLOAD_SYNC = "downloadSync";
     public static final String HTTP_REQUEST_AUTHORIZATION = "authorization";
+    public static final String HTTP_REQUEST_CALLBACK = "defaultCallback";
+    public static final String HTTP_REQUEST_FORCE_DISABLE_COOKIES = "forceDisableCookies";
+    public static final String HTTP_ENCODE_URL = "encodeUrl";
+    public static final String HTTP_REQUEST_FOLLOW_AUTHORIZATION_HEADER = "followAuthorizationHeader";
+    public static final String HTTP_USE_SSL = "useSSL";
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Parameter only used on applications side
