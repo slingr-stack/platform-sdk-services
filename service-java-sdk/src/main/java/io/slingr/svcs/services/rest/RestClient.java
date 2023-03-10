@@ -1224,7 +1224,7 @@ public abstract class RestClient {
     /**
      * Perform a DELETE request with the default target information and without content
      *
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request

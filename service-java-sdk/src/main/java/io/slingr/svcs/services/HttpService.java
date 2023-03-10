@@ -30,7 +30,7 @@ public class HttpService extends RestClient {
 
     public static final String FILE_DOWNLOADED_EVENT = "fileDownloaded";
     public static final String WEBHOOK_EVENT = "webhook";
-
+    public static final String CALLBACK_EVENT = "callback";
     private final Events events;
     private final Files files;
 
@@ -135,6 +135,7 @@ public class HttpService extends RestClient {
                 }
             } else {
                 // return get in body
+                processCallback(request, fromFunctionId);
                 return httpGet(request);
             }
         } catch (Exception ex) {
@@ -191,7 +192,18 @@ public class HttpService extends RestClient {
      * @return response from the external HTTP service
      */
     public Json defaultPostRequest(FunctionRequest request) {
-        return defaultPostRequest(request.getJsonParams());
+        return defaultPostRequest(request.getJsonParams(), request.getFunctionId());
+    }
+
+    /**
+     * Process the POST requests to the external HTTP service
+     *
+     * @param request request to send to the external HTTP service
+     * @param functionId
+     * @return response from the external HTTP service
+     */
+    public Json defaultPostRequest(Json request, String functionId) {
+        return defaultPostRequest(HttpRequest.fromJson(RestMethod.POST, request), functionId);
     }
 
     /**
@@ -200,21 +212,12 @@ public class HttpService extends RestClient {
      * @param request request to send to the external HTTP service
      * @return response from the external HTTP service
      */
-    public Json defaultPostRequest(Json request) {
-        return defaultPostRequest(HttpRequest.fromJson(RestMethod.POST, request));
-    }
-
-    /**
-     * Process the POST requests to the external HTTP service
-     *
-     * @param request request to send to the external HTTP service
-     * @return response from the external HTTP service
-     */
-    public Json defaultPostRequest(HttpRequest request) {
+    public Json defaultPostRequest(HttpRequest request, String functionId) {
         try {
             if (request.isMultipart()) {
                 return httpMultipart(request, files);
             } else {
+                processCallback(request, functionId);
                 return httpPost(request);
             }
         } catch (Exception ex) {
@@ -229,7 +232,7 @@ public class HttpService extends RestClient {
      * @return response from the external HTTP service
      */
     public Json defaultPutRequest(FunctionRequest request) {
-        return defaultPutRequest(request.getJsonParams());
+        return defaultPutRequest(request.getJsonParams(), request.getFunctionId());
     }
 
     /**
@@ -238,8 +241,8 @@ public class HttpService extends RestClient {
      * @param request request to send to the external HTTP service
      * @return response from the external HTTP service
      */
-    public Json defaultPutRequest(Json request) {
-        return defaultPutRequest(HttpRequest.fromJson(RestMethod.PUT, request));
+    public Json defaultPutRequest(Json request, String functionId) {
+        return defaultPutRequest(HttpRequest.fromJson(RestMethod.PUT, request), functionId);
     }
 
     /**
@@ -248,11 +251,12 @@ public class HttpService extends RestClient {
      * @param request request to send to the external HTTP service
      * @return response from the external HTTP service
      */
-    public Json defaultPutRequest(HttpRequest request) {
+    public Json defaultPutRequest(HttpRequest request, String functionId) {
         try {
             if (request.isMultipart()) {
                 return httpMultipart(request, files);
             } else {
+                processCallback(request, functionId);
                 return httpPut(request);
             }
         } catch (Exception ex) {
@@ -267,7 +271,7 @@ public class HttpService extends RestClient {
      * @return response from the external HTTP service
      */
     public Json defaultDeleteRequest(FunctionRequest request) {
-        return defaultDeleteRequest(request.getJsonParams());
+        return defaultDeleteRequest(request.getJsonParams(), request.getFunctionId());
     }
 
     /**
@@ -276,8 +280,8 @@ public class HttpService extends RestClient {
      * @param request request to send to the external HTTP service
      * @return response from the external HTTP service
      */
-    public Json defaultDeleteRequest(Json request) {
-        return defaultDeleteRequest(HttpRequest.fromJson(RestMethod.DELETE, request));
+    public Json defaultDeleteRequest(Json request, String functionId) {
+        return defaultDeleteRequest(HttpRequest.fromJson(RestMethod.DELETE, request), functionId);
     }
 
     /**
@@ -286,8 +290,9 @@ public class HttpService extends RestClient {
      * @param request request to send to the external HTTP service
      * @return response from the external HTTP service
      */
-    public Json defaultDeleteRequest(HttpRequest request) {
+    public Json defaultDeleteRequest(HttpRequest request, String functionId) {
         try {
+            processCallback(request, functionId);
             return httpDelete(request);
         } catch (Exception ex) {
             throw convertToSvcException(ex);
@@ -301,7 +306,7 @@ public class HttpService extends RestClient {
      * @return response from the external HTTP service
      */
     public Json defaultHeadRequest(FunctionRequest request) {
-        return defaultHeadRequest(request.getJsonParams());
+        return defaultHeadRequest(request.getJsonParams(), request.getFunctionId());
     }
 
     /**
@@ -310,8 +315,8 @@ public class HttpService extends RestClient {
      * @param request request to send to the external HTTP service
      * @return response from the external HTTP service
      */
-    public Json defaultHeadRequest(Json request) {
-        return defaultHeadRequest(HttpRequest.fromJson(RestMethod.HEAD, request));
+    public Json defaultHeadRequest(Json request, String functionId) {
+        return defaultHeadRequest(HttpRequest.fromJson(RestMethod.HEAD, request), functionId);
     }
 
     /**
@@ -320,8 +325,9 @@ public class HttpService extends RestClient {
      * @param request request to send to the external HTTP service
      * @return response from the external HTTP service
      */
-    public Json defaultHeadRequest(HttpRequest request) {
+    public Json defaultHeadRequest(HttpRequest request, String functionId) {
         try {
+            processCallback(request, functionId);
             return httpHead(request);
         } catch (Exception ex) {
             throw convertToSvcException(ex);
@@ -335,7 +341,7 @@ public class HttpService extends RestClient {
      * @return response from the external HTTP service
      */
     public Json defaultPatchRequest(FunctionRequest request) {
-        return defaultPatchRequest(request.getJsonParams());
+        return defaultPatchRequest(request.getJsonParams(), request.getFunctionId());
     }
 
     /**
@@ -344,8 +350,8 @@ public class HttpService extends RestClient {
      * @param request request to send to the external HTTP service
      * @return response from the external HTTP service
      */
-    public Json defaultPatchRequest(Json request) {
-        return defaultPatchRequest(HttpRequest.fromJson(RestMethod.PATCH, request));
+    public Json defaultPatchRequest(Json request, String functionId) {
+        return defaultPatchRequest(HttpRequest.fromJson(RestMethod.PATCH, request), functionId);
     }
 
     /**
@@ -354,8 +360,9 @@ public class HttpService extends RestClient {
      * @param request request to send to the external HTTP service
      * @return response from the external HTTP service
      */
-    public Json defaultPatchRequest(HttpRequest request) {
+    public Json defaultPatchRequest(HttpRequest request, String functionId) {
         try {
+            processCallback(request, functionId);
             return httpPatch(request);
         } catch (Exception ex) {
             throw convertToSvcException(ex);
@@ -369,7 +376,7 @@ public class HttpService extends RestClient {
      * @return response from the external HTTP service
      */
     public Json defaultOptionsRequest(FunctionRequest request) {
-        return defaultOptionsRequest(request.getJsonParams());
+        return defaultOptionsRequest(request.getJsonParams(), request.getFunctionId());
     }
 
     /**
@@ -378,8 +385,8 @@ public class HttpService extends RestClient {
      * @param request request to send to the external HTTP service
      * @return response from the external HTTP service
      */
-    public Json defaultOptionsRequest(Json request) {
-        return defaultOptionsRequest(HttpRequest.fromJson(RestMethod.OPTIONS, request));
+    public Json defaultOptionsRequest(Json request, String functionId) {
+        return defaultOptionsRequest(HttpRequest.fromJson(RestMethod.OPTIONS, request), functionId);
     }
 
     /**
@@ -388,8 +395,9 @@ public class HttpService extends RestClient {
      * @param request request to send to the external HTTP service
      * @return response from the external HTTP service
      */
-    public Json defaultOptionsRequest(HttpRequest request) {
+    public Json defaultOptionsRequest(HttpRequest request, String functionId) {
         try {
+            processCallback(request, functionId);
             return httpOptions(request);
         } catch (Exception ex) {
             throw convertToSvcException(ex);
@@ -523,5 +531,18 @@ public class HttpService extends RestClient {
      */
     public static WebServiceResponse defaultWebhookResponse(String response, int code) {
         return new WebServiceResponse(code, StringUtils.isBlank(response) ? "ok" : response, ContentType.TEXT_PLAIN.toString());
+    }
+
+    private void processCallback(HttpRequest request, String functionId){
+        if(request.isDefaultCallback()){
+            Executors.newSingleThreadExecutor().execute(() -> {
+                try {
+                    Json body = request.getJsonBody();
+                    this.events.send(CALLBACK_EVENT, body, functionId);
+                } catch (Exception e) {
+                    logger.warn(String.format("Exception when try to send the 'callback' event - exception: %s", e.getMessage()), e);
+                }
+            });
+        }
     }
 }
