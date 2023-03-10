@@ -69,6 +69,7 @@ public final class Parameter {
     public static final String CONTENT_ENCODING = "Content-Encoding";
     public static final String CONTENT_LENGTH = "Content-Length";
     public static final String CONTENT_TYPE = "Content-Type";
+    public static final String REFERER = "Referer";
 
     // functions
     public static final String FUNCTION_ID = "id";
@@ -113,6 +114,8 @@ public final class Parameter {
     public static final String HTTP_REQUEST_FORCE_DISABLE_COOKIES = "forceDisableCookies";
     public static final String HTTP_ENCODE_URL = "encodeUrl";
     public static final String HTTP_REQUEST_FOLLOW_AUTHORIZATION_HEADER = "followAuthorizationHeader";
+    public static final String HTTP_REQUEST_REMOVE_REFERER_HEADER_ON_REDIRECT = "removeRefererHeaderOnRedirect";
+    public static final String HTTP_REQUEST_FOLLOW_ORIGINAL_HTTP_METHOD = "followOriginalHttpMethod";
     public static final String HTTP_USE_SSL = "useSSL";
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

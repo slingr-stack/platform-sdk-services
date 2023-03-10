@@ -30,6 +30,8 @@ public class HttpRequest implements JsonSource {
     private int maxRedirects = RestClient.DEFAULT_MAX_REDIRECTS;
     private Boolean encodeUrl = null;
     private boolean followAuthorizationHeader = false;
+    private boolean removeRefererHeaderOnRedirect = false;
+    private boolean followOriginalHttpMethod = false;
     private boolean useSSL = true;
 
 
@@ -46,9 +48,11 @@ public class HttpRequest implements JsonSource {
         this.downloadSync = builder.downloadSync;
         this.defaultCallback = builder.defaultCallback;
         this.forceDisableCookies = builder.forceDisableCookies;
+        this.removeRefererHeaderOnRedirect = builder.removeRefererHeaderOnRedirect;
         this.maxRedirects = builder.maxRedirects;
         this.encodeUrl = builder.encodeUrl;
         this.followAuthorizationHeader = builder.followAuthorizationHeader;
+        this.followOriginalHttpMethod = builder.followOriginalHttpMethod;
         this.useSSL = builder.useSSL;
     }
 
@@ -493,6 +497,43 @@ public class HttpRequest implements JsonSource {
         this.forceDisableCookies = forceDisableCookies;
     }
 
+    /**
+     * Gets the value that determines whether the headers will be removed.
+     *
+     * @return true if you want to remove the referer header.
+     */
+    public boolean isRemoveRefererHeaderOnRedirect() {
+        return removeRefererHeaderOnRedirect;
+    }
+
+    /**
+     * Sets if the referer header will be removed.
+     *
+     * @param removeRefererHeaderOnRedirect true if you need discard headers.
+     */
+    public void setRemoveRefererHeaderOnRedirect(boolean removeRefererHeaderOnRedirect) {
+        this.removeRefererHeaderOnRedirect = removeRefererHeaderOnRedirect;
+    }
+
+    /**
+     * Gets the value that determines whether if the HTTP method for all redirection request will be the same.
+     *
+     * @return true if you want to remove the referer header.
+     */
+    public boolean isFollowOriginalHttpMethod() {
+        return followOriginalHttpMethod;
+    }
+
+    /**
+     * Sets whether the request has to follow the redirection chain with the same HTTP method.
+     *
+     * @param followOriginalHttpMethod true if you need the same method.
+     */
+    public void setFollowOriginalHttpMethod(boolean followOriginalHttpMethod) {
+        this.followOriginalHttpMethod = followOriginalHttpMethod;
+    }
+
+
     public List<Part> getParts() {
         return parts;
     }
@@ -534,6 +575,8 @@ public class HttpRequest implements JsonSource {
                 .setIf(isForceDisableCookies(), Parameter.HTTP_REQUEST_FORCE_DISABLE_COOKIES, isForceDisableCookies())
                 .setIf(isEncodeUrl(), Parameter.HTTP_ENCODE_URL, isEncodeUrl())
                 .setIf(isFollowAuthorizationHeader(), Parameter.HTTP_REQUEST_FOLLOW_AUTHORIZATION_HEADER, isFollowAuthorizationHeader())
+                .setIf(isRemoveRefererHeaderOnRedirect(), Parameter.HTTP_REQUEST_REMOVE_REFERER_HEADER_ON_REDIRECT, isRemoveRefererHeaderOnRedirect())
+                .setIf(isFollowOriginalHttpMethod(), Parameter.HTTP_REQUEST_FOLLOW_ORIGINAL_HTTP_METHOD, isFollowOriginalHttpMethod())
                 .setIf(isUseSSL(), Parameter.HTTP_USE_SSL,isUseSSL())
                 .setIf(isMultipart(), "multipart", isMultipart());
 
@@ -629,17 +672,28 @@ public class HttpRequest implements JsonSource {
                     request.setForceDisableCookies(forceDisableCookies);
                 }
 
-                final Boolean defaultCallback = settings.bool(Parameter.HTTP_REQUEST_CALLBACK);
+            final Boolean removeRefererHeaderOnRedirect = settings.bool(Parameter.HTTP_REQUEST_REMOVE_REFERER_HEADER_ON_REDIRECT);
+            if (removeRefererHeaderOnRedirect != null) {
+                request.setRemoveRefererHeaderOnRedirect(removeRefererHeaderOnRedirect);
+            }
+
+            final Boolean defaultCallback = settings.bool(Parameter.HTTP_REQUEST_CALLBACK);
                 if (defaultCallback != null) {
                     request.setDefaultCallback(defaultCallback);
                 }
 
-                final Boolean  followAuthorizationHeader = settings.bool(Parameter.HTTP_REQUEST_FOLLOW_AUTHORIZATION_HEADER);
+
+            final Boolean  followAuthorizationHeader = settings.bool(Parameter.HTTP_REQUEST_FOLLOW_AUTHORIZATION_HEADER);
                 if (followAuthorizationHeader != null) {
                     request.setFollowAuthorizationHeader(followAuthorizationHeader);
                 }
 
-                final Boolean  useSSL = settings.bool(Parameter.HTTP_USE_SSL);
+            final Boolean followOriginalHttpMethod = settings.bool(Parameter.HTTP_REQUEST_FOLLOW_ORIGINAL_HTTP_METHOD);
+            if (followOriginalHttpMethod != null) {
+                request.setFollowOriginalHttpMethod(followOriginalHttpMethod);
+            }
+
+            final Boolean  useSSL = settings.bool(Parameter.HTTP_USE_SSL);
                 if (useSSL != null) {
                     request.setUseSSL(useSSL);
                 }
@@ -684,6 +738,8 @@ public class HttpRequest implements JsonSource {
         private boolean downloadSync = false;
         private boolean defaultCallback = false;
         private boolean forceDisableCookies = false;
+        private boolean removeRefererHeaderOnRedirect = false;
+        private boolean followOriginalHttpMethod = false;
         private int maxRedirects = RestClient.DEFAULT_MAX_REDIRECTS;
         private Boolean encodeUrl = null;
         private boolean followAuthorizationHeader = false;
@@ -778,8 +834,18 @@ public class HttpRequest implements JsonSource {
             return this;
         }
 
+        public HttpRequestBuilder setRemoveRefererHeaderOnRedirect(boolean removeRefererHeaderOnRedirect) {
+            this.removeRefererHeaderOnRedirect = removeRefererHeaderOnRedirect;
+            return this;
+        }
+
         public HttpRequestBuilder setUseSSL(boolean useSSL) {
             this.useSSL = useSSL;
+            return this;
+        }
+
+        public HttpRequestBuilder setFollowOriginalHttpMethod(boolean followOriginalHttpMethod) {
+            this.followOriginalHttpMethod = followOriginalHttpMethod;
             return this;
         }
     }

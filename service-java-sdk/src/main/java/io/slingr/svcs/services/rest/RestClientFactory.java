@@ -14,6 +14,7 @@ import io.slingr.svcs.utils.converters.JsonConverter;
 import io.slingr.svcs.utils.converters.JsonSource;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -78,6 +79,7 @@ public class RestClientFactory {
     private final ReentrantLock cookiesLock = new ReentrantLock();
     private final List<Cookie> cookies = new ArrayList<>();
     private final String[] acceptedMediaTypes;
+    private final List<String> history = new ArrayList<>();
 
     /**
      * Initialize factory
@@ -670,7 +672,16 @@ public class RestClientFactory {
                     headers.remove("Authorization");
             }
 
+                if(!request.isRemoveRefererHeaderOnRedirect()){
+                    //Add Referer header
+                    this.history.add(this.history.size() == 0 ? request.getPath() : uri);
+                    headers.set(HttpHeaders.REFERER, this.history.get(this.history.size() - 1));
+                }
+
+                if (!request.isFollowOriginalHttpMethod()) method = RestMethod.GET;
+
                 response = request(method, target, content, headers, request);
+                if(!request.isRemoveRefererHeaderOnRedirect()) this.history.remove(this.history.size() - 1);
             }
 
             if(rememberCookies && !request.isForceDisableCookies()){
