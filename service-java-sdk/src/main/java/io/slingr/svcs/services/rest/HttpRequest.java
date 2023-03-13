@@ -25,6 +25,51 @@ public class HttpRequest implements JsonSource {
     private String filename = RestClient.DEFAULT_FILE_NAME;
     private boolean forceDownload = false;
     private boolean downloadSync = false;
+    private boolean defaultCallback = false;
+    private boolean forceDisableCookies = false;
+    private int maxRedirects = RestClient.DEFAULT_MAX_REDIRECTS;
+    private Boolean encodeUrl = null;
+    private boolean followAuthorizationHeader = false;
+    private boolean removeRefererHeaderOnRedirect = false;
+    private boolean followOriginalHttpMethod = false;
+    private boolean useSSL = true;
+
+
+    public HttpRequest(HttpRequestBuilder builder) {
+        this.restMethod = builder.restMethod;
+        this.path = builder.path;
+        this.body = builder.body;
+        this.connectionTimeout = builder.connectionTimeout;
+        this.readTimeout = builder.readTimeout;
+        this.followRedirects = builder.followRedirects;
+        this.fullResponse = builder.fullResponse;
+        this.filename = builder.filename;
+        this.forceDownload = builder.forceDownload;
+        this.downloadSync = builder.downloadSync;
+        this.defaultCallback = builder.defaultCallback;
+        this.forceDisableCookies = builder.forceDisableCookies;
+        this.removeRefererHeaderOnRedirect = builder.removeRefererHeaderOnRedirect;
+        this.maxRedirects = builder.maxRedirects;
+        this.encodeUrl = builder.encodeUrl;
+        this.followAuthorizationHeader = builder.followAuthorizationHeader;
+        this.followOriginalHttpMethod = builder.followOriginalHttpMethod;
+        this.useSSL = builder.useSSL;
+    }
+
+    /**
+     * Gets the object containing the body of the request converted on Json
+     *
+     * @return json object containing the body of the request
+     */
+    public Json getJsonBody() {
+        final Object bd = getBody();
+        if(bd == null){
+            return Json.map();
+        } else if(bd instanceof Json){
+            return (Json) bd;
+        }
+        return Json.fromObject(bd);
+    }
 
     public enum PartType {
         FILE("file"), OTHER("other");
@@ -263,6 +308,28 @@ public class HttpRequest implements JsonSource {
     }
 
     /**
+     * Set a cap on the maximum number of redirects to follow.
+     *
+     * @param maxRedirects Set a cap on the maximum number of redirects to follow.
+     */
+    public void setMaxRedirects(int maxRedirects) {
+        if(maxRedirects >= 0) {
+            this.maxRedirects = maxRedirects;
+        } else {
+            this.maxRedirects = RestClient.DEFAULT_MAX_REDIRECTS;
+        }
+    }
+
+    /**
+     * Gets the max redirects
+     *
+     * @return read the maximum number of redirects to follow.
+     */
+    public int getMaxRedirects() {
+        return maxRedirects;
+    }
+
+    /**
      * Sets the read timeout to the HTTP request
      *
      * @param readTimeout read timeout interval, in milliseconds. null to use the default value (0: infinity).
@@ -276,7 +343,7 @@ public class HttpRequest implements JsonSource {
     }
 
     /**
-     * Gets the configuration of the client to follow the redirects when a HTTP request is executed
+     * Gets the configuration of the client to follow the redirects when an HTTP request is executed
      *
      * @return automatic redirection. A value of {@code true} declares that the client will automatically
      * redirect to the URI declared in 3xx responses.
@@ -286,7 +353,7 @@ public class HttpRequest implements JsonSource {
     }
 
     /**
-     * Configure the client to follow the redirects when a HTTP request is executed
+     * Configure the client to follow the redirects when an HTTP request is executed
      *
      * @param followRedirects automatic redirection. A value of {@code true} declares that the client will automatically
      *                        redirect to the URI declared in 3xx responses.
@@ -350,12 +417,40 @@ public class HttpRequest implements JsonSource {
     }
 
     /**
+     * Gets true if the URL params will be encoded
+     *
+     * @return true to URL params encode
+     */
+    public Boolean isEncodeUrl() {
+        return encodeUrl;
+    }
+
+
+    /**
+     * Sets true if the URL params will be encoded
+     *
+     * @param encodeUrl true to encode url parameters
+     */
+    public void setEncodeUrl(Boolean encodeUrl) {
+        this.encodeUrl = encodeUrl;
+    }
+
+    /**
      * Gets the value that determines if the file must be downloaded synchronously
      *
      * @return true if the file must be downloaded synchronously
      */
     public boolean isDownloadSync() {
         return downloadSync;
+    }
+
+    /**
+     * Gets the value that determines if contain Callback
+     *
+     * @return true if contain default callback.
+     */
+    public boolean isDefaultCallback() {
+        return defaultCallback;
     }
 
     /**
@@ -367,6 +462,15 @@ public class HttpRequest implements JsonSource {
         this.downloadSync = downloadSync;
     }
 
+    /**
+     * Sets if contain default callback
+     *
+     * @param defaultCallback true if contain default callback.
+     */
+    public void setDefaultCallback(boolean defaultCallback) {
+        this.defaultCallback = defaultCallback;
+    }
+
     public boolean isMultipart() {
         return multipart;
     }
@@ -375,12 +479,83 @@ public class HttpRequest implements JsonSource {
         this.multipart = multipart;
     }
 
+    /**
+     * Gets the value that determines if disable cookies.
+     *
+     * @return true if you want force cookies over the configuration.
+     */
+    public boolean isForceDisableCookies() {
+        return forceDisableCookies;
+    }
+
+    /**
+     * Sets if contain can contain cookie in request/response
+     *
+     * @param forceDisableCookies true if you need discard cookies.
+     */
+    public void setForceDisableCookies(boolean forceDisableCookies) {
+        this.forceDisableCookies = forceDisableCookies;
+    }
+
+    /**
+     * Gets the value that determines whether the headers will be removed.
+     *
+     * @return true if you want to remove the referer header.
+     */
+    public boolean isRemoveRefererHeaderOnRedirect() {
+        return removeRefererHeaderOnRedirect;
+    }
+
+    /**
+     * Sets if the referer header will be removed.
+     *
+     * @param removeRefererHeaderOnRedirect true if you need discard headers.
+     */
+    public void setRemoveRefererHeaderOnRedirect(boolean removeRefererHeaderOnRedirect) {
+        this.removeRefererHeaderOnRedirect = removeRefererHeaderOnRedirect;
+    }
+
+    /**
+     * Gets the value that determines whether if the HTTP method for all redirection request will be the same.
+     *
+     * @return true if you want to remove the referer header.
+     */
+    public boolean isFollowOriginalHttpMethod() {
+        return followOriginalHttpMethod;
+    }
+
+    /**
+     * Sets whether the request has to follow the redirection chain with the same HTTP method.
+     *
+     * @param followOriginalHttpMethod true if you need the same method.
+     */
+    public void setFollowOriginalHttpMethod(boolean followOriginalHttpMethod) {
+        this.followOriginalHttpMethod = followOriginalHttpMethod;
+    }
+
+
     public List<Part> getParts() {
         return parts;
     }
 
     public void setParts(List<Part> parts) {
         this.parts = parts;
+    }
+
+    public boolean isFollowAuthorizationHeader() {
+        return followAuthorizationHeader;
+    }
+
+    public void setFollowAuthorizationHeader(boolean followAuthorizationHeader) {
+        this.followAuthorizationHeader = followAuthorizationHeader;
+    }
+
+    public boolean isUseSSL() {
+        return useSSL;
+    }
+
+    public void setUseSSL(boolean useSSL) {
+        this.useSSL = useSSL;
     }
 
     @Override
@@ -392,10 +567,17 @@ public class HttpRequest implements JsonSource {
                 .setIfNotNull(Parameter.HTTP_REQUEST_BODY, getBody())
                 .setIf(getConnectionTimeout() != RestClient.DEFAULT_CONNECTION_TIMEOUT, Parameter.HTTP_REQUEST_CONNECTION_TIMEOUT, getConnectionTimeout())
                 .setIf(getReadTimeout() != RestClient.DEFAULT_READ_TIMEOUT, Parameter.HTTP_REQUEST_READ_TIMEOUT, getReadTimeout())
+                .setIf(getMaxRedirects() != RestClient.DEFAULT_MAX_REDIRECTS, Parameter.HTTP_REQUEST_MAX_REDIRECTS, getMaxRedirects())
                 .setIf(!isFollowRedirects(), Parameter.HTTP_REQUEST_FOLLOW_REDIRECTS, isFollowRedirects())
                 .setIf(isFullResponse(), Parameter.HTTP_REQUEST_FULL_RESPONSE, isFullResponse())
                 .setIf(isForceDownload(), Parameter.HTTP_REQUEST_FORCE_DOWNLOAD, isForceDownload())
                 .setIf(isDownloadSync(), Parameter.HTTP_REQUEST_DOWNLOAD_SYNC, isDownloadSync())
+                .setIf(isForceDisableCookies(), Parameter.HTTP_REQUEST_FORCE_DISABLE_COOKIES, isForceDisableCookies())
+                .setIf(isEncodeUrl(), Parameter.HTTP_ENCODE_URL, isEncodeUrl())
+                .setIf(isFollowAuthorizationHeader(), Parameter.HTTP_REQUEST_FOLLOW_AUTHORIZATION_HEADER, isFollowAuthorizationHeader())
+                .setIf(isRemoveRefererHeaderOnRedirect(), Parameter.HTTP_REQUEST_REMOVE_REFERER_HEADER_ON_REDIRECT, isRemoveRefererHeaderOnRedirect())
+                .setIf(isFollowOriginalHttpMethod(), Parameter.HTTP_REQUEST_FOLLOW_ORIGINAL_HTTP_METHOD, isFollowOriginalHttpMethod())
+                .setIf(isUseSSL(), Parameter.HTTP_USE_SSL,isUseSSL())
                 .setIf(isMultipart(), "multipart", isMultipart());
 
         if(!RestClient.DEFAULT_FILE_NAME.equals(getFilename()) && StringUtils.isNotBlank(getFilename())){
@@ -460,6 +642,11 @@ public class HttpRequest implements JsonSource {
                     request.setFollowRedirects(followRedirects);
                 }
 
+                final Integer maxRedirects = settings.integer(Parameter.HTTP_REQUEST_MAX_REDIRECTS);
+                if (maxRedirects != null) {
+                    request.setMaxRedirects(maxRedirects);
+                }
+
                 final Boolean fullResponse = settings.bool(Parameter.HTTP_REQUEST_FULL_RESPONSE);
                 if (fullResponse != null) {
                     request.setFullResponse(fullResponse);
@@ -475,6 +662,41 @@ public class HttpRequest implements JsonSource {
                     request.setDownloadSync(downloadSync);
                 }
 
+                final Boolean encodeUrl = settings.bool(Parameter.HTTP_ENCODE_URL);
+                if (encodeUrl != null) {
+                    request.setEncodeUrl(encodeUrl);
+                }
+
+                final Boolean forceDisableCookies = settings.bool(Parameter.HTTP_REQUEST_FORCE_DISABLE_COOKIES);
+                if (forceDisableCookies != null) {
+                    request.setForceDisableCookies(forceDisableCookies);
+                }
+
+            final Boolean removeRefererHeaderOnRedirect = settings.bool(Parameter.HTTP_REQUEST_REMOVE_REFERER_HEADER_ON_REDIRECT);
+            if (removeRefererHeaderOnRedirect != null) {
+                request.setRemoveRefererHeaderOnRedirect(removeRefererHeaderOnRedirect);
+            }
+
+            final Boolean defaultCallback = settings.bool(Parameter.HTTP_REQUEST_CALLBACK);
+                if (defaultCallback != null) {
+                    request.setDefaultCallback(defaultCallback);
+                }
+
+
+            final Boolean  followAuthorizationHeader = settings.bool(Parameter.HTTP_REQUEST_FOLLOW_AUTHORIZATION_HEADER);
+                if (followAuthorizationHeader != null) {
+                    request.setFollowAuthorizationHeader(followAuthorizationHeader);
+                }
+
+            final Boolean followOriginalHttpMethod = settings.bool(Parameter.HTTP_REQUEST_FOLLOW_ORIGINAL_HTTP_METHOD);
+            if (followOriginalHttpMethod != null) {
+                request.setFollowOriginalHttpMethod(followOriginalHttpMethod);
+            }
+
+            final Boolean  useSSL = settings.bool(Parameter.HTTP_USE_SSL);
+                if (useSSL != null) {
+                    request.setUseSSL(useSSL);
+                }
 
             }
 
@@ -496,5 +718,135 @@ public class HttpRequest implements JsonSource {
             }
         }
         return request;
+    }
+
+    public static class HttpRequestBuilder {
+
+        private RestMethod restMethod;
+        private String path = null;
+        private Json params = Json.map();
+        private Json headers = Json.map();
+        private Object body = null;
+
+        private int connectionTimeout = RestClient.DEFAULT_CONNECTION_TIMEOUT;
+        private int readTimeout = RestClient.DEFAULT_READ_TIMEOUT;
+        private boolean followRedirects = RestClient.DEFAULT_FOLLOW_REDIRECTS;
+        private boolean fullResponse = false;
+
+        private String filename = RestClient.DEFAULT_FILE_NAME;
+        private boolean forceDownload = false;
+        private boolean downloadSync = false;
+        private boolean defaultCallback = false;
+        private boolean forceDisableCookies = false;
+        private boolean removeRefererHeaderOnRedirect = false;
+        private boolean followOriginalHttpMethod = false;
+        private int maxRedirects = RestClient.DEFAULT_MAX_REDIRECTS;
+        private Boolean encodeUrl = null;
+        private boolean followAuthorizationHeader = false;
+        private boolean useSSL = true;
+
+        public HttpRequestBuilder() {
+
+        }
+
+        public HttpRequest build() {
+            return new HttpRequest(this);
+        }
+
+
+        public HttpRequestBuilder setRestMethod(RestMethod restMethod) {
+            this.restMethod = restMethod;
+            return this;
+        }
+
+        public HttpRequestBuilder setParams(Json params) {
+            this.params = params;
+            return this;
+        }
+
+        public HttpRequestBuilder setHeaders(Json headers) {
+            this.headers = headers;
+            return this;
+        }
+
+        public HttpRequestBuilder setBody(Object body) {
+            this.body = body;
+            return this;
+        }
+
+        public HttpRequestBuilder setConnectionTimeout(int connectionTimeout) {
+            this.connectionTimeout = connectionTimeout;
+            return this;
+        }
+
+        public HttpRequestBuilder setReadTimeout(int readTimeout) {
+            this.readTimeout = readTimeout;
+            return this;
+        }
+
+        public HttpRequestBuilder setFollowRedirects(boolean followRedirects) {
+            this.followRedirects = followRedirects;
+            return this;
+        }
+
+        public HttpRequestBuilder setMaxRedirects(int maxRedirects) {
+            this.maxRedirects = maxRedirects;
+            return this;
+        }
+
+        public HttpRequestBuilder setFullResponse(boolean fullResponse) {
+            this.fullResponse = fullResponse;
+            return this;
+        }
+
+        public HttpRequestBuilder setFilename(String filename) {
+            this.filename = filename;
+            return this;
+        }
+
+        public HttpRequestBuilder setForceDownload(boolean forceDownload) {
+            this.forceDownload = forceDownload;
+            return this;
+        }
+
+        public HttpRequestBuilder setDownloadSync(boolean downloadSync) {
+            this.downloadSync = downloadSync;
+            return this;
+        }
+
+        public HttpRequestBuilder setDefaultCallback(boolean defaultCallback) {
+            this.defaultCallback = defaultCallback;
+            return this;
+        }
+
+        public HttpRequestBuilder setForceDisableCookies(boolean forceDisableCookies) {
+            this.forceDisableCookies = forceDisableCookies;
+            return this;
+}
+
+        public HttpRequestBuilder setEncodeUrl(boolean encodeUrl) {
+            this.encodeUrl = encodeUrl;
+            return this;
+        }
+
+        public HttpRequestBuilder setFollowAuthorizationHeader(boolean followAuthorizationHeader) {
+            this.followAuthorizationHeader = followAuthorizationHeader;
+            return this;
+        }
+
+        public HttpRequestBuilder setRemoveRefererHeaderOnRedirect(boolean removeRefererHeaderOnRedirect) {
+            this.removeRefererHeaderOnRedirect = removeRefererHeaderOnRedirect;
+            return this;
+        }
+
+        public HttpRequestBuilder setUseSSL(boolean useSSL) {
+            this.useSSL = useSSL;
+            return this;
+        }
+
+        public HttpRequestBuilder setFollowOriginalHttpMethod(boolean followOriginalHttpMethod) {
+            this.followOriginalHttpMethod = followOriginalHttpMethod;
+            return this;
+        }
     }
 }

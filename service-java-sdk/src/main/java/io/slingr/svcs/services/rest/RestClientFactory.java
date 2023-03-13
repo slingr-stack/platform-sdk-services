@@ -14,6 +14,7 @@ import io.slingr.svcs.utils.converters.JsonConverter;
 import io.slingr.svcs.utils.converters.JsonSource;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -49,6 +50,8 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -76,6 +79,7 @@ public class RestClientFactory {
     private final ReentrantLock cookiesLock = new ReentrantLock();
     private final List<Cookie> cookies = new ArrayList<>();
     private final String[] acceptedMediaTypes;
+    private final List<String> history = new ArrayList<>();
 
     /**
      * Initialize factory
@@ -88,19 +92,8 @@ public class RestClientFactory {
             clientConfig.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
             clientConfig.property(ClientProperties.FOLLOW_REDIRECTS, true);
 
-            // the request entity will be buffered in the memory in order to determine content length that will be send as a Content-Length header in the request
+            // the request entity will be buffered in the memory in order to determine content length that will be sent as a Content-Length header in the request
             clientConfig.property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
-
-            final Registry<ConnectionSocketFactory> registry;
-            registry = RegistryBuilder.<ConnectionSocketFactory>create()
-                    .register("https", configureSSL())
-                    .register("http", new PlainConnectionSocketFactory())
-                    .build();
-            final PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(registry);
-            connectionManager.setMaxTotal(100);
-            connectionManager.setDefaultMaxPerRoute(100);
-            clientConfig.property(ApacheClientProperties.CONNECTION_MANAGER, connectionManager);
-            clientConfig.property(ApacheClientProperties.CONNECTION_MANAGER_SHARED, true);
 
             final ConnectorProvider provider = new ApacheConnectorProvider();
             clientConfig.connectorProvider(provider);
@@ -108,6 +101,9 @@ public class RestClientFactory {
             client = ClientBuilder.newClient(clientConfig);
 
             client.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
+
+            //By default, SSL certificate usage is enabled.
+            enableSSL(true);
 
             acceptedMediaTypes = ContentTypeFormat.getAcceptedFormats();
         } catch (Exception e) {
@@ -135,6 +131,32 @@ public class RestClientFactory {
         final SSLContext sslContext = SSLContext.getInstance("SSL");
         sslContext.init(null, trustAllCerts, new SecureRandom());
         return new SSLConnectionSocketFactory(sslContext, new TrustAllHostNameVerifier());
+    }
+
+    public RestClientFactory enableSSL(boolean useSSL) {
+        try {
+            final Registry<ConnectionSocketFactory> registry;
+            if (useSSL) {
+                registry = RegistryBuilder.<ConnectionSocketFactory>create()
+                        .register("https", configureSSL())
+                        .register("http", new PlainConnectionSocketFactory())
+                        .build();
+            }else{
+                registry = RegistryBuilder.<ConnectionSocketFactory>create()
+                        .register("http", new PlainConnectionSocketFactory())
+                        .build();
+            }
+            final PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(registry);
+            connectionManager.setMaxTotal(100);
+            connectionManager.setDefaultMaxPerRoute(100);
+            client.property(ApacheClientProperties.CONNECTION_MANAGER, connectionManager);
+            client.property(ApacheClientProperties.CONNECTION_MANAGER_SHARED, true);
+
+        } catch (Exception e) {
+            logger.error("Error enabling ssl certification", e);
+            throw new RuntimeException("Error enabling ssl certification", e);
+        }
+        return this;
     }
 
     /**
@@ -238,7 +260,7 @@ public class RestClientFactory {
                 );
 
             } else if(errorResponse || fullResponse) {
-                // if is a HTTP error or full request is required
+                // if is an HTTP error or full request is required
                 Object res;
                 if(responseAsJson != null){
                     res = responseAsJson;
@@ -319,7 +341,7 @@ public class RestClientFactory {
 
                     Json json = null;
                     if (inputStream != null) {
-                        json = JsonConverter.convertString(IOUtils.toString(inputStream, "UTF-8"), contentType);
+                        json = JsonConverter.convertString(IOUtils.toString(inputStream, StandardCharsets.UTF_8), contentType);
                         if (json != null && json.contains("message")) {
                             message = json.string("message");
                         }
@@ -502,16 +524,12 @@ public class RestClientFactory {
      * @param method HTTP method to execute on request
      * @param target target of the request
      * @param content body of the HTTP request. only processed for POST, PUT and PATCH methods.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
-     * @param connectionTimeout connect timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param readTimeout read timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param followRedirects automatic redirection. A value of {@code true} declares that the client will automatically
-     *                        redirect to the URI declared in 3xx responses.
      * @return response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
-    protected Response request(RestMethod method, WebTarget target, Object content, Json headers, Integer connectionTimeout, Integer readTimeout, boolean followRedirects) throws SvcException {
+    protected Response request(RestMethod method, WebTarget target, Object content, Json headers, HttpRequest request) throws SvcException {
         if (target == null) {
             throw SvcException.permanent(ErrorCode.ARGUMENT, "Web target is empty.");
         }
@@ -537,7 +555,7 @@ public class RestClientFactory {
             }
 
             String contentType = headers.string(Parameter.CONTENT_TYPE);
-            if (content instanceof Json || content instanceof JsonSource || content instanceof Map || content instanceof List || content instanceof Multipart) {
+            if (content instanceof JsonSource || content instanceof Map || content instanceof List || content instanceof Multipart) {
                 content = Json.fromObject(content);
 
                 if (StringUtils.isNotBlank(contentType)) {
@@ -570,22 +588,20 @@ public class RestClientFactory {
 
             }
         }
-        target = target.property(ClientProperties.FOLLOW_REDIRECTS, followRedirects);
+        target = target.property(ClientProperties.FOLLOW_REDIRECTS, false);
 
         // builder of the request created from the target
         final Invocation.Builder invocationBuilder = target.request();
         invocationBuilder.accept(acceptedMediaTypes);
-        if (connectionTimeout != null) {
-            invocationBuilder.property(ClientProperties.CONNECT_TIMEOUT, connectionTimeout);
-        }
-        if (readTimeout != null) {
-            invocationBuilder.property(ClientProperties.READ_TIMEOUT, readTimeout);
-        }
+
+        invocationBuilder.property(ClientProperties.CONNECT_TIMEOUT, request.getConnectionTimeout());
+
+        invocationBuilder.property(ClientProperties.READ_TIMEOUT, request.getReadTimeout());
 
         // these headers override the previous defined headers on target with the same name
         headers.forEachMap(invocationBuilder::header);
 
-        if(rememberCookies){
+        if(rememberCookies && !request.isForceDisableCookies()){
             // use cookies received on previous requests
             cookiesLock.lock();
             try {
@@ -636,11 +652,42 @@ public class RestClientFactory {
                 logger.info(String.format("%s Response to method [%s %s] - Response [%s]", Svc.DEBUG, method.name(), uri, response.getStatus()));
             }
 
-            if(rememberCookies){
+            if (request.getMaxRedirects() > 0 && request.isFollowRedirects() && response.getStatus() >= 300 && response.getStatus() < 400) {
+                request.setMaxRedirects(request.getMaxRedirects() - 1);
+                String locationHeader = response.getHeaderString("Location");
+                if (locationHeader == null || locationHeader.trim().isEmpty()) {
+                    logger.info("Exception when trying to process redirect: Location is null or empty.");
+                    throw SvcException.permanent(ErrorCode.GENERAL, "Location is null or empty.");
+                } else if (!locationHeader.startsWith("http")) {
+                    // handle relative URLs
+                    URI baseUri = target.getUri();
+                    URI resolvedUri = baseUri.resolve(locationHeader);
+                    target = client.target(resolvedUri);
+                } else {
+                    target = client.target(locationHeader);
+                }
+
+                //Remove Authorization if Follow Authorization header is false
+                if(!request.isFollowAuthorizationHeader()){
+                    headers.remove("Authorization");
+            }
+
+                if(!request.isRemoveRefererHeaderOnRedirect()){
+                    //Add Referer header
+                    this.history.add(this.history.size() == 0 ? request.getPath() : uri);
+                    headers.set(HttpHeaders.REFERER, this.history.get(this.history.size() - 1));
+                }
+
+                if (!request.isFollowOriginalHttpMethod()) method = RestMethod.GET;
+
+                response = request(method, target, content, headers, request);
+                if(!request.isRemoveRefererHeaderOnRedirect()) this.history.remove(this.history.size() - 1);
+            }
+
+            if(rememberCookies && !request.isForceDisableCookies()){
                 // save cookies for the following requests
                 cookiesLock.lock();
                 try {
-                    cookies.clear();
                     response.getCookies()
                             .forEach((s, newCookie) -> cookies.add(newCookie));
                 } catch (Exception ex){
@@ -653,6 +700,9 @@ public class RestClientFactory {
                     cookiesLock.unlock();
                 }
             }
+            // Clear cookies if any mechanism is enabled
+            if(!rememberCookies || request.isForceDisableCookies()) cookies.clear();
+
         } catch (SvcException ee) {
             throw ee;
         } catch (ResponseProcessingException rpe) {
