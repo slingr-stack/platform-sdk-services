@@ -41,6 +41,7 @@ public abstract class RestClient {
     public static final String BASIC_AUTHENTICATION_HEADER = "Basic";
     public static final String BEARER_AUTHENTICATION_HEADER = "Bearer";
     public static final String OAUTH_AUTHENTICATION_HEADER = "OAuth";
+    public static int DEFAULT_MAX_REDIRECTS = 10;
 
     protected boolean debug = false;
     private boolean skipEncodeParams = false;
@@ -93,7 +94,7 @@ public abstract class RestClient {
      *
      * @param apiUri base URI to build the requests to the API.
      */
-    public static RestClientBuilder builder(String apiUri){
+    public static RestClientBuilder builder(String apiUri, HttpRequest request) {
         defaultFactoryLock.lock();
         RestClientFactory factory;
         try{
@@ -101,7 +102,7 @@ public abstract class RestClient {
                 // create default shared factory for dynamic rest clients
                 defaultFactory = new RestClientFactory();
             }
-            factory = defaultFactory;
+            factory = defaultFactory.enableSSL(request.isUseSSL());
         } finally {
             defaultFactoryLock.unlock();
         }
@@ -127,7 +128,7 @@ public abstract class RestClient {
     }
 
     /**
-     * Disable encode paramas
+     * Disable encode params
      *
      * @param skipEncodeParams
      */
@@ -382,7 +383,7 @@ public abstract class RestClient {
     }
 
     /**
-     * Configures the default path for requests with an empty path. By default is '/'
+     * Configures the default path for requests with an empty path. By default, is '/'
      *
      * @param defaultEmptyPath default for requests with an empty path
      */
@@ -529,32 +530,33 @@ public abstract class RestClient {
      * Perform a GET request with the target information and without content.
      *
      * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
     public Json get(WebTarget target, Json headers, boolean fullResponse) throws SvcException {
-        return get(target, headers, fullResponse, null, null, null);
+
+        HttpRequest request = new HttpRequest.HttpRequestBuilder()
+                .setFullResponse(fullResponse)
+                .build();
+
+        return get(target, headers, request);
     }
 
     /**
      * Perform a GET request with the target information and without content.
      *
      * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
-     * @param fullResponse true if the response must include extended information about response
-     * @param connectionTimeout connect timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param readTimeout read timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param followRedirects automatic redirection. A value of {@code true} declares that the client will automatically
-     *                        redirect to the URI declared in 3xx responses.
+     * @param request request to be processed
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
-    public Json get(WebTarget target, Json headers, boolean fullResponse, Integer connectionTimeout, Integer readTimeout, Boolean followRedirects) throws SvcException {
-        return execute(RestMethod.GET, target, null, headers, fullResponse, connectionTimeout, readTimeout, followRedirects);
+    public Json get(WebTarget target, Json headers, HttpRequest request) throws SvcException {
+        return execute(RestMethod.GET, target, null, headers, request);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -685,7 +687,7 @@ public abstract class RestClient {
      *
      * @param target target of the request
      * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
@@ -699,7 +701,7 @@ public abstract class RestClient {
      * any object that it is possible convert to text.
      *
      * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
@@ -715,14 +717,19 @@ public abstract class RestClient {
      *
      * @param target target of the request
      * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
     public Json post(WebTarget target, Object content, Json headers, boolean fullResponse) throws SvcException {
-        return post(target, content, headers, fullResponse, null, null, null);
+
+        HttpRequest request = new HttpRequest.HttpRequestBuilder()
+                .setFullResponse(fullResponse)
+                .build();
+
+        return post(target, content, headers, request);
     }
 
     /**
@@ -731,18 +738,13 @@ public abstract class RestClient {
      *
      * @param target target of the request
      * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
-     * @param fullResponse true if the response must include extended information about response
-     * @param connectionTimeout connect timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param readTimeout read timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param followRedirects automatic redirection. A value of {@code true} declares that the client will automatically
-     *                        redirect to the URI declared in 3xx responses.
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
-    public Json post(WebTarget target, Object content, Json headers, boolean fullResponse, Integer connectionTimeout, Integer readTimeout, Boolean followRedirects) throws SvcException {
-        return execute(RestMethod.POST, target, content, headers, fullResponse, connectionTimeout, readTimeout, followRedirects);
+    public Json post(WebTarget target, Object content, Json headers, HttpRequest request) throws SvcException {
+        return execute(RestMethod.POST, target, content, headers, request);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -873,7 +875,7 @@ public abstract class RestClient {
      *
      * @param target target of the request
      * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
@@ -887,7 +889,7 @@ public abstract class RestClient {
      * any object that it is possible convert to text.
      *
      * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
@@ -903,14 +905,19 @@ public abstract class RestClient {
      *
      * @param target target of the request
      * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
     public Json put(WebTarget target, Object content, Json headers, boolean fullResponse) throws SvcException {
-        return put(target, content, headers, fullResponse, null, null, null);
+
+        HttpRequest request = new HttpRequest.HttpRequestBuilder()
+                .setFullResponse(fullResponse)
+                .build();
+
+        return put(target, content, headers, request);
     }
 
     /**
@@ -919,18 +926,13 @@ public abstract class RestClient {
      *
      * @param target target of the request
      * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
-     * @param fullResponse true if the response must include extended information about response
-     * @param connectionTimeout connect timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param readTimeout read timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param followRedirects automatic redirection. A value of {@code true} declares that the client will automatically
-     *                        redirect to the URI declared in 3xx responses.
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
-    public Json put(WebTarget target, Object content, Json headers, boolean fullResponse, Integer connectionTimeout, Integer readTimeout, Boolean followRedirects) throws SvcException {
-        return execute(RestMethod.PUT, target, content, headers, fullResponse, connectionTimeout, readTimeout, followRedirects);
+    public Json put(WebTarget target, Object content, Json headers, HttpRequest request) throws SvcException {
+        return execute(RestMethod.PUT, target, content, headers, request);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1060,7 +1062,7 @@ public abstract class RestClient {
      * any object that it is possible convert to text.
      *
      * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
@@ -1075,7 +1077,7 @@ public abstract class RestClient {
      *
      * @param target target of the request
      * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
@@ -1089,7 +1091,7 @@ public abstract class RestClient {
      * any object that it is possible convert to text.
      *
      * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
@@ -1105,14 +1107,20 @@ public abstract class RestClient {
      *
      * @param target target of the request
      * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
     public Json patch(WebTarget target, Object content, Json headers, boolean fullResponse) throws SvcException {
-        return patch(target, content, headers, fullResponse, null, null, null);
+
+        HttpRequest request = new HttpRequest.HttpRequestBuilder()
+                .setFullResponse(fullResponse)
+                .build();
+
+        return patch(target, content, headers, request);
+
     }
 
     /**
@@ -1121,18 +1129,13 @@ public abstract class RestClient {
      *
      * @param target target of the request
      * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
-     * @param fullResponse true if the response must include extended information about response
-     * @param connectionTimeout connect timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param readTimeout read timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param followRedirects automatic redirection. A value of {@code true} declares that the client will automatically
-     *                        redirect to the URI declared in 3xx responses.
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
-    public Json patch(WebTarget target, Object content, Json headers, boolean fullResponse, Integer connectionTimeout, Integer readTimeout, Boolean followRedirects) throws SvcException {
-        return execute(RestMethod.PATCH, target, content, headers, fullResponse, connectionTimeout, readTimeout, followRedirects);
+    public Json patch(WebTarget target, Object content, Json headers, HttpRequest request) throws SvcException {
+        return execute(RestMethod.PATCH, target, content, headers, request);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1209,7 +1212,7 @@ public abstract class RestClient {
      * Perform a DELETE request with the target information and without content
      *
      * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
@@ -1221,7 +1224,7 @@ public abstract class RestClient {
     /**
      * Perform a DELETE request with the default target information and without content
      *
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
@@ -1235,32 +1238,31 @@ public abstract class RestClient {
      * Perform a DELETE request with the target information and without content
      *
      * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
     public Json delete(WebTarget target, Json headers, boolean fullResponse) throws SvcException {
-        return delete(target, headers, fullResponse, null, null, null);
+        HttpRequest request = new HttpRequest.HttpRequestBuilder()
+                .setFullResponse(fullResponse)
+                .build();
+
+        return delete(target, headers, request);
     }
 
     /**
      * Perform a DELETE request with the target information and without content
      *
      * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
-     * @param fullResponse true if the response must include extended information about response
-     * @param connectionTimeout connect timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param readTimeout read timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param followRedirects automatic redirection. A value of {@code true} declares that the client will automatically
-     *                        redirect to the URI declared in 3xx responses.
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
-    public Json delete(WebTarget target, Json headers, boolean fullResponse, Integer connectionTimeout, Integer readTimeout, Boolean followRedirects) throws SvcException {
-        return execute(RestMethod.DELETE, target, null, headers, fullResponse, connectionTimeout, readTimeout, followRedirects);
+    public Json delete(WebTarget target, Json headers, HttpRequest request) throws SvcException {
+        return execute(RestMethod.DELETE, target, null, headers, request);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1337,7 +1339,7 @@ public abstract class RestClient {
      * Perform a HEAD request with the target information
      *
      * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
@@ -1349,7 +1351,7 @@ public abstract class RestClient {
     /**
      * Perform a HEAD request with the default target information
      *
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
@@ -1363,32 +1365,32 @@ public abstract class RestClient {
      * Perform a HEAD request with the target information
      *
      * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
     public Json head(WebTarget target, Json headers, boolean fullResponse) throws SvcException {
-        return head(target, headers, fullResponse, null, null, null);
+
+        HttpRequest request = new HttpRequest.HttpRequestBuilder()
+                .setFullResponse(fullResponse)
+                .build();
+
+        return head(target, headers, request);
     }
 
     /**
      * Perform a HEAD request with the target information
      *
      * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
-     * @param fullResponse true if the response must include extended information about response
-     * @param connectionTimeout connect timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param readTimeout read timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param followRedirects automatic redirection. A value of {@code true} declares that the client will automatically
-     *                        redirect to the URI declared in 3xx responses.
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
-    public Json head(WebTarget target, Json headers, boolean fullResponse, Integer connectionTimeout, Integer readTimeout, Boolean followRedirects) throws SvcException {
-        return execute(RestMethod.HEAD, target, null, headers, fullResponse, connectionTimeout, readTimeout, followRedirects);
+    public Json head(WebTarget target, Json headers, HttpRequest request) throws SvcException {
+        return execute(RestMethod.HEAD, target, null, headers, request);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1465,7 +1467,7 @@ public abstract class RestClient {
      * Perform a OPTIONS request with the target information
      *
      * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
@@ -1491,32 +1493,33 @@ public abstract class RestClient {
      * Perform a OPTIONS request with the target information
      *
      * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
     public Json options(WebTarget target, Json headers, boolean fullResponse) throws SvcException {
-        return options(target, headers, fullResponse, null, null, null);
+
+        HttpRequest request = new HttpRequest.HttpRequestBuilder()
+                .setFullResponse(fullResponse)
+                .build();
+
+        return options(target, headers, request);
+
     }
 
     /**
      * Perform a OPTIONS request with the target information
      *
      * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
-     * @param fullResponse true if the response must include extended information about response
-     * @param connectionTimeout connect timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param readTimeout read timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param followRedirects automatic redirection. A value of {@code true} declares that the client will automatically
-     *                        redirect to the URI declared in 3xx responses.
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
-    public Json options(WebTarget target, Json headers, boolean fullResponse, Integer connectionTimeout, Integer readTimeout, Boolean followRedirects) throws SvcException {
-        return execute(RestMethod.OPTIONS, target, null, headers, fullResponse, connectionTimeout, readTimeout, followRedirects);
+    public Json options(WebTarget target, Json headers, HttpRequest request) throws SvcException {
+        return execute(RestMethod.OPTIONS, target, null, headers, request);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1524,7 +1527,7 @@ public abstract class RestClient {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Perform a GET request from a HTTP request in order to download the remote HTTP resource.
+     * Perform a GET request from an HTTP request in order to download the remote HTTP resource.
      *
      * @param request request to be processed
      * @return processed downloaded file
@@ -1535,7 +1538,7 @@ public abstract class RestClient {
     }
 
     /**
-     * Perform a GET request from a HTTP request in order to download the remote HTTP resource.
+     * Perform a GET request from an HTTP request in order to download the remote HTTP resource.
      *
      * @param request request to be processed
      * @return processed downloaded file
@@ -1570,30 +1573,30 @@ public abstract class RestClient {
      * Perform a GET request in order to download the remote HTTP resource
      *
      * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed downloaded file
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
     public DownloadedFile download(WebTarget target, Json headers) throws SvcException {
-        return download(target, headers, null, null, null);
+
+        HttpRequest request = new HttpRequest.HttpRequestBuilder()
+                .build();
+
+        return download(target, headers, request);
     }
 
     /**
      * Perform a GET request in order to download the remote HTTP resource
      *
      * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
-     * @param connectionTimeout connect timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param readTimeout read timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param followRedirects automatic redirection. A value of {@code true} declares that the client will automatically
-     *                        redirect to the URI declared in 3xx responses.
      * @return processed downloaded file
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
-    public DownloadedFile download(WebTarget target, Json headers, Integer connectionTimeout, Integer readTimeout, Boolean followRedirects) throws SvcException {
-        final Response response = request(RestMethod.GET, target, null, headers, connectionTimeout, readTimeout, followRedirects);
+    public DownloadedFile download(WebTarget target, Json headers, HttpRequest request) throws SvcException {
+        final Response response = request(RestMethod.GET, target, null, headers, request);
         return factory.processDownloadedFile(response);
     }
 
@@ -1764,7 +1767,7 @@ public abstract class RestClient {
      * Perform a POST request to a remote HTTP service in order to upload a file.
      *
      * @param content body part of the HTTP multipart request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param fullResponse true if the response must include extended information about response
      * @param inputStream file part of the HTTP multipart request
@@ -1782,7 +1785,7 @@ public abstract class RestClient {
      *
      * @param target target of the request
      * @param content body part of the HTTP multipart request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param inputStream file part of the HTTP multipart request
      * @param filename filename of the sent attachment (to be set as a part of {@code content-disposition}).
@@ -1791,7 +1794,7 @@ public abstract class RestClient {
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
     public Json upload(WebTarget target, Object content, Json headers, boolean fullResponse, InputStream inputStream, String filename, String contentType) throws SvcException {
-        return upload(target, content, headers, fullResponse, null, null, null, inputStream, filename, contentType, null, null);
+        return upload(target, content, headers, fullResponse, null, null, null, null, inputStream, filename, contentType, null, null);
     }
 
     /**
@@ -1799,7 +1802,7 @@ public abstract class RestClient {
      *
      * @param target target of the request
      * @param content body part of the HTTP multipart request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param fullResponse true if the response must include extended information about response
      * @param connectionTimeout connect timeout interval, in milliseconds. null to use the default value (0: infinity).
@@ -1814,15 +1817,23 @@ public abstract class RestClient {
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
-    public Json upload(WebTarget target, Object content, Json headers, boolean fullResponse, Integer connectionTimeout, Integer readTimeout, Boolean followRedirects,
+    public Json upload(WebTarget target, Object content, Json headers, boolean fullResponse, Integer connectionTimeout, Integer readTimeout, Boolean followRedirects, Boolean forceDisableCookies,
                        InputStream inputStream, String filename, String contentType, String uploadParameter, String uploadBody
     ) throws SvcException {
         uploadParameter = uploadParameter != null ? uploadParameter : this.uploadParameter;
         uploadBody = uploadBody != null ? uploadBody : this.uploadBody;
 
+        HttpRequest request = new HttpRequest.HttpRequestBuilder()
+                .setFullResponse(fullResponse)
+                .setConnectionTimeout(connectionTimeout)
+                .setReadTimeout(readTimeout)
+                .setFollowRedirects(followRedirects)
+                .setForceDisableCookies(forceDisableCookies)
+                .build();
+
         try {
             content = factory.processUploadFile(inputStream, filename, contentType, uploadParameter, uploadBody, content);
-            return execute(RestMethod.POST, target, content, headers, fullResponse, connectionTimeout, readTimeout, followRedirects);
+            return execute(RestMethod.POST, target, content, headers, request);
         } catch (SvcException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -1836,7 +1847,7 @@ public abstract class RestClient {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Perform the specified HTTP request to the target from a HTTP request.
+     * Perform the specified HTTP request to the target from an HTTP request.
      *
      * @param request HTTP request
      * @return processed response of the request
@@ -1848,7 +1859,7 @@ public abstract class RestClient {
     }
 
     /**
-     * Perform the specified HTTP request to the target from a HTTP request.
+     * Perform the specified HTTP request to the target from an HTTP request.
      *
      * @param method HTTP method to execute on request
      * @param request HTTP request
@@ -1861,7 +1872,7 @@ public abstract class RestClient {
     }
 
     /**
-     * Perform the specified HTTP request to the target from a HTTP request.
+     * Perform the specified HTTP request to the target from an HTTP request.
      *
      * @param method HTTP method to execute on request
      * @param request HTTP request
@@ -1901,7 +1912,7 @@ public abstract class RestClient {
             if(!allowExternalUrl) {
                 throw SvcException.permanent(ErrorCode.ARGUMENT, String.format("External URLs are not allowed as request path [%s]", path));
             } else {
-                RestClientBuilder simpleClient = RestClient.builder(path);
+                RestClientBuilder simpleClient = RestClient.builder(path, request);
                 for (Map.Entry<String, Object> header : apiHeaders.entrySet()) {
                     simpleClient = simpleClient.header(header.getKey(), header.getValue());
                 }
@@ -1924,6 +1935,7 @@ public abstract class RestClient {
             target = getApiTarget().path(path);
         }
         if(!params.isEmpty()){
+            this.skipEncodeParams = request.isEncodeUrl() == null ? this.skipEncodeParams : !request.isEncodeUrl();
             for (String key : params.keys()) {
                 Object oValue = params.object(key);
                 if(oValue != null) {
@@ -1942,7 +1954,7 @@ public abstract class RestClient {
             body = request.getBody();
         }
 
-        return request(method, target, body, request.getHeaders(), request.getConnectionTimeout(), request.getReadTimeout(), request.isFollowRedirects());
+        return request(method, target, body, request.getHeaders(), request);
     }
 
     /**
@@ -1951,19 +1963,14 @@ public abstract class RestClient {
      * @param method HTTP method to execute on request
      * @param target target of the request
      * @param content body of the HTTP request. only processed for POST, PUT and PATCH methods.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
-     * @param fullResponse true if the response must include extended information about response
-     * @param connectionTimeout connect timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param readTimeout read timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param followRedirects automatic redirection. A value of {@code true} declares that the client will automatically
-     *                        redirect to the URI declared in 3xx responses.
      * @return processed response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
-    protected Json execute(RestMethod method, WebTarget target, Object content, Json headers, boolean fullResponse, Integer connectionTimeout, Integer readTimeout, Boolean followRedirects) throws SvcException {
-        final Response response = request(method, target, content, headers, connectionTimeout, readTimeout, followRedirects);
-        return factory.processResponse(response, method, fullResponse);
+    protected Json execute(RestMethod method, WebTarget target, Object content, Json headers, HttpRequest request) throws SvcException {
+        final Response response = request(method, target, content, headers, request);
+        return factory.processResponse(response, method, request.isFullResponse());
     }
 
     /**
@@ -1972,29 +1979,20 @@ public abstract class RestClient {
      * @param method HTTP method to execute on request
      * @param target target of the request
      * @param content body of the HTTP request. only processed for POST, PUT and PATCH methods.
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
-     * @param connectionTimeout connect timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param readTimeout read timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param followRedirects automatic redirection. A value of {@code true} declares that the client will automatically
-     *                        redirect to the URI declared in 3xx responses.
      * @return response of the request
      * @throws SvcException if the request cannot be built or if the server returns an error message
      */
-    protected Response request(RestMethod method, WebTarget target, Object content, Json headers, Integer connectionTimeout, Integer readTimeout, Boolean followRedirects) throws SvcException {
+    protected Response request(RestMethod method, WebTarget target, Object content, Json headers, HttpRequest request) throws SvcException {
         target = target != null ? target : apiTarget;
-        connectionTimeout = connectionTimeout != null ? connectionTimeout : this.connectionTimeout;
-        readTimeout = readTimeout != null ? readTimeout : this.readTimeout;
-        followRedirects = followRedirects != null ? followRedirects : this.followRedirects;
 
         final Json headersToSend = Json.map();
-        if(apiHeaders != null){
             apiHeaders.forEach(headersToSend::set);
-        }
         if(headers != null && headers.isMap()){
             headers.forEachMap(headersToSend::set);
         }
 
-        return factory.request(method, target, content, headersToSend, connectionTimeout, readTimeout, followRedirects);
+        return factory.request(method, target, content, headersToSend, request);
     }
 }
