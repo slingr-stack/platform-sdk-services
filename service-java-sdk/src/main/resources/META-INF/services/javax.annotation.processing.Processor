@@ -1,1 +1,1 @@
-io.slingr.svcs.framework.annotations.processor.SlingrSvcProcessor
+io.slingr.services.framework.annotations.processor.SlingrServiceProcessor
