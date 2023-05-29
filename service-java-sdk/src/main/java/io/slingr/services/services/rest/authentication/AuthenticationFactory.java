@@ -12,8 +12,8 @@ import java.util.Map;
  * </p>
  * <ol>
  * <li>Create a new enum constant in {@link AuthenticationType} representing the new authentication method.</li>
- * <li>Implement the corresponding {@link AuthenticationStrategy} for the new authentication method.</li>
- * <li>Update this factory method to handle the new authentication type by adding a case statement for the new constant in the switch block.</li>
+ * <li>Create a new class and implement the corresponding {@link AuthenticationStrategy} for the new authentication method.</li>
+ * <li>Update the {@code createAuthenticationStrategy} method to handle the new authentication type by adding a case statement for the new constant in the switch block.</li>
  * </ol>
  */
 public class AuthenticationFactory {
