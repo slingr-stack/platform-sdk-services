@@ -6,11 +6,15 @@ import java.util.Map;
 
 /**
  * Factory class for creating instances of {@link AuthenticationStrategy} based on the specified {@link AuthenticationType}.
- *
- * Adds a new authentication method to the system.
- * To add a new authentication method, create a new enum constant in {@link AuthenticationType},
- * implement the corresponding {@link AuthenticationStrategy}, and update this factory method
- * to handle the new authentication type.
+ * <p>
+ * This class also provides the ability to add a new authentication method to the system.
+ * To add a new authentication method, follow these steps:
+ * </p>
+ * <ol>
+ * <li>Create a new enum constant in {@link AuthenticationType} representing the new authentication method.</li>
+ * <li>Implement the corresponding {@link AuthenticationStrategy} for the new authentication method.</li>
+ * <li>Update this factory method to handle the new authentication type by adding a case statement for the new constant in the switch block.</li>
+ * </ol>
  */
 public class AuthenticationFactory {
 
