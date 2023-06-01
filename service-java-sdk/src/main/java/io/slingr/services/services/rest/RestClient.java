@@ -5,6 +5,7 @@ import io.slingr.services.exceptions.ServiceException;
 import io.slingr.services.exceptions.ErrorCode;
 import io.slingr.services.services.Files;
 import io.slingr.services.services.exchange.Parameter;
+import io.slingr.services.services.rest.authentication.AuthenticationType;
 import io.slingr.services.utils.Base64Utils;
 import io.slingr.services.utils.Json;
 import io.slingr.services.utils.Strings;
@@ -69,7 +70,7 @@ public abstract class RestClient {
      * @param apiUri base URI to build the requests to the API.
      */
     public RestClient(String apiUri) throws ServiceException {
-        if(StringUtils.isBlank(apiUri)){
+        if (StringUtils.isBlank(apiUri)) {
             apiUri = "";
         }
         this.factory = new RestClientFactory();
@@ -82,7 +83,7 @@ public abstract class RestClient {
      * @param apiUri base URI to build the requests to the API.
      */
     public RestClient(String apiUri, RestClientFactory factory) throws ServiceException {
-        if(StringUtils.isBlank(apiUri)){
+        if (StringUtils.isBlank(apiUri)) {
             apiUri = "";
         }
         this.factory = factory;
@@ -94,25 +95,14 @@ public abstract class RestClient {
      *
      * @param apiUri base URI to build the requests to the API.
      */
-    public static RestClientBuilder builder(String apiUri, HttpRequest request) {
-        defaultFactoryLock.lock();
-        RestClientFactory factory;
-        try{
-            if(defaultFactory == null){
-                // create default shared factory for dynamic rest clients
-                defaultFactory = new RestClientFactory();
-            }
-            factory = defaultFactory.enableSSL(request.isUseSSL());
-        } finally {
-            defaultFactoryLock.unlock();
-        }
-        return new RestClientBuilder(apiUri, factory);
+    public static RestClientBuilder builder(String apiUri) {
+        return new RestClientBuilder(apiUri, new RestClientFactory());
     }
 
     /**
      * Restart status of client factory and target
      */
-    public void restartClient(){
+    public void restartClient() {
         this.factory = new RestClientFactory();
         this.apiTarget = factory.uri(this.apiTarget.getUri().toString());
     }
@@ -173,6 +163,12 @@ public abstract class RestClient {
         this.apiTarget = factory.setupDigestAuthentication(apiTarget, username, password);
     }
 
+
+    public void setupAuthentication(Map<String, String> params) {
+        AuthenticationType authenticationType = AuthenticationType.fromType(params);
+        this.apiTarget = factory.setupAuthentication(apiTarget, authenticationType, params);
+    }
+
     /**
      * Configures basic authentication as a header in the client so calls will use it.
      *
@@ -214,7 +210,7 @@ public abstract class RestClient {
     /**
      * Configures authentication as a header in the client so calls will use it.
      *
-     * @param type type of authentication to include in the header, per example {@code Basic}, {@code Bearer}, etc
+     * @param type     type of authentication to include in the header, per example {@code Basic}, {@code Bearer}, etc
      * @param username the username to authenticate
      * @param password the password of the user
      */
@@ -226,7 +222,7 @@ public abstract class RestClient {
     /**
      * Configures authentication as a header in the client so calls will use it.
      *
-     * @param type type of authentication to include in the header, per example {@code Basic}, {@code Bearer}, etc
+     * @param type               type of authentication to include in the header, per example {@code Basic}, {@code Bearer}, etc
      * @param authorizationToken token generated between the user name and password values
      */
     public void setupAuthenticationHeader(String type, String authorizationToken) {
@@ -246,7 +242,7 @@ public abstract class RestClient {
      * Configures a parameter that will be sent in all requests. For example a token or format value is a typical
      * case where you need this.
      *
-     * @param name parameter name
+     * @param name  parameter name
      * @param value parameter value
      */
     public void setupDefaultParam(String name, String value) {
@@ -261,7 +257,7 @@ public abstract class RestClient {
      */
     protected void setPath(String path) {
         // add path
-        if(StringUtils.isNotBlank(path)) {
+        if (StringUtils.isNotBlank(path)) {
             this.apiTarget = this.apiTarget.path(path);
         }
     }
@@ -282,7 +278,7 @@ public abstract class RestClient {
      */
     protected WebTarget target(String path, Json parameters) {
         WebTarget response = target(path);
-        if(response != null && parameters != null && parameters.isMap()){
+        if (response != null && parameters != null && parameters.isMap()) {
             for (Map.Entry<String, Object> entry : parameters.toMap().entrySet()) {
                 response = response.queryParam(entry.getKey(), entry.getValue() != null ? entry.getValue().toString() : true);
             }
@@ -294,7 +290,7 @@ public abstract class RestClient {
      * Configures a header that will be sent in all requests. For example a token is a typical case where you
      * need this.
      *
-     * @param name name of header
+     * @param name  name of header
      * @param value header value
      */
     public void setupDefaultHeader(String name, Object value) {
@@ -356,7 +352,7 @@ public abstract class RestClient {
      *
      * @return connection timeout in milliseconds
      */
-    public Integer getConnectionTimeout()  {
+    public Integer getConnectionTimeout() {
         return connectionTimeout;
     }
 
@@ -388,7 +384,7 @@ public abstract class RestClient {
      * @param defaultEmptyPath default for requests with an empty path
      */
     public void setDefaultEmptyPath(String defaultEmptyPath) {
-        if(defaultEmptyPath != null) {
+        if (defaultEmptyPath != null) {
             this.defaultEmptyPath = defaultEmptyPath.trim();
         } else {
             this.defaultEmptyPath = DEFAULT_EMPTY_PATH;
@@ -491,7 +487,7 @@ public abstract class RestClient {
     /**
      * Perform a GET request with the target information.
      *
-     * @param target target of the request
+     * @param target       target of the request
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -503,7 +499,7 @@ public abstract class RestClient {
     /**
      * Perform a GET request with the target information and without content.
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param headers headers of HTTP request. the header on target with the same name will be override by these
      *                properties
      * @return processed response of the request
@@ -516,8 +512,8 @@ public abstract class RestClient {
     /**
      * Perform a GET request with the default target information and without content.
      *
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
-     *                properties
+     * @param headers      headers of HTTP request. the header on target with the same name will be override by these
+     *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -529,9 +525,9 @@ public abstract class RestClient {
     /**
      * Perform a GET request with the target information and without content.
      *
-     * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
-     *                properties
+     * @param target       target of the request
+     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
+     *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -548,7 +544,7 @@ public abstract class RestClient {
     /**
      * Perform a GET request with the target information and without content.
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @param request request to be processed
@@ -620,7 +616,7 @@ public abstract class RestClient {
     /**
      * Perform a POST request with the target information and without content.
      *
-     * @param target target of the request
+     * @param target       target of the request
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -645,7 +641,7 @@ public abstract class RestClient {
      * Perform a POST request with the target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param content body of the HTTP request.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -658,7 +654,7 @@ public abstract class RestClient {
      * Perform a POST request with the default target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param content body of the HTTP request.
+     * @param content      body of the HTTP request.
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -671,8 +667,8 @@ public abstract class RestClient {
      * Perform a POST request with the target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param target target of the request
-     * @param content body of the HTTP request.
+     * @param target       target of the request
+     * @param content      body of the HTTP request.
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -685,7 +681,7 @@ public abstract class RestClient {
      * Perform a POST request with the target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param content body of the HTTP request.
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
@@ -700,9 +696,9 @@ public abstract class RestClient {
      * Perform a POST request with the default target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
-     *                properties
+     * @param content      body of the HTTP request.
+     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
+     *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -715,10 +711,10 @@ public abstract class RestClient {
      * Perform a POST request with the target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param target target of the request
-     * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
-     *                properties
+     * @param target       target of the request
+     * @param content      body of the HTTP request.
+     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
+     *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -736,7 +732,7 @@ public abstract class RestClient {
      * Perform a POST request with the target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param content body of the HTTP request.
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
@@ -808,7 +804,7 @@ public abstract class RestClient {
     /**
      * Perform a PUT request with the target information and without content.
      *
-     * @param target target of the request
+     * @param target       target of the request
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -833,7 +829,7 @@ public abstract class RestClient {
      * Perform a PUT request with the target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param content body of the HTTP request.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -846,7 +842,7 @@ public abstract class RestClient {
      * Perform a PUT request with the default target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param content body of the HTTP request.
+     * @param content      body of the HTTP request.
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -859,8 +855,8 @@ public abstract class RestClient {
      * Perform a PUT request with the target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param target target of the request
-     * @param content body of the HTTP request.
+     * @param target       target of the request
+     * @param content      body of the HTTP request.
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -873,7 +869,7 @@ public abstract class RestClient {
      * Perform a PUT request with the target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param content body of the HTTP request.
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
@@ -888,9 +884,9 @@ public abstract class RestClient {
      * Perform a PUT request with the default target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
-     *                properties
+     * @param content      body of the HTTP request.
+     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
+     *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -903,10 +899,10 @@ public abstract class RestClient {
      * Perform a PUT request with the target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param target target of the request
-     * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
-     *                properties
+     * @param target       target of the request
+     * @param content      body of the HTTP request.
+     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
+     *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -924,7 +920,7 @@ public abstract class RestClient {
      * Perform a PUT request with the target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param content body of the HTTP request.
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
@@ -996,7 +992,7 @@ public abstract class RestClient {
     /**
      * Perform a PATCH request with the target information and without content.
      *
-     * @param target target of the request
+     * @param target       target of the request
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1004,7 +1000,7 @@ public abstract class RestClient {
     public Json patch(WebTarget target, boolean fullResponse) throws ServiceException {
         return patch(target, null, null, fullResponse);
     }
-    
+
     /**
      * Perform a PATCH request with the default target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
@@ -1021,7 +1017,7 @@ public abstract class RestClient {
      * Perform a PATCH request with the target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param content body of the HTTP request.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1034,7 +1030,7 @@ public abstract class RestClient {
      * Perform a PATCH request with the default target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param content body of the HTTP request.
+     * @param content      body of the HTTP request.
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1047,8 +1043,8 @@ public abstract class RestClient {
      * Perform a PATCH request with the target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param target target of the request
-     * @param content body of the HTTP request.
+     * @param target       target of the request
+     * @param content      body of the HTTP request.
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1075,7 +1071,7 @@ public abstract class RestClient {
      * Perform a PATCH request with the target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param content body of the HTTP request.
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
@@ -1090,9 +1086,9 @@ public abstract class RestClient {
      * Perform a PATCH request with the default target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
-     *                properties
+     * @param content      body of the HTTP request.
+     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
+     *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1105,10 +1101,10 @@ public abstract class RestClient {
      * Perform a PATCH request with the target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param target target of the request
-     * @param content body of the HTTP request.
-     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
-     *                properties
+     * @param target       target of the request
+     * @param content      body of the HTTP request.
+     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
+     *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1127,7 +1123,7 @@ public abstract class RestClient {
      * Perform a PATCH request with the target information and content. The content can be a Json, Form, MultiPart or
      * any object that it is possible convert to text.
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param content body of the HTTP request.
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
@@ -1199,7 +1195,7 @@ public abstract class RestClient {
     /**
      * Perform a DELETE request with the target information and without content
      *
-     * @param target target of the request
+     * @param target       target of the request
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1211,7 +1207,7 @@ public abstract class RestClient {
     /**
      * Perform a DELETE request with the target information and without content
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed response of the request
@@ -1224,8 +1220,8 @@ public abstract class RestClient {
     /**
      * Perform a DELETE request with the default target information and without content
      *
-     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
-     *                properties
+     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
+     *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1237,9 +1233,9 @@ public abstract class RestClient {
     /**
      * Perform a DELETE request with the target information and without content
      *
-     * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
-     *                properties
+     * @param target       target of the request
+     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
+     *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1255,7 +1251,7 @@ public abstract class RestClient {
     /**
      * Perform a DELETE request with the target information and without content
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed response of the request
@@ -1326,7 +1322,7 @@ public abstract class RestClient {
     /**
      * Perform a HEAD request with the target information
      *
-     * @param target target of the request
+     * @param target       target of the request
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1338,7 +1334,7 @@ public abstract class RestClient {
     /**
      * Perform a HEAD request with the target information
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed response of the request
@@ -1351,8 +1347,8 @@ public abstract class RestClient {
     /**
      * Perform a HEAD request with the default target information
      *
-     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
-     *                properties
+     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
+     *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1364,9 +1360,9 @@ public abstract class RestClient {
     /**
      * Perform a HEAD request with the target information
      *
-     * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
-     *                properties
+     * @param target       target of the request
+     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
+     *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1383,7 +1379,7 @@ public abstract class RestClient {
     /**
      * Perform a HEAD request with the target information
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed response of the request
@@ -1454,7 +1450,7 @@ public abstract class RestClient {
     /**
      * Perform a OPTIONS request with the target information
      *
-     * @param target target of the request
+     * @param target       target of the request
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1466,7 +1462,7 @@ public abstract class RestClient {
     /**
      * Perform a OPTIONS request with the target information
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed response of the request
@@ -1479,8 +1475,8 @@ public abstract class RestClient {
     /**
      * Perform a OPTIONS request with the default target information
      *
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
-     *                properties
+     * @param headers      headers of HTTP request. the header on target with the same name will be override by these
+     *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1492,9 +1488,9 @@ public abstract class RestClient {
     /**
      * Perform a OPTIONS request with the target information
      *
-     * @param target target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
-     *                properties
+     * @param target       target of the request
+     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
+     *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1512,7 +1508,7 @@ public abstract class RestClient {
     /**
      * Perform a OPTIONS request with the target information
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed response of the request
@@ -1572,7 +1568,7 @@ public abstract class RestClient {
     /**
      * Perform a GET request in order to download the remote HTTP resource
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed downloaded file
@@ -1589,7 +1585,7 @@ public abstract class RestClient {
     /**
      * Perform a GET request in order to download the remote HTTP resource
      *
-     * @param target target of the request
+     * @param target  target of the request
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed downloaded file
@@ -1609,7 +1605,7 @@ public abstract class RestClient {
      * files.
      *
      * @param request request to be processed
-     * @param files the files service to download files from the app
+     * @param files   the files service to download files from the app
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
      */
@@ -1622,7 +1618,7 @@ public abstract class RestClient {
      * files.
      *
      * @param request request to be processed
-     * @param files the files service to download files from the app
+     * @param files   the files service to download files from the app
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
      */
@@ -1651,7 +1647,7 @@ public abstract class RestClient {
      * Perform a POST request to a remote HTTP service in order to upload a file.
      *
      * @param inputStream file part of the HTTP multipart request
-     * @param filename filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param filename    filename of the sent attachment (to be set as a part of {@code content-disposition}).
      * @param contentType MIME type of the {@code streamEntity} attachment.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1663,9 +1659,9 @@ public abstract class RestClient {
     /**
      * Perform a POST request to a remote HTTP service in order to upload a file.
      *
-     * @param target target of the request
+     * @param target      target of the request
      * @param inputStream file part of the HTTP multipart request
-     * @param filename filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param filename    filename of the sent attachment (to be set as a part of {@code content-disposition}).
      * @param contentType MIME type of the {@code streamEntity} attachment.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1678,9 +1674,9 @@ public abstract class RestClient {
      * Perform a POST request to a remote HTTP service in order to upload a file.
      *
      * @param fullResponse true if the response must include extended information about response
-     * @param inputStream file part of the HTTP multipart request
-     * @param filename filename of the sent attachment (to be set as a part of {@code content-disposition}).
-     * @param contentType MIME type of the {@code streamEntity} attachment.
+     * @param inputStream  file part of the HTTP multipart request
+     * @param filename     filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param contentType  MIME type of the {@code streamEntity} attachment.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
      */
@@ -1691,11 +1687,11 @@ public abstract class RestClient {
     /**
      * Perform a POST request to a remote HTTP service in order to upload a file.
      *
-     * @param target target of the request
+     * @param target       target of the request
      * @param fullResponse true if the response must include extended information about response
-     * @param inputStream file part of the HTTP multipart request
-     * @param filename filename of the sent attachment (to be set as a part of {@code content-disposition}).
-     * @param contentType MIME type of the {@code streamEntity} attachment.
+     * @param inputStream  file part of the HTTP multipart request
+     * @param filename     filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param contentType  MIME type of the {@code streamEntity} attachment.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
      */
@@ -1706,9 +1702,9 @@ public abstract class RestClient {
     /**
      * Perform a POST request to a remote HTTP service in order to upload a file.
      *
-     * @param content body part of the HTTP multipart request
+     * @param content     body part of the HTTP multipart request
      * @param inputStream file part of the HTTP multipart request
-     * @param filename filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param filename    filename of the sent attachment (to be set as a part of {@code content-disposition}).
      * @param contentType MIME type of the {@code streamEntity} attachment.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1720,10 +1716,10 @@ public abstract class RestClient {
     /**
      * Perform a POST request to a remote HTTP service in order to upload a file.
      *
-     * @param target target of the request
-     * @param content body part of the HTTP multipart request
+     * @param target      target of the request
+     * @param content     body part of the HTTP multipart request
      * @param inputStream file part of the HTTP multipart request
-     * @param filename filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param filename    filename of the sent attachment (to be set as a part of {@code content-disposition}).
      * @param contentType MIME type of the {@code streamEntity} attachment.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1735,11 +1731,11 @@ public abstract class RestClient {
     /**
      * Perform a POST request to a remote HTTP service in order to upload a file.
      *
-     * @param content body part of the HTTP multipart request
+     * @param content      body part of the HTTP multipart request
      * @param fullResponse true if the response must include extended information about response
-     * @param inputStream file part of the HTTP multipart request
-     * @param filename filename of the sent attachment (to be set as a part of {@code content-disposition}).
-     * @param contentType MIME type of the {@code streamEntity} attachment.
+     * @param inputStream  file part of the HTTP multipart request
+     * @param filename     filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param contentType  MIME type of the {@code streamEntity} attachment.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
      */
@@ -1750,12 +1746,12 @@ public abstract class RestClient {
     /**
      * Perform a POST request to a remote HTTP service in order to upload a file.
      *
-     * @param target target of the request
-     * @param content body part of the HTTP multipart request
+     * @param target       target of the request
+     * @param content      body part of the HTTP multipart request
      * @param fullResponse true if the response must include extended information about response
-     * @param inputStream file part of the HTTP multipart request
-     * @param filename filename of the sent attachment (to be set as a part of {@code content-disposition}).
-     * @param contentType MIME type of the {@code streamEntity} attachment.
+     * @param inputStream  file part of the HTTP multipart request
+     * @param filename     filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param contentType  MIME type of the {@code streamEntity} attachment.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
      */
@@ -1766,13 +1762,13 @@ public abstract class RestClient {
     /**
      * Perform a POST request to a remote HTTP service in order to upload a file.
      *
-     * @param content body part of the HTTP multipart request
-     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
-     *                properties
+     * @param content      body part of the HTTP multipart request
+     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
+     *                     properties
      * @param fullResponse true if the response must include extended information about response
-     * @param inputStream file part of the HTTP multipart request
-     * @param filename filename of the sent attachment (to be set as a part of {@code content-disposition}).
-     * @param contentType MIME type of the {@code streamEntity} attachment.
+     * @param inputStream  file part of the HTTP multipart request
+     * @param filename     filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param contentType  MIME type of the {@code streamEntity} attachment.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
      */
@@ -1783,12 +1779,12 @@ public abstract class RestClient {
     /**
      * Perform a POST request to a remote HTTP service in order to upload a file.
      *
-     * @param target target of the request
-     * @param content body part of the HTTP multipart request
-     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
-     *                properties
+     * @param target      target of the request
+     * @param content     body part of the HTTP multipart request
+     * @param headers     headers of HTTP request. the header on target with the same name will be overridden by these
+     *                    properties
      * @param inputStream file part of the HTTP multipart request
-     * @param filename filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param filename    filename of the sent attachment (to be set as a part of {@code content-disposition}).
      * @param contentType MIME type of the {@code streamEntity} attachment.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1800,20 +1796,20 @@ public abstract class RestClient {
     /**
      * Perform a POST request to a remote HTTP service in order to upload a file.
      *
-     * @param target target of the request
-     * @param content body part of the HTTP multipart request
-     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
-     *                properties
-     * @param fullResponse true if the response must include extended information about response
+     * @param target            target of the request
+     * @param content           body part of the HTTP multipart request
+     * @param headers           headers of HTTP request. the header on target with the same name will be overridden by these
+     *                          properties
+     * @param fullResponse      true if the response must include extended information about response
      * @param connectionTimeout connect timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param readTimeout read timeout interval, in milliseconds. null to use the default value (0: infinity).
-     * @param followRedirects automatic redirection. A value of {@code true} declares that the client will automatically
-     *                        redirect to the URI declared in 3xx responses.
-     * @param inputStream file part of the HTTP multipart request
-     * @param filename filename of the sent attachment (to be set as a part of {@code content-disposition}).
-     * @param contentType MIME type of the {@code streamEntity} attachment.
-     * @param uploadParameter name of the parameter to use when upload a file to the REST service
-     * @param uploadBody name of the body part to use when upload a file to the REST service
+     * @param readTimeout       read timeout interval, in milliseconds. null to use the default value (0: infinity).
+     * @param followRedirects   automatic redirection. A value of {@code true} declares that the client will automatically
+     *                          redirect to the URI declared in 3xx responses.
+     * @param inputStream       file part of the HTTP multipart request
+     * @param filename          filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param contentType       MIME type of the {@code streamEntity} attachment.
+     * @param uploadParameter   name of the parameter to use when upload a file to the REST service
+     * @param uploadBody        name of the body part to use when upload a file to the REST service
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
      */
@@ -1861,7 +1857,7 @@ public abstract class RestClient {
     /**
      * Perform the specified HTTP request to the target from an HTTP request.
      *
-     * @param method HTTP method to execute on request
+     * @param method  HTTP method to execute on request
      * @param request HTTP request
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1874,7 +1870,7 @@ public abstract class RestClient {
     /**
      * Perform the specified HTTP request to the target from an HTTP request.
      *
-     * @param method HTTP method to execute on request
+     * @param method  HTTP method to execute on request
      * @param request HTTP request
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1891,14 +1887,14 @@ public abstract class RestClient {
         path = path.trim();
 
         final Json params = request.getParams();
-        if(path.contains("?")){
-            final String pq = path.substring(path.indexOf("?")+1);
+        if (path.contains("?")) {
+            final String pq = path.substring(path.indexOf("?") + 1);
             path = path.substring(0, path.indexOf("?"));
 
             try {
                 Strings.parseQueryString(pq).forEachMap(params::set);
-            } catch (Exception e){
-                if(debug) {
+            } catch (Exception e) {
+                if (debug) {
                     logger.info(String.format("%s Exception when process HTTP request params: %s", Service.DEBUG, e.getMessage()));
                 } else {
                     logger.debug("Exception when process HTTP request params: " + e.getMessage());
@@ -1909,36 +1905,29 @@ public abstract class RestClient {
         WebTarget target;
         if (path.startsWith("http://") || path.startsWith("https://")) {
             // external uri
-            if(!allowExternalUrl) {
+            if (!allowExternalUrl) {
                 throw ServiceException.permanent(ErrorCode.ARGUMENT, String.format("External URLs are not allowed as request path [%s]", path));
             } else {
-                RestClientBuilder simpleClient = RestClient.builder(path, request);
+                RestClientBuilder simpleClient = RestClient.builder(path);
                 for (Map.Entry<String, Object> header : apiHeaders.entrySet()) {
                     simpleClient = simpleClient.header(header.getKey(), header.getValue());
                 }
                 for (Map.Entry<String, String> param : apiParams.entrySet()) {
                     simpleClient = simpleClient.parameter(param.getKey(), param.getValue());
                 }
-                if(StringUtils.isNotBlank(defaultAuth)) {
-                    switch (defaultAuth) {
-                        case BASIC_AUTH:
-                            simpleClient.setupBasicAuthentication(authUsername, authPassword);
-                            break;
-                        case DIGEST_AUTH:
-                            simpleClient.setupDigestAuthentication(authUsername, authPassword);
-                            break;
-                    }
+                if (request.getAuthorization().isNotEmpty()) {
+                    simpleClient.setupAuthentication(request.getAuthorization().toMapString());
                 }
                 target = simpleClient.target();
             }
         } else {
             target = getApiTarget().path(path);
         }
-        if(!params.isEmpty()){
+        if (!params.isEmpty()) {
             this.skipEncodeParams = request.isEncodeUrl() == null ? this.skipEncodeParams : !request.isEncodeUrl();
             for (String key : params.keys()) {
                 Object oValue = params.object(key);
-                if(oValue != null) {
+                if (oValue != null) {
                     if (!(oValue instanceof String) && params.isList(key)) {
                         target = target.queryParam(key, skipEncodeParams ? params.strings(key).toArray() : Strings.urlEncode(params.strings(key)).toArray());
                     } else {
@@ -1950,7 +1939,7 @@ public abstract class RestClient {
         target = target.property(ClientProperties.FOLLOW_REDIRECTS, followRedirects);
 
         Object body = null;
-        if(method == RestMethod.POST || method == RestMethod.PUT || method == RestMethod.PATCH) {
+        if (method == RestMethod.POST || method == RestMethod.PUT || method == RestMethod.PATCH) {
             body = request.getBody();
         }
 
@@ -1960,8 +1949,8 @@ public abstract class RestClient {
     /**
      * Perform the specified HTTP request to the target
      *
-     * @param method HTTP method to execute on request
-     * @param target target of the request
+     * @param method  HTTP method to execute on request
+     * @param target  target of the request
      * @param content body of the HTTP request. only processed for POST, PUT and PATCH methods.
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
@@ -1976,8 +1965,8 @@ public abstract class RestClient {
     /**
      * Perform the specified HTTP request to the target
      *
-     * @param method HTTP method to execute on request
-     * @param target target of the request
+     * @param method  HTTP method to execute on request
+     * @param target  target of the request
      * @param content body of the HTTP request. only processed for POST, PUT and PATCH methods.
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
@@ -1988,8 +1977,8 @@ public abstract class RestClient {
         target = target != null ? target : apiTarget;
 
         final Json headersToSend = Json.map();
-            apiHeaders.forEach(headersToSend::set);
-        if(headers != null && headers.isMap()){
+        apiHeaders.forEach(headersToSend::set);
+        if (headers != null && headers.isMap()) {
             headers.forEachMap(headersToSend::set);
         }
 
