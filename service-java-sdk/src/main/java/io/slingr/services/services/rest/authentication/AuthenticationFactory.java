@@ -1,6 +1,9 @@
 package io.slingr.services.services.rest.authentication;
 
 import io.slingr.services.services.rest.authentication.strategy.*;
+import io.slingr.services.ws.WebServices;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -18,6 +21,8 @@ import java.util.Map;
  */
 public class AuthenticationFactory {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationFactory.class);
+
     /**
      * Creates an instance of {@link AuthenticationStrategy} based on the specified {@link AuthenticationType}.
      *
@@ -27,6 +32,7 @@ public class AuthenticationFactory {
      * @throws IllegalArgumentException If the specified authentication type is invalid.
      */
     public static AuthenticationStrategy createAuthenticationStrategy(AuthenticationType type, Map<String, String> params) {
+        logger.info(String.format("Authenticating with %s", type.name()));
         switch (type) {
             case BASIC:
                 return new BasicAuthenticationStrategy(params);
