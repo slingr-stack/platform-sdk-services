@@ -5,6 +5,8 @@ import io.slingr.services.exceptions.ServiceException;
 import io.slingr.services.exceptions.ErrorCode;
 import io.slingr.services.services.Files;
 import io.slingr.services.services.exchange.Parameter;
+import io.slingr.services.services.rest.authentication.AuthenticationService;
+import io.slingr.services.services.rest.authentication.AuthenticationType;
 import io.slingr.services.utils.FilesUtils;
 import io.slingr.services.utils.FormUtils;
 import io.slingr.services.utils.Json;
@@ -80,6 +82,8 @@ public class RestClientFactory {
     private final List<Cookie> cookies = new ArrayList<>();
     private final String[] acceptedMediaTypes;
     private final List<String> history = new ArrayList<>();
+
+    private final AuthenticationService authService = new AuthenticationService();
 
     /**
      * Initialize factory
@@ -159,6 +163,12 @@ public class RestClientFactory {
         return this;
     }
 
+    public WebTarget setupAuthentication(WebTarget apiTarget, AuthenticationType type, Map<String, String> params) {
+        authService.setupAuthentication(type,params);
+        authService.addAuthentication(client);
+        return this.client.target(apiTarget.getUri());
+    }
+
     /**
      * Hostname verifier implementation to accept all the hosts
      */
@@ -219,7 +229,7 @@ public class RestClientFactory {
      * @return Json with the processed response
      * @throws ServiceException if there ir an error when process the response
      */
-    Json processResponse(Response response, RestMethod method, boolean fullResponse) throws ServiceException {
+    Json  processResponse(Response response, RestMethod method, boolean fullResponse) throws ServiceException {
         if (response == null) {
             throw ServiceException.permanent(ErrorCode.CLIENT, "Invalid response");
         }

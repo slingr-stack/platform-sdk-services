@@ -6,6 +6,11 @@ import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.Assert.*;
 
 public class RestClientTest {
@@ -21,6 +26,8 @@ public class RestClientTest {
                 return super.executeHttpRequest(method, request);
             }
         };
+
+        restClient.setAllowExternalUrl(true);
     }
 
     @Test
@@ -61,7 +68,6 @@ public class RestClientTest {
 
         Json json = Json.map().set("params", Json.map().set("foo1", "bar1"));
 
-        restClient.setAllowExternalUrl(true);
 
         HttpRequest request = HttpRequest.fromJson(RestMethod.GET, json);
         request.setPath("https://postman-echo.com/status/200");
@@ -79,7 +85,6 @@ public class RestClientTest {
 
             Json json = Json.map().set("params", Json.map().set("foo1", "bar1"));
 
-            restClient.setAllowExternalUrl(true);
 
             HttpRequest request = HttpRequest.fromJson(RestMethod.GET, json);
             request.setPath("https://postman-echo.com/status/200");
@@ -99,7 +104,6 @@ public class RestClientTest {
 
             Json json = Json.map().set("params", Json.map().set("foo1", "bar1"));
 
-            restClient.setAllowExternalUrl(true);
 
             HttpRequest request = HttpRequest.fromJson(RestMethod.GET, json);
             request.setPath("https://postman-echo.com/status/200");
@@ -109,7 +113,7 @@ public class RestClientTest {
             assertEquals("Error processing request [https protocol is not supported]", e.getMessage());
         }
 
-        Json json = Json.map().set("params",Json.map().set("foo1", "bar1"));
+        Json json = Json.map().set("params", Json.map().set("foo1", "bar1"));
 
         HttpRequest request = HttpRequest.fromJson(RestMethod.GET, json);
         request.setPath("https://postman-echo.com/status/200");
@@ -121,5 +125,73 @@ public class RestClientTest {
 
     }
 
+
+    @Test
+    public void testDefaultGetRequestWithBasicAuthentication() {
+
+        Json json = Json.map().set("authorization",
+                Json.map().set("type", "basic").set("username", "postman").set("password", "password"));
+
+
+        HttpRequest request = HttpRequest.fromJson(RestMethod.GET, json);
+        request.setPath("https://postman-echo.com/basic-auth");
+        request.setFullResponse(true);
+
+        Json response = restClient.executeHttpRequest(RestMethod.GET, request);
+
+        assertEquals(HttpStatus.SC_OK, response.object("status"));
+    }
+
+
+    @Test
+    public void testDefaultGetRequestDigestAuthentication() {
+
+        Json json = Json.map().set("authorization",
+                Json.map().set("type", "digest").set("username", "postman").set("password", "password"));
+
+
+        HttpRequest request = HttpRequest.fromJson(RestMethod.GET, json);
+        request.setPath("https://postman-echo.com/digest-auth");
+        request.setFullResponse(true);
+
+        Json response = restClient.executeHttpRequest(RestMethod.GET, request);
+
+        assertEquals(HttpStatus.SC_OK, response.object("status"));
+    }
+
+    @Test
+    public void testDefaultGetRequestOauthAuthentication() {
+
+            Json json = Json.map().set("authorization",
+                Json.map().set("type", "oauth").set("consumerKey", "RKCGzna7bv9YD57c")
+                        .set("signatureMethod", "HMAC-SHA1")
+                        .set("consumerSecret", "D+EdQ-gs$-%@2Nu7"));
+
+
+        HttpRequest request = HttpRequest.fromJson(RestMethod.GET, json);
+        request.setPath("https://postman-echo.com/oauth1");
+        request.setFullResponse(true);
+
+        Json response = restClient.executeHttpRequest(RestMethod.GET, request);
+
+        assertEquals(HttpStatus.SC_OK, response.object("status"));
+    }
+
+    @Test
+    public void testConcurrentRequests()  {
+        int concurrentThreads = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(concurrentThreads);
+        for (int i = 0; i < concurrentThreads; i++) {
+            executorService.execute(() -> {
+                int random = new Random().nextInt(2);
+                if (random == 0) {
+                    testDefaultGetRequestDigestAuthentication();
+                } else {
+                    testDefaultGetRequestWithBasicAuthentication();
+                }
+            });
+        }
+        executorService.shutdown();
+    }
 
 }

@@ -15,6 +15,7 @@ public class HttpRequest implements JsonSource {
     private final Json params = Json.map();
     private final Json headers = Json.map();
     private final Json settings = Json.map();
+    private final Json authorization = Json.map();
     private Object body = null;
 
     private int connectionTimeout = RestClient.DEFAULT_CONNECTION_TIMEOUT;
@@ -247,6 +248,15 @@ public class HttpRequest implements JsonSource {
      */
     public Json getHeaders() {
         return headers;
+    }
+
+    /**
+     * Gets the authorization to send to the HTTP service
+     *
+     * @return authorization to send to the HTTP service
+     */
+    public Json getAuthorization() {
+        return authorization;
     }
 
     /**
@@ -564,6 +574,7 @@ public class HttpRequest implements JsonSource {
                 .setIfNotEmpty(Parameter.HTTP_REQUEST_PATH, getPath())
                 .setIfNotEmpty(Parameter.HTTP_REQUEST_PARAMS, getParams())
                 .setIfNotEmpty(Parameter.HTTP_REQUEST_HEADERS, getHeaders())
+                .setIfNotEmpty(Parameter.HTTP_REQUEST_AUTHORIZATION, getAuthorization())
                 .setIfNotNull(Parameter.HTTP_REQUEST_BODY, getBody())
                 .setIf(getConnectionTimeout() != RestClient.DEFAULT_CONNECTION_TIMEOUT, Parameter.HTTP_REQUEST_CONNECTION_TIMEOUT, getConnectionTimeout())
                 .setIf(getReadTimeout() != RestClient.DEFAULT_READ_TIMEOUT, Parameter.HTTP_REQUEST_READ_TIMEOUT, getReadTimeout())
@@ -577,8 +588,8 @@ public class HttpRequest implements JsonSource {
                 .setIf(isFollowAuthorizationHeader(), Parameter.HTTP_REQUEST_FOLLOW_AUTHORIZATION_HEADER, isFollowAuthorizationHeader())
                 .setIf(isRemoveRefererHeaderOnRedirect(), Parameter.HTTP_REQUEST_REMOVE_REFERER_HEADER_ON_REDIRECT, isRemoveRefererHeaderOnRedirect())
                 .setIf(isFollowOriginalHttpMethod(), Parameter.HTTP_REQUEST_FOLLOW_ORIGINAL_HTTP_METHOD, isFollowOriginalHttpMethod())
-                .setIf(isUseSSL(), Parameter.HTTP_USE_SSL,isUseSSL())
-                .setIf(isMultipart(), "multipart", isMultipart());
+                .setIf(isUseSSL(), Parameter.HTTP_USE_SSL, isUseSSL())
+                .setIf(isMultipart(), Parameter.HTTP_USE_MULTI_PART, isMultipart());
 
         if(!RestClient.DEFAULT_FILE_NAME.equals(getFilename()) && StringUtils.isNotBlank(getFilename())){
             json.set(Parameter.HTTP_REQUEST_FILE_NAME, getFilename());
@@ -617,6 +628,11 @@ public class HttpRequest implements JsonSource {
             final Json headers = json.json(Parameter.HTTP_REQUEST_HEADERS);
             if (headers != null && headers.isMap()) {
                 headers.forEachMap((k, o) -> request.getHeaders().set(k, o));
+            }
+
+            final Json authorization = json.json(Parameter.HTTP_REQUEST_AUTHORIZATION);
+            if (authorization != null && authorization.isMap()) {
+                authorization.forEachMap((k, o) -> request.getAuthorization().set(k, o));
             }
 
             final Object body = json.object(Parameter.HTTP_REQUEST_BODY);
@@ -705,7 +721,7 @@ public class HttpRequest implements JsonSource {
                 request.setFilename(filename);
             }
 
-            Boolean multipart = json.bool("multipart");
+            Boolean multipart = json.bool(Parameter.HTTP_USE_MULTI_PART);
             if (multipart != null && multipart) {
                 request.setMultipart(true);
                 for (Json partJson : json.jsons("parts")) {
@@ -726,6 +742,7 @@ public class HttpRequest implements JsonSource {
         private String path = null;
         private Json params = Json.map();
         private Json headers = Json.map();
+        private Json authorization = Json.map();
         private Object body = null;
 
         private int connectionTimeout = RestClient.DEFAULT_CONNECTION_TIMEOUT;
@@ -766,6 +783,11 @@ public class HttpRequest implements JsonSource {
 
         public HttpRequestBuilder setHeaders(Json headers) {
             this.headers = headers;
+            return this;
+        }
+
+        public HttpRequestBuilder setAuthorization(Json authorization) {
+            this.authorization = authorization;
             return this;
         }
 

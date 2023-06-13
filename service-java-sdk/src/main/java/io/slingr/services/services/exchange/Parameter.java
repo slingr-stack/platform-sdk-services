@@ -117,6 +117,7 @@ public final class Parameter {
     public static final String HTTP_REQUEST_REMOVE_REFERER_HEADER_ON_REDIRECT = "removeRefererHeaderOnRedirect";
     public static final String HTTP_REQUEST_FOLLOW_ORIGINAL_HTTP_METHOD = "followOriginalHttpMethod";
     public static final String HTTP_USE_SSL = "useSSL";
+    public static final String HTTP_USE_MULTI_PART = "multipart";
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Parameter only used on applications side

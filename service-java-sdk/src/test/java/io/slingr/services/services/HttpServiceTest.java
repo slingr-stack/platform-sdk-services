@@ -8,6 +8,7 @@ import org.apache.http.HttpStatus;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by dgaviola on 18/07/16.
@@ -31,7 +32,7 @@ public class HttpServiceTest {
 
         buildHttpService("https://postman-echo.com/status/" + HttpStatus.SC_OK);
 
-        FunctionRequest functionRequest = new FunctionRequest(new Object());
+        FunctionRequest functionRequest = new FunctionRequest(Json.map());
         Json response = httpService.defaultGetRequest(functionRequest);
         assertEquals(HttpStatus.SC_OK, response.object("status"));
     }
