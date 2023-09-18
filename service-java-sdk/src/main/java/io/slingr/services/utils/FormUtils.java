@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Utilities to deal with Forms.
- *
+ * <p>
  * Created by dgaviola on 22/08/17.
  */
 public class FormUtils {
@@ -21,7 +21,7 @@ public class FormUtils {
         if (content != null && content.isMap()) {
             content.forEachMap((key, value) -> {
                 if (value instanceof List) {
-                    for (Object item : ((List) value)) {
+                    for (Object item : ((List<?>) value)) {
                         form.param(key, item.toString());
                     }
                 } else if (value instanceof Json && ((Json) value).isList()) {

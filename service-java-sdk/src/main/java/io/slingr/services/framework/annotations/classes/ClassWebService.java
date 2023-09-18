@@ -23,12 +23,11 @@ import java.util.stream.Collectors;
  * Class that represent a web service (a method annotated by {@link ServiceWebService}) found inside a class
  * annotated by <code>@SlingrService</code>
  *
- * Created by lefunes on 10/11/16.
  */
 public class ClassWebService {
     public final static String SW_NAME = ServiceWebService.class.getSimpleName();
 
-    private ExecutableElement annotatedElement;
+    private final ExecutableElement annotatedElement;
     private final String simpleName;
 
     private final String path;
@@ -130,7 +129,7 @@ public class ClassWebService {
      */
     public static String generateName(String path, List<RestMethod> methods) {
         final String m;
-        if(methods == null || methods.size() == 0 || methods.size() == RestMethod.values().length){
+        if(methods == null || methods.isEmpty() || methods.size() == RestMethod.values().length){
             m = "all";
         } else {
             m = StringUtils.join(methods.stream().map(RestMethod::toInitials).collect(Collectors.toList()), ":");

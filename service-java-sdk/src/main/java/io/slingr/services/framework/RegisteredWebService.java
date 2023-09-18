@@ -37,7 +37,7 @@ public class RegisteredWebService implements Comparable<RegisteredWebService> {
     private final Pattern extractPattern;
     private final Class<?> serviceClass;
 
-    private static Method namedGroupsMethod = null;
+    private static Method namedGroupsMethod;
     static {
         try {
             namedGroupsMethod = Pattern.class.getDeclaredMethod("namedGroups");

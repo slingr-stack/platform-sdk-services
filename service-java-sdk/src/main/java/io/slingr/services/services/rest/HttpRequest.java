@@ -75,7 +75,7 @@ public class HttpRequest implements JsonSource {
     public enum PartType {
         FILE("file"), OTHER("other");
 
-        private String jsonValue;
+        private final String jsonValue;
 
         PartType(String jsonValue) {
             this.jsonValue = jsonValue;
@@ -595,12 +595,7 @@ public class HttpRequest implements JsonSource {
             json.set(Parameter.HTTP_REQUEST_FILE_NAME, getFilename());
         }
         if(isMultipart()){
-            json.set("parts", Json.list(getParts(), new Json.ListGenerator<Part>() {
-                @Override
-                public Object element(Part item) {
-                    return item.toJson();
-                }
-            }));
+            json.set("parts", Json.list(getParts(), Part::toJson));
         }
         return json;
     }
@@ -739,7 +734,7 @@ public class HttpRequest implements JsonSource {
     public static class HttpRequestBuilder {
 
         private RestMethod restMethod;
-        private String path = null;
+        private final String path = null;
         private Json params = Json.map();
         private Json headers = Json.map();
         private Json authorization = Json.map();

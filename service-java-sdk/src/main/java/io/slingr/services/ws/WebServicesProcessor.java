@@ -2,8 +2,8 @@ package io.slingr.services.ws;
 
 import io.slingr.services.Service;
 import io.slingr.services.configurations.ServiceContext;
-import io.slingr.services.exceptions.ServiceException;
 import io.slingr.services.exceptions.ErrorCode;
+import io.slingr.services.exceptions.ServiceException;
 import io.slingr.services.framework.IBaseService;
 import io.slingr.services.services.exchange.ApiUri;
 import io.slingr.services.services.exchange.Parameter;
@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.MultipartConfigElement;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
@@ -41,7 +40,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Receives the web services requests, calls to the respective processor and returns the response to the HTTP client.
  *
- * <p>Created by lefunes on 28/03/18.
  */
 public class WebServicesProcessor extends AbstractHandler {
     private static final Logger logger = LoggerFactory.getLogger(WebServicesProcessor.class);
@@ -90,10 +88,9 @@ public class WebServicesProcessor extends AbstractHandler {
      * @param servletRequest the request either as the {@link Request} object or a wrapper of that servlet request.
      * @param servletResponse the response as the {@link Response} object or a wrapper of that servlet request.
      * @throws IOException if unable to handle the request or response processing
-     * @throws ServletException if unable to handle the request or response due to underlying servlet issue
      */
     @Override
-    public void handle(String path, Request baseRequest, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException {
+    public void handle(String path, Request baseRequest, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException {
         logger.info(String.format("WS request [%s %s]", servletRequest.getMethod(), path));
         ServiceContext.initContext(servletRequest.getHeader(Parameter.METADATA_APP), servletRequest.getHeader(Parameter.METADATA_ENV));
         try {
@@ -112,7 +109,7 @@ public class WebServicesProcessor extends AbstractHandler {
     }
 
     /**
-     * Process the {@link WebServiceResponse} object and send to to HTTP client via {@link Response}
+     * Process the {@link WebServiceResponse} object and send to an HTTP client via {@link Response}
      *
      * @param request the equivalent {@link WebServiceRequest} to the received {@link Request}
      */
@@ -130,7 +127,7 @@ public class WebServicesProcessor extends AbstractHandler {
     }
 
     /**
-     * Process the {@link WebServiceResponse} object and send to to HTTP client via {@link Response}
+     * Process the {@link WebServiceResponse} object and send to an HTTP client via {@link Response}
      *
      * @param request the equivalent {@link WebServiceRequest} to the received {@link Request}
      */
@@ -237,7 +234,7 @@ public class WebServicesProcessor extends AbstractHandler {
     }
 
     /**
-     * Process the {@link WebServiceResponse} object and send to to HTTP client via {@link Response}
+     * Process the {@link WebServiceResponse} object and send to an HTTP client via {@link Response}
      *
      * @param request the equivalent {@link WebServiceRequest} to the received {@link Request}
      */
@@ -388,7 +385,7 @@ public class WebServicesProcessor extends AbstractHandler {
     }
 
     /**
-     * Process the {@link WebServiceResponse} object and send to to HTTP client via {@link Response}
+     * Process the {@link WebServiceResponse} object and send to an HTTP client via {@link Response}
      *
      * @param response the equivalent {@link WebServiceResponse} to the received response
      * @param servletResponse the response as the {@link Response} object or a wrapper of that servlet request.
@@ -420,7 +417,7 @@ public class WebServicesProcessor extends AbstractHandler {
             } else if(body instanceof ByteArrayOutputStream){
                 ((ByteArrayOutputStream) body).writeTo(servletResponse.getOutputStream());
             } else  {
-                servletResponse.getWriter().print(body.toString());
+                servletResponse.getWriter().print(body);
             }
         }
 

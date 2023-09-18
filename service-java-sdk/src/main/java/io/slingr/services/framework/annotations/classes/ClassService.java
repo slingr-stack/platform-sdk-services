@@ -68,7 +68,7 @@ public class ClassService {
     private static final String _javaMethodInternalRegisterWebService = "internalRegisterWebService";
     private static final String _javaMethodInternalRegisterFunction = "internalRegisterFunction";
 
-    private TypeElement annotatedElement;
+    private final TypeElement annotatedElement;
     private final String qualifiedName;
     private final String simpleName;
 
@@ -860,7 +860,7 @@ public class ClassService {
         for (Element enclosed : annotatedElement.getEnclosedElements()) {
             if (enclosed.getKind() == ElementKind.CONSTRUCTOR) {
                 ExecutableElement constructorElement = (ExecutableElement) enclosed;
-                if (constructorElement.getParameters().size() == 0 && constructorElement.getModifiers().contains(Modifier.PUBLIC)) {
+                if (constructorElement.getParameters().isEmpty() && constructorElement.getModifiers().contains(Modifier.PUBLIC)) {
                     // Found an empty constructor
                     foundConstructor = true;
                     break;

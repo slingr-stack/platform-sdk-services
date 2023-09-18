@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * These are the allowed content type formats by the Json conversion.
- *
+ * <p>
  * Created by dgaviola on 22/08/15.
  */
 public enum ContentTypeFormat {
@@ -25,8 +25,8 @@ public enum ContentTypeFormat {
     MULTIPART(MediaType.MULTIPART_FORM_DATA, MediaType.MULTIPART_FORM_DATA_TYPE)
     ;
 
-    private String mimeType;
-    private MediaType mediaType;
+    private final String mimeType;
+    private final MediaType mediaType;
 
     ContentTypeFormat(String mimeType, MediaType mediaType) {
         this.mimeType = mimeType;
@@ -55,7 +55,7 @@ public enum ContentTypeFormat {
         for (ContentTypeFormat contentTypeFormat : values()) {
             mediaTypes.add(contentTypeFormat.getMimeType());
         }
-        return mediaTypes.toArray(new String[mediaTypes.size()]);
+        return mediaTypes.toArray(new String[0]);
     }
 
     public static boolean isJsonContentType(MediaType contentType){

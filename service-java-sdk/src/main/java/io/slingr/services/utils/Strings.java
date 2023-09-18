@@ -20,15 +20,13 @@ import java.util.stream.Collectors;
 
 /**
  * String utilities.
-
- * Created by lefunes on 13/03/18.
  */
 public class Strings {
     private static final Logger logger = LoggerFactory.getLogger(Strings.class);
 
     /**
      * Static factory to retrieve a type 4 (pseudo randomly generated) UUID.
-     *
+     * <p>
      * The {@code UUID} is generated using a cryptographically strong pseudo
      * random number generator.
      *
@@ -40,7 +38,7 @@ public class Strings {
 
     /**
      * Static factory to retrieve a type 4 (pseudo randomly generated) UUID.
-     *
+     * <p>
      * The {@code UUID} is generated using a cryptographically strong pseudo
      * random number generator.
      *
@@ -260,7 +258,7 @@ public class Strings {
         parameters.forEachMapString((parameter, value) -> {
             final String key = parameter.replaceAll("\\[", ".").replaceAll("]", "");
             if(StringUtils.isNotBlank(key)) {
-                final String keyParts[] = key.split("\\.");
+                final String[] keyParts = key.split("\\.");
                 if (keyParts.length > 0) {
                     Json currentLevel = response;
                     for (int i = 0; i < keyParts.length; i++) {
@@ -351,7 +349,7 @@ public class Strings {
     public static String urlEncode(String string, boolean throwExceptionOnError) throws Exception {
         if(StringUtils.isNotBlank(string)) {
             try {
-                return URLEncoder.encode(string, "UTF-8").replace("+", "%20").replace("*", "%2A");
+                return URLEncoder.encode(string, StandardCharsets.UTF_8).replace("+", "%20").replace("*", "%2A");
             } catch (Exception ex) {
                 if(throwExceptionOnError){
                     throw ex;
@@ -419,7 +417,7 @@ public class Strings {
     public static String urlDecode(String string, boolean throwExceptionOnError) throws Exception {
         if(StringUtils.isNotBlank(string)) {
             try {
-                return URLDecoder.decode(string, "UTF-8");
+                return URLDecoder.decode(string, StandardCharsets.UTF_8);
             } catch (Exception ex) {
                 if(throwExceptionOnError){
                     throw ex;

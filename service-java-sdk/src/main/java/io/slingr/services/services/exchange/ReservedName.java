@@ -3,7 +3,6 @@ package io.slingr.services.services.exchange;
 /**
  * Reserved names used to exchange information with the application (via Extension Broker app)
  *
- * Created by lefunes on 28/05/15.
  */
 public abstract class ReservedName {
     public static final String CONNECT_USER = "connectUser";

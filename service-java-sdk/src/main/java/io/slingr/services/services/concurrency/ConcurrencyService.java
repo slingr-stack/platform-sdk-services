@@ -12,7 +12,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * Service to manage threads
  *
- * Created by egonzalez on 03/01/18.
  */
 public class ConcurrencyService {
 
@@ -22,11 +21,11 @@ public class ConcurrencyService {
 
     private final static int SLEEP_TIME = 100;
 
-    private ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
+    private final ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
 
     private volatile boolean running = Boolean.FALSE;
 
-    private Queue<Task> pendingTasks = new LinkedList<>();
+    private final Queue<Task> pendingTasks = new LinkedList<>();
 
     public void start() {
         running = true;

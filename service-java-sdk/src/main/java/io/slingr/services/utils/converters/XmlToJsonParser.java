@@ -112,7 +112,7 @@ public class XmlToJsonParser extends DefaultHandler {
     }
 
     @Override
-    public void characters(char ch[], int start, int length) throws SAXException {
+    public void characters(char[] ch, int start, int length) {
         // characters that are inside of the element [<element>Hello world</element>].
         // if the characters are not contiguous, the method is called more that once,
         // [<element>Hello <test /> world</element>] is called two times with "Hello " and " world"
@@ -196,7 +196,7 @@ public class XmlToJsonParser extends DefaultHandler {
                 } else if(elementWithSameName instanceof List){
                     ((List) elementWithSameName).add(elementToStore);
                 } else {
-                    final List list = new ArrayList();
+                    final List list = new ArrayList<>();
                     list.add(elementWithSameName);
                     list.add(elementToStore);
                     parentElement.set(elementName, list);

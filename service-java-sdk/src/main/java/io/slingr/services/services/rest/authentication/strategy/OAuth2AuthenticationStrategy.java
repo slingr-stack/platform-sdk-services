@@ -5,8 +5,8 @@ import javax.ws.rs.client.ClientRequestFilter;
 import java.util.Map;
 
 public class OAuth2AuthenticationStrategy implements AuthenticationStrategy {
-    private String accessToken;
-    private String headerPrefix;
+    private final String accessToken;
+    private final String headerPrefix;
 
 
     public OAuth2AuthenticationStrategy(Map<String, String> params) {

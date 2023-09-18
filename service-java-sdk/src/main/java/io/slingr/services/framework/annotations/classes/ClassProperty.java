@@ -12,7 +12,6 @@ import javax.lang.model.element.VariableElement;
  * Class that represent the property (a field annotated by <code>@ServiceProperty</code>) found inside a class annotated
  * by <code>@SlingrService</code>
  *
- * Created by lefunes on 01/11/16.
  */
 public class ClassProperty implements SettableProperty {
     public final static String SP_NAME = ServiceProperty.class.getSimpleName();
@@ -21,7 +20,7 @@ public class ClassProperty implements SettableProperty {
     private final String simpleName;
 
     private final String name;
-    private PropertyType type = PropertyType.STRING;
+    private PropertyType type;
     private final String defaultValue;
 
     private final AccessorType accessorType;

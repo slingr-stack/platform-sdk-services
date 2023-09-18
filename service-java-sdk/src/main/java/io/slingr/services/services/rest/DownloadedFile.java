@@ -36,7 +36,7 @@ public class DownloadedFile {
      * @param file input stream
      * @param headers HTTP headers
      */
-    public DownloadedFile(int status, InputStream file, Map headers) {
+    public DownloadedFile(int status, InputStream file, Map<String, String> headers) {
         this(status, file, headers != null ? Json.fromMap(headers) : Json.map());
     }
 

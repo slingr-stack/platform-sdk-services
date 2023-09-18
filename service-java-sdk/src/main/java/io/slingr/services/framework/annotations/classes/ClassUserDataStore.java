@@ -11,7 +11,6 @@ import javax.lang.model.element.VariableElement;
  * Class that represent the user data stores (a field annotated by <code>@ServiceUserDataStore</code>) found inside a
  * class annotated by <code>@SlingrService</code>
  *
- * Created by lefunes on 17/11/16.
  */
 public class ClassUserDataStore implements SettableProperty {
     private final String simpleName;

@@ -42,7 +42,7 @@ public abstract class RestClient {
     public static final String BASIC_AUTHENTICATION_HEADER = "Basic";
     public static final String BEARER_AUTHENTICATION_HEADER = "Bearer";
     public static final String OAUTH_AUTHENTICATION_HEADER = "OAuth";
-    public static int DEFAULT_MAX_REDIRECTS = 10;
+    public static final int DEFAULT_MAX_REDIRECTS = 10;
 
     protected boolean debug = false;
     private boolean skipEncodeParams = false;
@@ -61,7 +61,7 @@ public abstract class RestClient {
     private String authUsername = null;
     private String authPassword = null;
 
-    private static RestClientFactory defaultFactory = null;
+    private static final RestClientFactory defaultFactory = null;
     private static final ReentrantLock defaultFactoryLock = new ReentrantLock();
 
     /**
@@ -120,7 +120,7 @@ public abstract class RestClient {
     /**
      * Disable encode params
      *
-     * @param skipEncodeParams
+     * @param skipEncodeParams -
      */
     public void setSkipEncodeParams(boolean skipEncodeParams) {
         this.skipEncodeParams = skipEncodeParams;

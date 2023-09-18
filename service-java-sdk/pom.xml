@@ -10,12 +10,10 @@
     <properties>
         <!-- Slingr versions -->
         <!-- Core libraries properties -->
-        <log4j.version>2.17.0</log4j.version>
         <jackson.version>2.14.0</jackson.version>
         <jersey.version>2.40</jersey.version>
         <jetty.version>9.4.51.v20230217</jetty.version>
         <jericho-html.version>3.4</jericho-html.version>
-        <httpclient.version>4.5.3</httpclient.version>
         <commons-io.version>2.13.0</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
         <commons-collections.version>4.4</commons-collections.version>
@@ -24,15 +22,13 @@
         <junit.version>4.13.2</junit.version>
         <mockito.version>1.10.19</mockito.version>
         <!-- Build properties -->
-        <jdk.version>11</jdk.version>
+        <jdk.version>20</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.compiler.version>2.5.1</project.build.compiler.version>
         <project.build.source.version>3.0.1</project.build.source.version>
         <project.build.javadoc.version>3.0.0</project.build.javadoc.version>
         <project.build.s3-wagon.version>3.3</project.build.s3-wagon.version>
-        <project.build.shade.version>2.4.1</project.build.shade.version>
         <!-- Other properties -->
-        <slf4j-log4j12.version>1.7.25</slf4j-log4j12.version>
         <slf4j-reload4j.version>2.0.9</slf4j-reload4j.version>
         <javapoet.version>1.10.0</javapoet.version>
     </properties>

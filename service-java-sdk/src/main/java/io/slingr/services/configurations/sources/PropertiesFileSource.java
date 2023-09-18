@@ -41,7 +41,7 @@ public class PropertiesFileSource implements PropertySource {
                 // load a properties file
                 properties.load(input);
             } catch (Exception ex) {
-                logger.error(String.format("Exception when read property file [%s]. This source will be ignored: %s", propertyFilename, ex.toString()));
+                logger.error(String.format("Exception when read property file [%s]. This source will be ignored: %s", propertyFilename, ex));
             } finally {
                 if (input != null) {
                     try {
@@ -61,9 +61,9 @@ public class PropertiesFileSource implements PropertySource {
                 return properties.getProperty(propertyName);
             } catch (Exception ex){
                 try {
-                    logger.warn(String.format("Property [%s] on file [%s] is invalid and will be ignored [%s]: %s", propertyName, filename, properties.get(propertyName), ex.toString()));
+                    logger.warn(String.format("Property [%s] on file [%s] is invalid and will be ignored [%s]: %s", propertyName, filename, properties.get(propertyName), ex));
                 } catch (Exception ex2){
-                    logger.warn(String.format("Property [%s] on file [%s] is invalid and will be ignored: %s (%s)", propertyName, filename, ex.toString(), ex2.toString()));
+                    logger.warn(String.format("Property [%s] on file [%s] is invalid and will be ignored: %s (%s)", propertyName, filename, ex, ex2));
                 }
             }
         }

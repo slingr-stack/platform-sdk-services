@@ -6,8 +6,8 @@ import javax.ws.rs.client.Client;
 import java.util.Map;
 
 public class BasicAuthenticationStrategy implements AuthenticationStrategy {
-    private String username;
-    private String password;
+    private final String username;
+    private final String password;
 
     public BasicAuthenticationStrategy(Map<String, String> params) {
         this.username = params.get("username");

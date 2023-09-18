@@ -4,18 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Allows to hold thread attributes.
- *
+ * Allows holding thread attributes.
+ * <p>
  * User: smoyano
  * Date: 7/4/19
  */
 public class ThreadAttributes {
-    private static ThreadLocal<Map<String, Object>> threadAttrs = new ThreadLocal<Map<String, Object>>() {
-        @Override
-        protected Map<String, Object> initialValue() {
-            return new HashMap<>();
-        }
-    };
+    private static final ThreadLocal<Map<String, Object>> threadAttrs = ThreadLocal.withInitial(HashMap::new);
 
     public static Object get(String key) {
         return threadAttrs.get().get(key);

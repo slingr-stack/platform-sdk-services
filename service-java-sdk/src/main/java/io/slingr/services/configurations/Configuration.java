@@ -16,7 +16,6 @@ import java.util.List;
 /**
  * Class that builds configuration objects from files, environment variables, etc.
  *
- * <p>Created by lefunes on 22/03/18.
  */
 public class Configuration {
     private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
@@ -82,7 +81,7 @@ public class Configuration {
 
     /**
      * Builds the configuration instance using the given parameters.
-     *
+     * <p>
      * The service properties support the following sources with the indicated precedence:
      * <ul>
      *     <li>Json (used primary on tests)</li>
@@ -100,7 +99,7 @@ public class Configuration {
 
     /**
      * Builds the configuration instance using the given parameters.
-     *
+     * <p>
      * The service properties support the following sources with the indicated precedence:
      * <ul>
      *     <li>Json (used primary on tests)</li>
@@ -118,7 +117,7 @@ public class Configuration {
 
     /**
      * Builds the configuration instance using the given parameters.
-     *
+     * <p>
      * The service properties support the following sources with the indicated precedence:
      * <ul>
      *     <li>Json (used primary on tests)</li>
@@ -134,7 +133,7 @@ public class Configuration {
 
     /**
      * Builds the configuration instance using the given parameters.
-     *
+     * <p>
      * The service properties support the following sources with the indicated precedence:
      * <ul>
      *     <li>Json (used primary on tests)</li>
@@ -153,7 +152,7 @@ public class Configuration {
 
     /**
      * Builds the configuration instance using the given parameters.
-     *
+     * <p>
      * The service properties support the following sources with the indicated precedence:
      * <ul>
      *     <li>Json (used primary on tests)</li>
@@ -552,7 +551,7 @@ public class Configuration {
                 value = null;
             }
         }
-        return value != null ? value.intValue() : (defaultValue != null ? defaultValue.intValue() : null);
+        return value != null ? value.intValue() : (defaultValue != null ? defaultValue : null);
     }
 
     /**

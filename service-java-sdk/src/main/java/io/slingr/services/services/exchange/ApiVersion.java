@@ -4,7 +4,6 @@ package io.slingr.services.services.exchange;
 /**
  * Parameters used in the JSON representation of the Service messages instances
  *
- * Created by lefunes on 27/02/18.
  */
 public final class ApiVersion {
     // extension broker api

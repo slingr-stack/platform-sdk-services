@@ -7,10 +7,8 @@ import io.slingr.services.ws.exchange.WebServiceRequest;
 import io.slingr.services.ws.exchange.WebServiceResponse;
 
 /**
- * Interface to implement the executable actions over a base service from the Extension Broker app or external
- * services.
+ * Interface to implement the executable actions over a base service from the Extension Broker app or external services.
  *
- * <p>Created by lefunes on 29/03/18.
  */
 public interface IBaseService {
 
@@ -49,16 +47,19 @@ public interface IBaseService {
     /**
      * Enables the configurator interceptor in this service
      */
+    @SuppressWarnings("unused")
     void enableConfiguratorInterceptor();
 
     /**
      * Enables the function interceptor in this service
      */
+    @SuppressWarnings("unused")
     void enableFunctionInterceptor();
 
     /**
      * Enables the web services interceptor in this service
      */
+    @SuppressWarnings("unused")
     void enableWebServicesInterceptor();
 
     /**
