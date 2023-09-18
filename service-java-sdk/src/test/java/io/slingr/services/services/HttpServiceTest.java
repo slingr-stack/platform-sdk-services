@@ -4,16 +4,16 @@ import io.slingr.services.utils.Json;
 import io.slingr.services.utils.tests.ExtensionBrokerMock;
 import io.slingr.services.ws.exchange.FunctionRequest;
 import org.apache.http.HttpStatus;
-
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-/**
- * Created by dgaviola on 18/07/16.
- */
 public class HttpServiceTest {
+    @SuppressWarnings("unused")
+    private static final Logger logger = LoggerFactory.getLogger(HttpServiceTest.class);
+
     private HttpService httpService;
 
     @Test

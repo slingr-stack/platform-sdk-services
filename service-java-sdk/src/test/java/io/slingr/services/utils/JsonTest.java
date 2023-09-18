@@ -12,10 +12,7 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-/**
- *
- * Created by lefunes on 05/05/15.
- */
+@SuppressWarnings("AssertBetweenInconvertibleTypes")
 public class JsonTest {
     private static final Logger logger = LoggerFactory.getLogger(JsonTest.class);
 
@@ -125,7 +122,7 @@ public class JsonTest {
         assertFalse(json.isEmpty());
         assertTrue(json.isNotEmpty());
         assertEquals(3, json.size());
-        assertArrayEquals(new String[]{"original", "STRING", "string"}, json.toList().toArray(new String[0]));
+        assertArrayEquals(new String[]{"original", "STRING", "string"}, json.toList().toArray(new Object[0]));
 
         // generated map
         json = Json.map("String", (obj, json1) -> json1
@@ -151,7 +148,7 @@ public class JsonTest {
         assertFalse(json.isEmpty());
         assertTrue(json.isNotEmpty());
         assertEquals(3, json.size());
-        assertArrayEquals(new String[]{"String", "STRING", "string"}, json.toList().toArray(new String[0]));
+        assertArrayEquals(new String[]{"String", "STRING", "string"}, json.toList().toArray(new Object[0]));
 
         // from map
         json = Json.fromMap(
@@ -171,7 +168,7 @@ public class JsonTest {
         assertEquals("STRING", json.string("uppercase"));
         assertEquals("string", json.string("lowercase"));
 
-        // from list
+        // from the list
         json = Json.fromList(
                 Json.list()
                         .push("String")
@@ -185,7 +182,7 @@ public class JsonTest {
         assertFalse(json.isEmpty());
         assertTrue(json.isNotEmpty());
         assertEquals(3, json.size());
-        assertArrayEquals(new String[]{"String", "STRING", "string"}, json.toList().toArray(new String[0]));
+        assertArrayEquals(new String[]{"String", "STRING", "string"}, json.toList().toArray(new Object[0]));
     }
 
 
@@ -193,7 +190,7 @@ public class JsonTest {
 
 
     @Test
-    public void testEquals() throws Exception {
+    public void testEquals() {
         Assert.assertFalse(Json.map().equals(null));
         Assert.assertFalse(Json.map().equals("hello"));
         Assert.assertTrue(Json.list().equals("[]"));
@@ -353,8 +350,8 @@ public class JsonTest {
         assertEquals("a", json.string("a"));
         assertEquals("b", json.json("b").string("_p"));
         assertEquals("c", json.json("b").string("c"));
-        assertEquals("d[0]", ((Map) json.objects("d").get(0)).get("_p"));
-        assertEquals("t", ((Map) json.objects("d").get(0)).get("t"));
+        assertEquals("d[0]", ((Map<?, ?>) json.objects("d").get(0)).get("_p"));
+        assertEquals("t", ((Map<?, ?>) json.objects("d").get(0)).get("t"));
         assertEquals("e", json.objects("d").get(1));
         assertEquals("f", json.json("f").string("_p"));
         assertEquals("f.g", json.json("f").json("g").string("_p"));
@@ -364,11 +361,11 @@ public class JsonTest {
         assertEquals("i.j.k", json.json("i").json("j").json("k").string("_p"));
         assertEquals("l", json.json("i").json("j").json("k").string("l"));
         assertEquals("n", json.json("i").json("j").json("k").objects("m").get(0));
-        assertEquals("i.j.k.m[1]", ((Map) json.json("i").json("j").json("k").objects("m").get(1)).get("_p"));
-        assertEquals("p", ((List) ((Map) json.json("i").json("j").json("k").objects("m").get(1)).get("o")).get(0));
-        assertEquals("i.j.k.m[1].o[1]", ((Map)((List) ((Map) json.json("i").json("j").json("k").objects("m").get(1)).get("o")).get(1)).get("_p"));
-        assertEquals("q", ((Map) ((List) ((Map) json.json("i").json("j").json("k").objects("m").get(1)).get("o")).get(1)).get("q"));
-        assertEquals("s", ((List)((List)((List)((List) json.objects("r").get(0)).get(0)).get(0)).get(0)).get(0));
+        assertEquals("i.j.k.m[1]", ((Map<?, ?>) json.json("i").json("j").json("k").objects("m").get(1)).get("_p"));
+        assertEquals("p", ((List<?>) ((Map<?, ?>) json.json("i").json("j").json("k").objects("m").get(1)).get("o")).get(0));
+        assertEquals("i.j.k.m[1].o[1]", ((Map<?, ?>)((List<?>) ((Map<?, ?>) json.json("i").json("j").json("k").objects("m").get(1)).get("o")).get(1)).get("_p"));
+        assertEquals("q", ((Map<?, ?>) ((List<?>) ((Map<?, ?>) json.json("i").json("j").json("k").objects("m").get(1)).get("o")).get(1)).get("q"));
+        assertEquals("s", ((List<?>)((List<?>)((List<?>)((List<?>) json.objects("r").get(0)).get(0)).get(0)).get(0)).get(0));
     }
 
     @Test

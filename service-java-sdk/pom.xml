@@ -1,30 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>io.slingr.services</groupId>
     <artifactId>slingr-services</artifactId>
     <version>1.0-SNAPSHOT</version>
-
     <name>Slingr Services Framework</name>
     <description>Framework to generate services to use on Slingr platform</description>
     <packaging>jar</packaging>
-
     <properties>
         <!-- Slingr versions -->
         <!-- Core libraries properties -->
         <log4j.version>2.17.0</log4j.version>
-        <jackson.version>2.8.0</jackson.version>
-        <jersey.version>2.22.1</jersey.version>
-        <jetty.version>9.4.8.v20171121</jetty.version>
+        <jackson.version>2.14.0</jackson.version>
+        <jersey.version>2.40</jersey.version>
+        <jetty.version>9.4.51.v20230217</jetty.version>
         <jericho-html.version>3.4</jericho-html.version>
         <httpclient.version>4.5.3</httpclient.version>
-        <commons-io.version>2.5</commons-io.version>
+        <commons-io.version>2.13.0</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-collections.version>3.2.2</commons-collections.version>
+        <commons-collections.version>4.4</commons-collections.version>
         <commons-lang3.version>3.5</commons-lang3.version>
         <!-- Tests properties -->
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.2</junit.version>
         <mockito.version>1.10.19</mockito.version>
         <!-- Build properties -->
         <jdk.version>11</jdk.version>
@@ -36,39 +33,34 @@
         <project.build.shade.version>2.4.1</project.build.shade.version>
         <!-- Other properties -->
         <slf4j-log4j12.version>1.7.25</slf4j-log4j12.version>
+        <slf4j-reload4j.version>2.0.9</slf4j-reload4j.version>
         <javapoet.version>1.10.0</javapoet.version>
     </properties>
-
     <dependencies>
         <!-- Slingr Modules -->
-
         <!-- Java Poet to generate java files -->
         <dependency>
             <groupId>com.squareup</groupId>
             <artifactId>javapoet</artifactId>
             <version>${javapoet.version}</version>
         </dependency>
-
         <dependency>
             <groupId>oauth.signpost</groupId>
             <artifactId>signpost-core</artifactId>
             <version>2.1.1</version>
         </dependency>
-
         <dependency>
             <groupId>oauth.signpost</groupId>
             <artifactId>oauth-signpost</artifactId>
             <version>2.1.1</version>
             <type>pom</type>
         </dependency>
-
         <!-- Apache Commons StringUtils -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons-lang3.version}</version>
         </dependency>
-
         <!-- Jetty/Jersey/Jackson Modules -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -96,6 +88,11 @@
             <version>${jersey.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-multipart</artifactId>
             <version>${jersey.version}</version>
@@ -110,6 +107,7 @@
             <artifactId>jersey-media-json-jackson</artifactId>
             <version>${jersey.version}</version>
         </dependency>
+        <!--suppress VulnerableLibrariesLocal -->
         <dependency>
             <groupId>org.glassfish.jersey.connectors</groupId>
             <artifactId>jersey-apache-connector</artifactId>
@@ -125,7 +123,6 @@
             <artifactId>jetty-util</artifactId>
             <version>${jetty.version}</version>
         </dependency>
-
         <!-- Other modules -->
         <dependency>
             <groupId>javax.mail</groupId>
@@ -139,14 +136,20 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.25</version>
+            <artifactId>slf4j-reload4j</artifactId>
+            <version>${slf4j-reload4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
             <version>${commons-collections.version}</version>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+        <!--Testing Dependencies-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -160,28 +163,22 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock-jre8-standalone</artifactId>
             <version>2.35.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <repositories>
         <repository>
             <id>Central</id>
             <name>Central</name>
-            <url>http://repo1.maven.org/maven2/</url>
+            <url>https://repo1.maven.org/maven2/</url>
             <layout>default</layout>
         </repository>
         <repository>
             <id>slingrRepo.release</id>
-            <url>http://repo.slingrs.io/release</url>
+            <url>https://repo.slingrs.io/release</url>
             <releases>
                 <enabled>true</enabled>
                 <checksumPolicy>fail</checksumPolicy>
@@ -192,7 +189,7 @@
         </repository>
         <repository>
             <id>slingrRepo.snapshot</id>
-            <url>http://repo.slingrs.io/snapshot</url>
+            <url>https://repo.slingrs.io/snapshot</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -202,7 +199,6 @@
             </snapshots>
         </repository>
     </repositories>
-
     <distributionManagement>
         <repository>
             <id>slingrRepo.write.release</id>
@@ -213,7 +209,6 @@
             <url>gs://repo.slingrs.io/snapshot</url>
         </snapshotRepository>
     </distributionManagement>
-
     <build>
         <plugins>
             <plugin>

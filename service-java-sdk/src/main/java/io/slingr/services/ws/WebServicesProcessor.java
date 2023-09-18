@@ -270,7 +270,7 @@ public class WebServicesProcessor extends AbstractHandler {
             if(ContentTypeFormat.isMultipartContentType(servletRequest.getContentType())){
 
                 final MultipartConfigElement multipartConfigElement = new MultipartConfigElement((String)null);
-                servletRequest.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, multipartConfigElement);
+                servletRequest.setAttribute(Request.MULTIPART_CONFIG_ELEMENT, multipartConfigElement);
                 servletRequest.setCharacterEncoding(StandardCharsets.ISO_8859_1.name());
 
                 for (Part part : servletRequest.getParts()) {
