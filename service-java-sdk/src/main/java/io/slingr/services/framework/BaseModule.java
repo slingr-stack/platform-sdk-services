@@ -334,12 +334,10 @@ public class BaseModule implements IService, IBaseService {
             listener.serviceStopped(cause);
         }
 
-        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-            executor.schedule(() -> {
-                logger.info(String.format("Services stopped [%s]", cause));
-                System.exit(0);
-            }, 2, TimeUnit.SECONDS);
-        }
+        Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+            logger.info(String.format("Services stopped [%s]", cause));
+            System.exit(0);
+        }, 2, TimeUnit.SECONDS);
     }
 
     @Override
