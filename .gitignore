@@ -18,3 +18,4 @@ run_proxy.sh
 /service-java-sdk/.idea/
 ./idea
 ./.idea
+service-java-sdk/.run/
