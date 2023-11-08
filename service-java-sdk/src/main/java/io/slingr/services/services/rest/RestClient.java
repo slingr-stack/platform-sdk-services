@@ -1821,10 +1821,10 @@ public abstract class RestClient {
 
         HttpRequest request = new HttpRequest.HttpRequestBuilder()
                 .setFullResponse(fullResponse)
-                .setConnectionTimeout(connectionTimeout)
-                .setReadTimeout(readTimeout)
-                .setFollowRedirects(followRedirects)
-                .setForceDisableCookies(forceDisableCookies)
+                .setConnectionTimeout(connectionTimeout != null ? connectionTimeout : RestClient.DEFAULT_CONNECTION_TIMEOUT )
+                .setReadTimeout(readTimeout != null ? readTimeout : RestClient.DEFAULT_READ_TIMEOUT)
+                .setFollowRedirects(followRedirects != null ? followRedirects : RestClient.DEFAULT_FOLLOW_REDIRECTS)
+                .setForceDisableCookies(forceDisableCookies != null ? forceDisableCookies : false)
                 .build();
 
         try {
