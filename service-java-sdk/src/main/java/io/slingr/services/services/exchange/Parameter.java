@@ -107,7 +107,7 @@ public final class Parameter {
     public static final String HTTP_REQUEST_FOLLOW_REDIRECTS = "followRedirects";
     public static final String HTTP_REQUEST_FULL_RESPONSE = "fullResponse";
     public static final String HTTP_REQUEST_FILE_NAME = "fileName";
-    public static final String HTTP_REQUEST_FORCE_DOWNLOAD = "download";
+    public static final String HTTP_REQUEST_FORCE_DOWNLOAD = "forceDownload";
     public static final String HTTP_REQUEST_DOWNLOAD_SYNC = "downloadSync";
     public static final String HTTP_REQUEST_AUTHORIZATION = "authorization";
     public static final String HTTP_REQUEST_CALLBACK = "defaultCallback";
