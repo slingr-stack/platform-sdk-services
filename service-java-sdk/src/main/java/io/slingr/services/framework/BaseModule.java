@@ -31,11 +31,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 /**
  * Base module that implements utilities for all {@link Service} implementations
@@ -699,7 +699,7 @@ public class BaseModule implements IService, IBaseService {
                     .filter(ws -> request.getMethod() == ws.getRestMethod())
                     .filter(ws -> ws.isValidRoute(request.getPath()))
                     .sorted(RegisteredWebService::compareTo)
-                    .toList();
+                    .collect(Collectors.toList());
 
             if (!validWebServices.isEmpty()) {
                 if (validWebServices.size() > 1) {

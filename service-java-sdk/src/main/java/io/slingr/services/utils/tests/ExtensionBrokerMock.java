@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of the methods defined on the Extension Broker API to be used on testing time
@@ -300,7 +301,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
             locks.addAll(this.locks.entrySet().stream()
                     .filter(lock -> Boolean.TRUE.equals(lock.getValue()))
                     .map(Map.Entry::getKey)
-                    .toList()
+                    .collect(Collectors.toList())
             );
         } finally {
             locksLock.unlock();
