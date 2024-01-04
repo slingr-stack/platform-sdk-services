@@ -155,16 +155,31 @@ public class HttpService extends RestClient {
         // upload file to platform
         String fileName = request.getFilename();
         if (StringUtils.isBlank(fileName) || fileName.equals(DEFAULT_FILE_NAME)) {
-            // try yo guess filename from path if name not provided
-            final String path = request.getPath();
-            fileName = extractFileName(path);
-            if (StringUtils.isEmpty(fileName)) {
-                fileName = DEFAULT_FILE_NAME;
-            }
+            // try to get file name from headers
+            fileName = extractFileNameFromHeader(file, fileName);
+            if(fileName.equals(DEFAULT_FILE_NAME)) {
+                // try to guess filename from path if name not provided
+                final String path = request.getPath();
+                 fileName = extractFileName(path);
+                if (StringUtils.isEmpty(fileName)) {
+                    fileName = DEFAULT_FILE_NAME;
+                }
+            };
+
         }
         return files.upload(fileName, file);
     }
-
+    private static String extractFileNameFromHeader(DownloadedFile file, String fileName) {
+        if(file.getHeaders().string("content-disposition") != null) {
+            String[] parts = file.getHeaders().string("content-disposition").split(";");
+            for (String part : parts) {
+                if (part.trim().startsWith("filename")) {
+                    return part.substring(part.indexOf('=') + 1).trim().replace("\"", "");
+                }
+            }
+        }
+        return "file";
+    }
     /**
      * Extracts the file name from a path
      *
