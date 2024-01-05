@@ -46,10 +46,13 @@ public class WebServices {
         final ServerConnector connector;
         boolean useSsl = !properties.isLocalDeployment() || useSsl();
         logger.info(String.format("Use SSL connection: [%s]", useSsl));
+        server.setStopTimeout(TIMEOUT_10_MINUTES);
         if (useSsl) {
             HttpConfiguration https = new HttpConfiguration();
-            https.addCustomizer(new SecureRequestCustomizer());
-            SslContextFactory sslContextFactory = new SslContextFactory();
+            SecureRequestCustomizer src = new SecureRequestCustomizer();
+            src.setSniHostCheck(false);
+            https.addCustomizer(src);
+            SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
             sslContextFactory.setKeyStorePath(getKeystorePath());
             sslContextFactory.setKeyStorePassword(getKeystorePass());
             sslContextFactory.setKeyManagerPassword(getKeystorePass());
@@ -60,7 +63,6 @@ public class WebServices {
         connector.setPort(properties.getWebServicesPort());
         connector.setHost("0.0.0.0");
         connector.setIdleTimeout(TIMEOUT_10_MINUTES);
-        connector.setStopTimeout(TIMEOUT_10_MINUTES);
 
         server.setConnectors(new Connector[]{connector});
         server.setHandler(webServicesProcessor);
