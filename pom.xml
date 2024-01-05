@@ -9,9 +9,11 @@
     <packaging>pom</packaging>
     <properties>
         <!-- Build properties -->
-        <jdk.version>11</jdk.version>
+        <jdk.version>17</jdk.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.compiler.version>2.5.1</project.build.compiler.version>
+        <project.build.compiler.version>3.12.1</project.build.compiler.version>
         <project.build.source.version>3.0.1</project.build.source.version>
         <project.build.shade.version>2.4.1</project.build.shade.version>
         <build.main-class>io.slingr.service.serviceName.Runner</build.main-class>
