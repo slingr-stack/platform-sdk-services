@@ -1,11 +1,11 @@
 {
   "name": "slingr-services",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Nodejs SDK to create Slingr Services",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/slingr-stack/platform-services/tree/master/services-nodejs-sdk"
+    "url": "https://github.com/slingr-stack/platform-sdk-services/tree/master/service-nodejs-sdk"
   },
   "keywords": [
     "slingr",

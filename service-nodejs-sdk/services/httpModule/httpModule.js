@@ -4,11 +4,11 @@ const {
     applicationName,
     environment,
     token,
-    svcsServicesApi,
+    _extension_broker_api,
 } = require('../configuration/configuration').settings;
 const axiosInstance = require('axios').create(
     {
-        baseURL: svcsServicesApi,
+        baseURL: _extension_broker_api,
         headers: {
             app: applicationName,
             env: environment,
