@@ -90,31 +90,38 @@
             <version>${jackson.version}</version>
         </dependency>
         <!-- Jersey -->
+        <!--suppress VulnerableLibrariesLocal -->
+        <!--suppress MavenPackageUpdate -->
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
             <version>${jersey.version}</version>
         </dependency>
+        <!--suppress MavenPackageUpdate -->
         <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
             <version>${org.glassfish.jersey.inject}</version>
         </dependency>
+        <!--suppress MavenPackageUpdate -->
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-multipart</artifactId>
             <version>${jersey.version}</version>
         </dependency>
+        <!--suppress MavenPackageUpdate -->
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-processing</artifactId>
             <version>${jersey.version}</version>
         </dependency>
+        <!--suppress MavenPackageUpdate -->
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
             <version>${jersey.version}</version>
         </dependency>
+        <!--suppress VulnerableLibrariesLocal -->
         <dependency>
             <groupId>org.glassfish.jersey.connectors</groupId>
             <artifactId>jersey-apache-connector</artifactId>
