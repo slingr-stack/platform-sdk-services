@@ -40,7 +40,7 @@ You can access the service configuration like this (always inside a function):
 
 ```js
 svc.functions.someFunction = (svcRequest) => {
-    const configs = svc.svcConfig;
+    const configs = svc.serviceConfig;
     //your code...
 } 
 ``` 
@@ -74,7 +74,7 @@ To implement a function that is defined in the `service.json` file, you should d
 
 ```js
 svc.functions.yourFunctionName = (svcRequest) => {
-    //You can access all the service services here like svc.svcConfig or svc.dataStores
+    //You can access all the service services here like svc.serviceConfig or svc.dataStores
     //Your custom code goes here...
     return { someInfo: 'someValue'}
 }
@@ -294,10 +294,10 @@ _base_domain=slingrs.io
 _webservices_port=10000
 _svcs_services_api=https://yourtestapp.slingrs.io/dev/svcs/proxy/api
 _token=91833a8b-929f-4eab-b7b4-2383c10cd629
-_svc_config={}
+_service_config={}
 ```
 
-You should copy this configuration to `.env` file. Keep in mind that the last property, `_svc_config`,
+You should copy this configuration to `.env` file. Keep in mind that the last property, `_service_config`,
 should have a valid JSON with the config of your service, so you might want to override that. 
 If you used the skeleton service you should have something like this:
 
@@ -314,7 +314,7 @@ _base_domain=slingrs.io
 _webservices_port=10000
 _svcs_services_api=https://yourtestapp.slingrs.io/dev/svcs/proxy/api
 _token=91833a8b-929f-4eab-b7b4-2383c10cd629
-_svc_config={"token":"123456"}
+_service_config={"token":"123456"}
 ``` 
 
 Keep in mind that `.env` is only used when you run the service locally, but it does not affect the service when running on the cloud because service config is passed in another way.
