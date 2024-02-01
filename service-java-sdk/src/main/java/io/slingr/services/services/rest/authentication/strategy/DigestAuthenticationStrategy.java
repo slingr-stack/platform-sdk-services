@@ -6,8 +6,8 @@ import javax.ws.rs.client.Client;
 import java.util.Map;
 
 public class DigestAuthenticationStrategy implements AuthenticationStrategy {
-    private String username;
-    private String password;
+    private final String username;
+    private final String password;
 
     public DigestAuthenticationStrategy(Map<String, String> params) {
         this.username = params.get("username");

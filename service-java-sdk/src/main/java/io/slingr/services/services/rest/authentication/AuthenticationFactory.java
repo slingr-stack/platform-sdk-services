@@ -1,7 +1,6 @@
 package io.slingr.services.services.rest.authentication;
 
 import io.slingr.services.services.rest.authentication.strategy.*;
-import io.slingr.services.ws.WebServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

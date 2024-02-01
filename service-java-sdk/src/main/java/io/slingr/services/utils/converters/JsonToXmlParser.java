@@ -62,9 +62,7 @@ public class JsonToXmlParser {
         final StringBuilder iniString = new StringBuilder();
         String endString = "";
         if(complete){
-            for (int i = 0; i < level; i++){
-                iniString.append("\t");
-            }
+            iniString.append("\t".repeat(Math.max(0, level)));
             endString = "\n";
         }
 

@@ -12,9 +12,8 @@ import io.slingr.services.ws.exchange.FunctionRequest;
 import io.slingr.services.ws.exchange.WebServiceRequest;
 
 /**
- * Interface that all {@link Service} must be implement
+ * Interface that all {@link Service} must be implemented
  *
- * Created by lefunes on 12/03/18.
  */
 public interface IService extends JsonSource {
 
@@ -65,7 +64,7 @@ public interface IService extends JsonSource {
      *
      * @return Extension Broker configuration manager
      */
-    ESConfigurations serviceConfigurations();
+    EBConfigurations serviceConfigurations();
 
     /**
      * Returns the manager over all messages related to application users

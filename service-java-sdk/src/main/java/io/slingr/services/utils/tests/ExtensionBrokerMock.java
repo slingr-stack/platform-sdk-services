@@ -1,7 +1,7 @@
 package io.slingr.services.utils.tests;
 
-import io.slingr.services.exceptions.ServiceException;
 import io.slingr.services.exceptions.ErrorCode;
+import io.slingr.services.exceptions.ServiceException;
 import io.slingr.services.services.ExtensionBroker;
 import io.slingr.services.services.ExtensionBrokerApi;
 import io.slingr.services.services.application.AppUser;
@@ -19,14 +19,16 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of the methods defined on the Extension Broker  API to be used on testing time
+ * Implementation of the methods defined on the Extension Broker API to be used on testing time
  *
- * <p>Created by lefunes on 18/06/18.
  */
 public class ExtensionBrokerMock implements ExtensionBrokerApi {
     private static final Logger logger = LoggerFactory.getLogger(ExtensionBrokerMock.class);
@@ -59,9 +61,9 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
      */
     public ExtensionBrokerMock() throws ServiceException {}
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: Events
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     EB API: Events
+     ************************/
 
     @Override
     public void newEvent(Long date, String event, Object data, String fromFunctionId, String userId, String userEmail) throws ServiceException {
@@ -72,7 +74,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
     @Override
     public Object newSyncEvent(Long date, String event, Object data, String fromFunctionId, String userId, String userEmail) throws ServiceException {
         final Object response = processEvent("sync event", date, event, data, fromFunctionId, userId, userEmail);
-        logger.info(String.format("%s ES: sync events response: %s", ServiceTests.TEST, response));
+        logger.info(String.format("%s EB: sync events response: %s", ServiceTests.TEST, response));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
         return response;
     }
@@ -96,7 +98,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
                 .setIfNotEmpty(Parameter.USER_EMAIL, userEmail);
 
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: new %s: %s", ServiceTests.TEST, type, eventContent));
+        logger.info(String.format("%s EB: new %s: %s", ServiceTests.TEST, type, eventContent));
 
         Object response = null;
         eventsLock.lock();
@@ -104,10 +106,10 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
             receivedEvents.add(eventContent);
 
             if(eventProcessors.containsKey(event)){
-                logger.info(String.format("%s ES: event processor found for [%s]", ServiceTests.TEST, event));
+                logger.info(String.format("%s EB: event processor found for [%s]", ServiceTests.TEST, event));
                 response = eventProcessors.get(event).processMessage(eventContent);
             } else {
-                logger.info(String.format("%s ES: default event response for [%s]", ServiceTests.TEST, event));
+                logger.info(String.format("%s EB: default event response for [%s]", ServiceTests.TEST, event));
             }
         } finally {
             eventsLock.unlock();
@@ -193,9 +195,9 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: App logs
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     EB API: App logs
+     ************************/
 
     @Override
     public void newAppLogs(Long date, String level, String message, Json additionalInfo) throws ServiceException {
@@ -216,14 +218,14 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
                 .setIfNotEmpty(Parameter.APP_LOG_ADDITIONAL_INFO, additionalInfo);
 
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: app log: %s", ServiceTests.TEST, restContent));
+        logger.info(String.format("%s EB: app log: %s", ServiceTests.TEST, restContent));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
     }
 
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: Distributed locks
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     EB API: Distributed locks
+     ************************/
 
     @Override
     public Json acquireLock(String key) throws ServiceException {
@@ -232,7 +234,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
 
         boolean acquired = false;
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: acquire lock: %s", ServiceTests.TEST, key));
+        logger.info(String.format("%s EB: acquire lock: %s", ServiceTests.TEST, key));
         locksLock.lock();
         try {
             if(!locks.containsKey(key) || !Boolean.TRUE.equals(locks.get(key))){
@@ -245,7 +247,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
 
         final Json jsonResponse = Json.map()
                 .set(Parameter.LOCK_ACQUIRED, acquired);
-        logger.info(String.format("%s ES: lock: %s", ServiceTests.TEST, jsonResponse));
+        logger.info(String.format("%s EB: lock: %s", ServiceTests.TEST, jsonResponse));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
         return jsonResponse;
     }
@@ -257,7 +259,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
 
         boolean released = false;
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: release lock: %s", ServiceTests.TEST, key));
+        logger.info(String.format("%s EB: release lock: %s", ServiceTests.TEST, key));
         locksLock.lock();
         try {
             if(locks.containsKey(key) && Boolean.TRUE.equals(locks.get(key))){
@@ -270,7 +272,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
 
         final Json jsonResponse = Json.map()
                 .set(Parameter.LOCK_RELEASED, released);
-        logger.info(String.format("%s ES: unlock: %s", ServiceTests.TEST, jsonResponse));
+        logger.info(String.format("%s EB: unlock: %s", ServiceTests.TEST, jsonResponse));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
         return jsonResponse;
     }
@@ -308,9 +310,9 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
     }
 
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: Files management
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     EB API: Files management
+     ************************/
 
     @Override
     public Json uploadFile(String filename, InputStream content, String contentType) throws ServiceException {
@@ -331,9 +333,9 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         }
 
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: upload file [%s], length [%s], content type [%s]", ServiceTests.TEST, filename, fileLength, contentType));
+        logger.info(String.format("%s EB: upload file [%s], length [%s], content type [%s]", ServiceTests.TEST, filename, fileLength, contentType));
 
-        // send file to ES
+        // send file to EB
         final MediaType mediaType = FilesUtils.getMediaTypeForMultipart(contentType, filename);
         if(mediaType != null){
             contentType = mediaType.toString();
@@ -350,7 +352,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         }
 
         final Json response = fileMock.getFileDescriptor();
-        logger.info(String.format("%s ES: uploaded file: %s", ServiceTests.TEST, response));
+        logger.info(String.format("%s EB: uploaded file: %s", ServiceTests.TEST, response));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
         return response;
     }
@@ -361,7 +363,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         ExtensionBroker.isNotBlank(fileId, "empty file id");
 
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: download file [%s]", ServiceTests.TEST, fileId));
+        logger.info(String.format("%s EB: download file [%s]", ServiceTests.TEST, fileId));
 
         filesLock.lock();
         try {
@@ -370,7 +372,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
                 final InputStream is = Strings.readAsInputStream(file.fileContent);
 
                 final DownloadedFile response = new DownloadedFile(200, is, file.getHeaders());
-                logger.info(String.format("%s ES: downloaded file: %s", ServiceTests.TEST, response));
+                logger.info(String.format("%s EB: downloaded file: %s", ServiceTests.TEST, response));
                 logger.info(String.format("%s --------------", ServiceTests.TEST));
                 return response;
             }
@@ -386,7 +388,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         ExtensionBroker.isNotBlank(fileId, "empty file id");
 
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: get file metadata [%s]", ServiceTests.TEST, fileId));
+        logger.info(String.format("%s EB: get file metadata [%s]", ServiceTests.TEST, fileId));
 
         Json response = null;
         filesLock.lock();
@@ -397,7 +399,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         } finally {
             filesLock.unlock();
         }
-        logger.info(String.format("%s ES: file metadata: %s", ServiceTests.TEST, response));
+        logger.info(String.format("%s EB: file metadata: %s", ServiceTests.TEST, response));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
         return response;
     }
@@ -452,16 +454,16 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
     /**
      * Represents a file on the application
      */
-    public class FileMock implements JsonSource {
+    public static class FileMock implements JsonSource {
 
         private String fileContent;
         private String fileId;
         private String fileName;
         private String contentType;
         private Long length;
-        private Long uploadDate;
-        private Long expirationDate;
-        private Boolean expired;
+        private final Long uploadDate;
+        private final Long expirationDate;
+        private final Boolean expired;
 
         public FileMock() {
             uploadDate = System.currentTimeMillis();
@@ -476,10 +478,6 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
             this.fileName = fileName;
             this.contentType = contentType;
             this.length = length;
-        }
-
-        public String getFileName() {
-            return fileName;
         }
 
         public Json getMetadata() {
@@ -520,9 +518,9 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
     }
 
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: Data stores management
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     EB API: Data stores management
+     ************************/
 
     @Override
     public DataStoreResponse findDocuments(String dataStoreName, Json filter) throws ServiceException {
@@ -531,7 +529,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         filter = ExtensionBroker.checkDataStoreFilter(filter);
 
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: find documents [%s], filter [%s]", ServiceTests.TEST, dataStoreName, filter));
+        logger.info(String.format("%s EB: find documents [%s], filter [%s]", ServiceTests.TEST, dataStoreName, filter));
 
         DataStoreResponse response;
         dataStoresLock.lock();
@@ -540,7 +538,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         } finally {
             dataStoresLock.unlock();
         }
-        logger.info(String.format("%s ES: found documents: %s", ServiceTests.TEST, response));
+        logger.info(String.format("%s EB: found documents: %s", ServiceTests.TEST, response));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
         return response;
     }
@@ -552,7 +550,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         filter = ExtensionBroker.checkDataStoreFilter(filter);
 
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: count documents [%s], filter [%s]", ServiceTests.TEST, dataStoreName, filter));
+        logger.info(String.format("%s EB: count documents [%s], filter [%s]", ServiceTests.TEST, dataStoreName, filter));
 
         Json response;
         dataStoresLock.lock();
@@ -563,7 +561,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         } finally {
             dataStoresLock.unlock();
         }
-        logger.info(String.format("%s ES: found documents count: %s", ServiceTests.TEST, response));
+        logger.info(String.format("%s EB: found documents count: %s", ServiceTests.TEST, response));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
         return response;
     }
@@ -575,7 +573,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         ExtensionBroker.isNotBlank(documentId, "empty document id");
 
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: find document [%s], document id [%s]", ServiceTests.TEST, dataStoreName, documentId));
+        logger.info(String.format("%s EB: find document [%s], document id [%s]", ServiceTests.TEST, dataStoreName, documentId));
 
         Json response = null;
         dataStoresLock.lock();
@@ -589,7 +587,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         } finally {
             dataStoresLock.unlock();
         }
-        logger.info(String.format("%s ES: found document: %s", ServiceTests.TEST, response));
+        logger.info(String.format("%s EB: found document: %s", ServiceTests.TEST, response));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
         return response;
     }
@@ -601,16 +599,16 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         ExtensionBroker.isNotNull(document, "empty document");
 
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: save document [%s], document [%s]", ServiceTests.TEST, dataStoreName, document));
+        logger.info(String.format("%s EB: save document [%s], document [%s]", ServiceTests.TEST, dataStoreName, document));
 
         String documentId = document.string(Parameter.DATA_STORE_ID);
         if(StringUtils.isBlank(documentId)){
             documentId = Strings.randomUUIDString();
         }
 
-        document = saveDocument(dataStoreName, documentId, document);
+        saveDocument(dataStoreName, documentId, document);
 
-        logger.info(String.format("%s ES: saved document: %s", ServiceTests.TEST, document));
+        logger.info(String.format("%s EB: saved document: %s", ServiceTests.TEST, document));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
         return document;
     }
@@ -623,11 +621,11 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         ExtensionBroker.isNotNull(document, "empty document");
 
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: update document [%s], document id [%s], document [%s]", ServiceTests.TEST, dataStoreName, documentId, document));
+        logger.info(String.format("%s EB: update document [%s], document id [%s], document [%s]", ServiceTests.TEST, dataStoreName, documentId, document));
 
-        document = saveDocument(dataStoreName, documentId, document);
+        saveDocument(dataStoreName, documentId, document);
 
-        logger.info(String.format("%s ES: updated document: %s", ServiceTests.TEST, document));
+        logger.info(String.format("%s EB: updated document: %s", ServiceTests.TEST, document));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
         return document;
     }
@@ -639,7 +637,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         filter = ExtensionBroker.checkDataStoreFilter(filter);
 
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: remove documents [%s], filter [%s]", ServiceTests.TEST, dataStoreName, filter));
+        logger.info(String.format("%s EB: remove documents [%s], filter [%s]", ServiceTests.TEST, dataStoreName, filter));
 
         final Json response = Json.map()
                 .set(Parameter.DATA_STORE_RESULT, false)
@@ -682,7 +680,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
             dataStoresLock.unlock();
         }
 
-        logger.info(String.format("%s ES: removed documents: %s", ServiceTests.TEST, response));
+        logger.info(String.format("%s EB: removed documents: %s", ServiceTests.TEST, response));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
         return response;
     }
@@ -694,7 +692,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         ExtensionBroker.isNotBlank(documentId, "empty document id");
 
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: remove document [%s], document id [%s]", ServiceTests.TEST, dataStoreName, documentId));
+        logger.info(String.format("%s EB: remove document [%s], document id [%s]", ServiceTests.TEST, dataStoreName, documentId));
 
         final Json response = Json.map()
                 .set(Parameter.DATA_STORE_RESULT, false)
@@ -722,7 +720,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
             dataStoresLock.unlock();
         }
 
-        logger.info(String.format("%s ES: removed document: %s", ServiceTests.TEST, response));
+        logger.info(String.format("%s EB: removed document: %s", ServiceTests.TEST, response));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
         return response;
     }
@@ -794,7 +792,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         );
     }
 
-    private Json saveDocument(String dataStoreName, String documentId, Json document) {
+    private void saveDocument(String dataStoreName, String documentId, Json document) {
         document.set(Parameter.DATA_STORE_ID, documentId);
         dataStoresLock.lock();
         try {
@@ -816,7 +814,6 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         } finally {
             dataStoresLock.unlock();
         }
-        return document;
     }
 
     /**
@@ -882,29 +879,29 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         return response;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: Properties
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     EB API: Properties
+     ************************/
 
     @Override
     public Json getConfiguration() throws ServiceException {
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: get configuration", ServiceTests.TEST));
+        logger.info(String.format("%s EB: get configuration", ServiceTests.TEST));
 
         final Json jsonResponse = Json.map()
                 .set(Parameter.CONFIGURATION_PROXY, false)
                 .set(Parameter.CONFIGURATION_WEB_SERVICE_URI, null);
 
-        logger.info(String.format("%s ES: configuration response: %s", ServiceTests.TEST, jsonResponse));
+        logger.info(String.format("%s EB: configuration response: %s", ServiceTests.TEST, jsonResponse));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
 
         return jsonResponse;
     }
 
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: Users
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     EB API: Users
+     ************************/
 
     @Override
     public AppUser getUserInformationByToken(String token) throws ServiceException {
@@ -912,7 +909,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         ExtensionBroker.isNotBlank(token, "empty token");
 
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: get user information by token [%s]", ServiceTests.TEST, token));
+        logger.info(String.format("%s EB: get user information by token [%s]", ServiceTests.TEST, token));
 
         AppUser response = null;
         usersLock.lock();
@@ -923,7 +920,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         } finally {
             usersLock.unlock();
         }
-        logger.info(String.format("%s ES: get user information by token [%s]: %s", ServiceTests.TEST, token, response));
+        logger.info(String.format("%s EB: get user information by token [%s]: %s", ServiceTests.TEST, token, response));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
 
         if(response == null){
@@ -938,7 +935,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         ExtensionBroker.isNotBlank(email, "empty email");
 
         logger.info(String.format("%s --------------", ServiceTests.TEST));
-        logger.info(String.format("%s ES: get user information by email [%s]", ServiceTests.TEST, email));
+        logger.info(String.format("%s EB: get user information by email [%s]", ServiceTests.TEST, email));
 
         AppUser response = null;
         usersLock.lock();
@@ -953,7 +950,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         } finally {
             usersLock.unlock();
         }
-        logger.info(String.format("%s ES: get user information by email [%s]: %s", ServiceTests.TEST, email, response));
+        logger.info(String.format("%s EB: get user information by email [%s]: %s", ServiceTests.TEST, email, response));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
 
         if(response == null){
@@ -968,7 +965,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
     }
 
     /**
-     * Add an user to be used on tests
+     * Add a user to be used on tests
      */
     public void addAppUser(String token, AppUser appUser){
         if(StringUtils.isEmpty(token)){

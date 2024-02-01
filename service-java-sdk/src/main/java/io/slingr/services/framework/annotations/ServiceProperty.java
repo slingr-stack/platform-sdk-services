@@ -11,7 +11,6 @@ import java.lang.annotation.Target;
  * ClassProperty configured on the application and used inside the service. The property must be public or include a
  * public setter-like parameter.
  *
- * Created by lefunes on 25/10/16.
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.SOURCE)

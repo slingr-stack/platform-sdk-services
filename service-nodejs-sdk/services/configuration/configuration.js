@@ -22,7 +22,7 @@ const {
     _custom_domain: domainCustom,
     _base_domain: domainBase,
     // Service specific properties
-    _svc_config: _svc_config
+    _service_config: _service_config
 } = { ...process.env };
 
 
@@ -30,7 +30,7 @@ const podId = _podId.length > 5 ? _podId.substring(_podId.length - 5) : _podId;
 const localDeployment = _localDeployment !== 'false' && !!_localDeployment;
 const debug = _debug !== 'false' && !!_debug;
 const useSsl = !localDeployment || _useSsl;
-const svcConfig = JSON.parse(_svc_config);
+const serviceConfig = JSON.parse(_service_config);
 
 const maskToken = token => {
     if (!token) {
@@ -81,12 +81,12 @@ const settings = {
     secondaryDomain,
     domainBase,
     debug,
-    svcConfig
+    serviceConfig: serviceConfig
 }
 
 module.exports = {
     settings,
-    svcConfig: settings.svcConfig
+    serviceConfig: settings.serviceConfig
 };
 
 //Some definitions constants

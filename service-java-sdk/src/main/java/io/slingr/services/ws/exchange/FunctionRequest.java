@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Function request received from the Extension Broker and used to be executed on service
  *
- * Created by lefunes on 04/11/16.
  */
 public class FunctionRequest implements JsonSource {
     private static final Logger logger = LoggerFactory.getLogger(FunctionRequest.class);

@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Implements utilities for HTTP {@link SlingrService} implementations
  *
- * <p>Created by lefunes on 12/03/18.
  */
 public class HttpModule implements IHttpService {
     private static final Logger logger = LoggerFactory.getLogger(HttpModule.class);
@@ -54,7 +53,7 @@ public class HttpModule implements IHttpService {
     }
 
     /**
-     * Throws an exception if the HTTP service is not ready to be used yet.
+     * Throws an exception if the HTTP service is not ready to be already used.
      */
     private void errorIfHttpServiceNotConfigured(){
         if(this.httpService == null) {

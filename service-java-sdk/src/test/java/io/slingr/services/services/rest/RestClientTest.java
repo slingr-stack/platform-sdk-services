@@ -5,17 +5,19 @@ import io.slingr.services.utils.Json;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
+@SuppressWarnings("SpellCheckingInspection")
 public class RestClientTest {
-
-
+    @SuppressWarnings("unused")
+    private static final Logger logger = LoggerFactory.getLogger(RestClientTest.class);
     private RestClient restClient;
 
     @Before

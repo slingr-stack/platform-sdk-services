@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * <p>Helper to execute commons operation over the users data store
  *
@@ -88,7 +90,7 @@ public class Users {
                     users.save(user);
 
                     if(debug) {
-                        logger.info(String.format("%s user configuration [%s] was saved [%s]", Service.DEBUG, userId, user.toString()));
+                        logger.info(String.format("%s user configuration [%s] was saved [%s]", Service.DEBUG, userId, user));
                     }
 
                     return user;
@@ -193,11 +195,7 @@ public class Users {
             throw ServiceException.permanent(ErrorCode.CLIENT, error!=null ? error: "User validation error").returnCode(404);
         }
         final Json data;
-        if(newConfiguration == null){
-            data = Json.map();
-        } else {
-            data = newConfiguration;
-        }
+        data = Objects.requireNonNullElseGet(newConfiguration, Json::map);
         userConf.forEachMap(data::set);
         return data;
     }
@@ -275,7 +273,7 @@ public class Users {
         if(savedConfiguration == null){
             throw ServiceException.permanent(ErrorCode.CLIENT, "Error when try to connect to Extension Broker app");
         }
-        logger.info(String.format("User connected [%s] [%s]", userId, savedConfiguration.toString()));
+        logger.info(String.format("User connected [%s] [%s]", userId, savedConfiguration));
 
         // sends connected user event
         sendUserConnectedEvent(functionId, userId, savedConfiguration);

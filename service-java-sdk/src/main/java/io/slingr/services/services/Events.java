@@ -452,12 +452,7 @@ public class Events {
                 }
                 final int newRetries = retries - 1;
                 if (newRetries > 0) {
-                    Executors.newSingleThreadScheduledExecutor().schedule(new Runnable() {
-                                                                              @Override
-                                                                              public void run() {
-                                                                                  Events.this.sendAsyncEvent(date, event, data, fromFunctionId, userId, userEmail, app, env, newRetries, maxRetries);
-                                                                              }
-                                                                          },
+                    Executors.newSingleThreadScheduledExecutor().schedule(() -> Events.this.sendAsyncEvent(date, event, data, fromFunctionId, userId, userEmail, app, env, newRetries, maxRetries),
                             ASYNC_SECONDS_BETWEEN_RETRIES * (1 + ASYNC_MAX_RETRIES - retries),
                             TimeUnit.SECONDS
                     );

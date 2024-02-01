@@ -3,13 +3,11 @@ package io.slingr.services.utils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Helper that permits to work with Base64 streams
+ * Helper that permits working with Base64 streams
  *
- * <p>Created by lefunes on 02/09/15.
  */
 public class Base64Utils {
 
@@ -19,7 +17,7 @@ public class Base64Utils {
      * @param inputStream data to encode
      * @return string containing Base64 characters in their UTF-8 representation.
      */
-    public static String encode(InputStream inputStream) throws IOException {
+    public static String encode(InputStream inputStream) {
         return encode(Strings.readBytes(inputStream));
     }
 
@@ -49,7 +47,7 @@ public class Base64Utils {
      * @param inputStream Input stream containing Base64 data
      * @return Array containing decoded data.
      */
-    public static String decode(InputStream inputStream) throws IOException {
+    public static String decode(InputStream inputStream) {
         return decode(Strings.readBytes(inputStream));
     }
 

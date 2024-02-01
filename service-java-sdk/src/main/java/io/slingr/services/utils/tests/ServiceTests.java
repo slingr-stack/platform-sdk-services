@@ -603,7 +603,7 @@ public class ServiceTests {
     public static FunctionRequest generateRequest(Long date, String functionName, String functionId, Object params, String userId, String userEmail) {
         return new FunctionRequest(
                 Json.map()
-                        .set(Parameter.DATE, date != null ? date.longValue() : System.currentTimeMillis())
+                        .set(Parameter.DATE, date != null ? date : System.currentTimeMillis())
                         .setIfNotEmpty(Parameter.FUNCTION_NAME, functionName)
                         .setIfNotEmpty(Parameter.FUNCTION_ID, functionId)
                         .setIfNotEmpty(Parameter.PARAMS, params)

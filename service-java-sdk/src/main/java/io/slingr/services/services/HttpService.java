@@ -214,7 +214,7 @@ public class HttpService extends RestClient {
      * Process the POST requests to the external HTTP service
      *
      * @param request request to send to the external HTTP service
-     * @param functionId
+     * @param functionId -
      * @return response from the external HTTP service
      */
     public Json defaultPostRequest(Json request, String functionId) {
@@ -457,7 +457,7 @@ public class HttpService extends RestClient {
      * @return equivalent service exception
      */
     public static ServiceException defaultConvertToServiceException(Exception exception) {
-        ServiceException response = null;
+        ServiceException response;
         if (exception instanceof ServiceException) {
             final Json ex = ((ServiceException) exception).toJson(true);
             if (ex.string(Parameter.EXCEPTION_MESSAGE).startsWith("HTTP ") && ex.contains(Parameter.EXCEPTION_ADDITIONAL_INFO)) {

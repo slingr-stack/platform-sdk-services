@@ -14,10 +14,9 @@ import io.slingr.services.utils.tests.ServiceTests;
 /**
  * Abstract class that must be implemented by all services annotated with
  * {@link Service}.
- *
+ * <p>
  * This contains all the basic support to interact with the Slingr platform.
  *
- * Created by lefunes on 12/03/18.
  */
 public abstract class Service extends DefaultServiceLifecycleListener implements IService {
 
@@ -36,6 +35,7 @@ public abstract class Service extends DefaultServiceLifecycleListener implements
     /**
      * Function called when the service is started
      */
+    @SuppressWarnings("unused")
     protected final void finishedStart() {
         baseModule.finishedStart();
     }
@@ -50,7 +50,7 @@ public abstract class Service extends DefaultServiceLifecycleListener implements
     /**
      * Builds the default service implementation using the given parameters.
      *
-     * @param propertyFile property file used as source of properties. This is used primary on development time.
+     * @param propertyFile property file used as sources of properties. This is used primary on development time.
      */
     public final void configure(String propertyFile){
         baseModule.configure(propertyFile, this);
@@ -87,7 +87,7 @@ public abstract class Service extends DefaultServiceLifecycleListener implements
     }
 
     @Override
-    public ESConfigurations serviceConfigurations() {
+    public EBConfigurations serviceConfigurations() {
         return baseModule.serviceConfigurations();
     }
 

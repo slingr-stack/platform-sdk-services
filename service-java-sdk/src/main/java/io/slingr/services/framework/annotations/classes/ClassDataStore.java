@@ -13,7 +13,6 @@ import javax.lang.model.element.VariableElement;
  * Class that represent the data stores (a field annotated by <code>@ServiceDataStore</code>) found inside a class annotated
  * by <code>@SlingrService</code>
  *
- * Created by lefunes on 16/11/16.
  */
 public class ClassDataStore implements SettableProperty {
     public final static String SDS_NAME = ServiceDataStore.class.getSimpleName();
