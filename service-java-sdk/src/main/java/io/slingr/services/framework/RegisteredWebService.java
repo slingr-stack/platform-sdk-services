@@ -100,7 +100,8 @@ public class RegisteredWebService implements Comparable<RegisteredWebService> {
                 }
             }
         } catch (Exception ex){
-            logger.info(String.format("Service can not extract variables from web services path [%s]: %s", path, ex.getMessage()));
+            // Ignore exception
+            //logger.info(String.format("Service can not extract variables from web services path [%s]: %s", path, ex.getMessage()));
         }
 
         this.key = name.replaceAll("\\{[\\w\\-.]+:([\\w\\-\\.]+)}", "aaaaaaa-filter-zz$1")
