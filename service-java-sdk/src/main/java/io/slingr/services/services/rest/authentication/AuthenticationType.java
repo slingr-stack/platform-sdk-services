@@ -12,7 +12,8 @@ public enum AuthenticationType {
     OAUTH_TWITTER("oauthTwitter"),
     OAUTH2("oauth2"),
     OAUTH("oauth"),
-    DIGEST("digest");
+    DIGEST("digest"),
+    AWS_SIGNATURE("awsSignature");
 
     private final String type;
 

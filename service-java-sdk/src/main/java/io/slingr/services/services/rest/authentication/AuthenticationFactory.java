@@ -43,6 +43,8 @@ public class AuthenticationFactory {
                 return new OAuthAuthenticationStrategy(params);
             case DIGEST:
                 return new DigestAuthenticationStrategy(params);
+            case AWS_SIGNATURE:
+                return new AwsAuthenticationStrategy(params);
             default:
                 throw new IllegalArgumentException("Invalid authentication type: " + type);
         }
