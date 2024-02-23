@@ -71,11 +71,6 @@ public class AwsAuthenticationStrategy implements AuthenticationStrategy {
 
     }
 
-    @Override
-    public void addAuthentication(Client client) {
-
-    }
-
     private static ClientRequestFilter getClientRequestFilter(AWSSignatureV4Generator aWSV4Auth, String hostHeader) throws Exception {
         Map<String, String> header = aWSV4Auth.getHeaders();
         return requestContext -> {

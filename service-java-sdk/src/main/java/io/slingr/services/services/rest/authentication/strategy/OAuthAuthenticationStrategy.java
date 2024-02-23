@@ -22,11 +22,6 @@ public class OAuthAuthenticationStrategy implements AuthenticationStrategy {
 
     @Override
     public void addAuthentication(Client client, WebTarget apiTarget, HttpRequest request) {
-
-    }
-
-    @Override
-    public void addAuthentication(Client client) {
         client.register((ClientRequestFilter) requestContext -> {
             String url = requestContext.getUri().toString();
             OAuthConsumer consumer = new DefaultOAuthConsumer(consumerKey, consumerSecret);
@@ -38,4 +33,5 @@ public class OAuthAuthenticationStrategy implements AuthenticationStrategy {
             }
         });
     }
+
 }

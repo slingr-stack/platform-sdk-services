@@ -18,12 +18,8 @@ public class BasicAuthenticationStrategy implements AuthenticationStrategy {
 
     @Override
     public void addAuthentication(Client client, WebTarget apiTarget, HttpRequest request) {
-
-    }
-
-    @Override
-    public void addAuthentication(Client client) {
         final HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(username, password);
         client.register(feature);
     }
+
 }

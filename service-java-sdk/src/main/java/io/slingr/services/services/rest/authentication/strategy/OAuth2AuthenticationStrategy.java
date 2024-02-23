@@ -19,13 +19,9 @@ public class OAuth2AuthenticationStrategy implements AuthenticationStrategy {
 
     @Override
     public void addAuthentication(Client client, WebTarget apiTarget, HttpRequest request) {
-
-    }
-
-    @Override
-    public void addAuthentication(Client client) {
-
         client.register((ClientRequestFilter) requestContext -> requestContext.getHeaders().add("Authorization", headerPrefix +" " + accessToken));
     }
+
+
 
 }

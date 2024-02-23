@@ -18,12 +18,9 @@ public class DigestAuthenticationStrategy implements AuthenticationStrategy {
 
     @Override
     public void addAuthentication(Client client, WebTarget apiTarget, HttpRequest request) {
-
-    }
-
-    @Override
-    public void addAuthentication(Client client) {
         final HttpAuthenticationFeature feature = HttpAuthenticationFeature.digest(username, password);
         client.register(feature);
     }
+
+
 }

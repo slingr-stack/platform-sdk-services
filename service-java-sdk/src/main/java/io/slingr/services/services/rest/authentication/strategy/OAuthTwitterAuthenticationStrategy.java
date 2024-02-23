@@ -36,11 +36,6 @@ public class OAuthTwitterAuthenticationStrategy implements AuthenticationStrateg
     @Override
     public void addAuthentication(Client client, WebTarget apiTarget, HttpRequest request) {
 
-    }
-
-    @Override
-    public void addAuthentication(Client client) {
-
         client.register((ClientRequestFilter) requestContext -> {
 
             Map<String, String> otherHeaders = new HashMap<>();
