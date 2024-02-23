@@ -1,8 +1,10 @@
 package io.slingr.services.services.rest.authentication;
 
+import io.slingr.services.services.rest.HttpRequest;
 import io.slingr.services.services.rest.authentication.strategy.AuthenticationStrategy;
 
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
 import java.util.Map;
 
 /**
@@ -14,11 +16,12 @@ public class AuthenticationService {
     /**
      * Sets up the authentication strategy based on the specified authentication type and parameters.
      *
-     * @param type   The type of authentication.
-     * @param params The parameters required for authentication.
+     * @param request The request containing the authorization information.
      */
-    public void setupAuthentication(AuthenticationType type, Map<String, String> params) {
-        strategy = AuthenticationFactory.createAuthenticationStrategy(type, params);
+    public void setupAuthentication(HttpRequest request) {
+        Map<String, String> params = request.getAuthorization().toMapString();
+        AuthenticationType authenticationType = AuthenticationType.fromType(params);
+        strategy = AuthenticationFactory.createAuthenticationStrategy(authenticationType, params);
     }
 
     /**
@@ -26,7 +29,7 @@ public class AuthenticationService {
      *
      * @param client The client to which authentication should be added.
      */
-    public void addAuthentication(Client client) {
-        strategy.addAuthentication(client);
+    public void addAuthentication(Client client, WebTarget apiTarget, HttpRequest request) {
+        strategy.addAuthentication(client, apiTarget, request);
     }
 }

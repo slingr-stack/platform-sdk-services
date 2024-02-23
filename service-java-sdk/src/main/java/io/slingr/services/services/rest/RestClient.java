@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -164,9 +165,8 @@ public abstract class RestClient {
     }
 
 
-    public void setupAuthentication(Map<String, String> params) {
-        AuthenticationType authenticationType = AuthenticationType.fromType(params);
-        this.apiTarget = factory.setupAuthentication(apiTarget, authenticationType, params);
+    public void setupAuthentication(HttpRequest request) {
+        this.apiTarget = factory.setupAuthentication(apiTarget, request);
     }
 
     /**
@@ -1916,7 +1916,7 @@ public abstract class RestClient {
                     simpleClient = simpleClient.parameter(param.getKey(), param.getValue());
                 }
                 if (request.getAuthorization().isNotEmpty()) {
-                    simpleClient.setupAuthentication(request.getAuthorization().toMapString());
+                    simpleClient.setupAuthentication(request);
                 }
                 target = simpleClient.target();
             }

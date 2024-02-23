@@ -163,9 +163,9 @@ public class RestClientFactory {
         return this;
     }
 
-    public WebTarget setupAuthentication(WebTarget apiTarget, AuthenticationType type, Map<String, String> params) {
-        authService.setupAuthentication(type,params);
-        authService.addAuthentication(client);
+    public WebTarget setupAuthentication(WebTarget apiTarget, HttpRequest request) {
+        authService.setupAuthentication(request);
+        authService.addAuthentication(client, apiTarget, request);
         return this.client.target(apiTarget.getUri());
     }
 
