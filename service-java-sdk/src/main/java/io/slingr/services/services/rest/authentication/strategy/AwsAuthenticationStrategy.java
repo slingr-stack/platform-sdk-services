@@ -1,6 +1,7 @@
 package io.slingr.services.services.rest.authentication.strategy;
 
 import io.slingr.services.services.rest.HttpRequest;
+import io.slingr.services.services.rest.RestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,18 +44,22 @@ public class AwsAuthenticationStrategy implements AuthenticationStrategy {
 
         TreeMap<String, String> awsHeaders = new TreeMap<>(request.getHeaders().toMapString());
         awsHeaders.put("host", hostHeader);
-        awsHeaders.put("content-type", "application/x-www-form-urlencoded; charset=utf-8");
 
         TreeMap<String, String> queryParams = new TreeMap<>(request.getParams().toMapString());
+
+        RestMethod method = request.getRestMethod();
+
+        String body = ((method == RestMethod.POST || method == RestMethod.PUT || method == RestMethod.PATCH) && request.getJsonBody().isNotEmpty()) ?
+                request.getJsonBody().toString() : null;
 
         AWSSignatureV4Generator aWSV4Auth = new AWSSignatureV4Generator.Builder(accessKeyID, secretAccessKey)
                 .regionName(region)
                 .serviceName(serviceName)
-                .httpMethodName(request.getRestMethod().name())
+                .httpMethodName(method.name())
                 .canonicalURI(canonicalURI)
                 .queryParameters(queryParams)
                 .awsHeaders(awsHeaders)
-                .payload(null)
+                .payload(body)
                 .build();
 
         /* Get header calculated for request */
@@ -78,7 +83,7 @@ public class AwsAuthenticationStrategy implements AuthenticationStrategy {
                 requestContext.getHeaders().add(entrySet.getKey(), entrySet.getValue());
             }
             requestContext.getHeaders().add("host", hostHeader);
-            requestContext.getHeaders().add("content-type", "application/x-www-form-urlencoded; charset=utf-8");
+//            requestContext.getHeaders().add("content-type", "application/x-www-form-urlencoded; charset=utf-8");
         };
     }
 
@@ -154,8 +159,8 @@ public class AwsAuthenticationStrategy implements AuthenticationStrategy {
             signedHeaderString = signedHeaders.substring(0, signedHeaders.length() - 1); // Remove last ";"
             canonicalURL.append(signedHeaderString).append("\n");
 
-        /* Step 1.6 Use a hash (digest) function like SHA256 to create a hashed value from the payload in the body of
-        the HTTP or HTTPS. */
+            /* Step 1.6 Use a hash (digest) function like SHA256 to create a hashed value from the payload in the body of
+            the HTTP or HTTPS. */
             if (payload == null) {
                 payload = "";
             }
@@ -234,7 +239,7 @@ public class AwsAuthenticationStrategy implements AuthenticationStrategy {
 
         /**
          * Task 4: Add the Signing Information to the Request. We'll return Map of
-         * all headers put this headers in your request.
+         * all headers put these headers in your request.
          *
          * @return Headers.
          */
@@ -300,7 +305,7 @@ public class AwsAuthenticationStrategy implements AuthenticationStrategy {
          * @return HMAC SHA 256 encoded byte array.
          * @throws UnsupportedEncodingException The Character Encoding is not supported.
          * @throws InvalidKeyException          This is the exception for invalid Keys (invalid encoding, wrong length,
-         *                                      uninitialized, etc).
+         *                                      uninitialized, etc.).
          * @throws NoSuchAlgorithmException     When a particular cryptographic algorithm that is requested is not available.
          */
         private byte[] hmacSHA256(byte[] key, String data) throws UnsupportedEncodingException, InvalidKeyException,
@@ -322,7 +327,7 @@ public class AwsAuthenticationStrategy implements AuthenticationStrategy {
          * @return Signature key.
          * @throws UnsupportedEncodingException The Character Encoding is not supported.
          * @throws InvalidKeyException          This is the exception for invalid Keys (invalid encoding, wrong length,
-         *                                      uninitialized, etc).
+         *                                      uninitialized, etc.).
          * @throws NoSuchAlgorithmException     When a particular cryptographic algorithm that is requested is not available.
          */
         private byte[] getSignatureKey(String key, String date, String regionName, String serviceName)
@@ -379,7 +384,7 @@ public class AwsAuthenticationStrategy implements AuthenticationStrategy {
         /**
          * Encode string value.
          *
-         * @param param String value that need to be encode.
+         * @param param String value that need to be encoded.
          * @return encoded string.
          */
         private String encodeParameter(String param) {
