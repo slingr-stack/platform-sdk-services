@@ -78,7 +78,6 @@ public class AwsAuthenticationStrategy implements AuthenticationStrategy {
                 requestContext.getHeaders().add(entrySet.getKey(), entrySet.getValue());
             }
             requestContext.getHeaders().add("host", hostHeader);
-//            requestContext.getHeaders().add("content-type", "application/x-www-form-urlencoded; charset=utf-8");
         };
     }
 
