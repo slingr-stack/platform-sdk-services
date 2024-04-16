@@ -1,13 +1,19 @@
----
-title: Services Nodejs SDK
-keywords: 
-last_updated: Nov 1, 2022
-tags: []
-summary: "Nodejs SDK to create Slingr Services."
-sidebar: extensions_sidebar
-permalink: extensions_node_sdk.html
-folder: extensions
----
+<table class="table" style="margin-top: 10px">
+    <thead>
+    <tr>
+        <th>Title</th>
+        <th>Last Updated</th>
+        <th>Summary</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Services Nodejs SDK</td>
+        <td>April 16, 2024</td>
+        <td>Node.js SDK to create Slingr Services.</td>
+    </tr>
+    </tbody>
+</table>
 
 This document will guide through the creation of a service using the Nodejs SDK and will provide details about the
 framework.
@@ -369,5 +375,3 @@ There are dozens of services already developed for the SLINGR platform. You can 
 more features in the services' framework:
 
 [https://github.com/slingr-stack](https://github.com/slingr-stack)
-
-{% include links.html %}
