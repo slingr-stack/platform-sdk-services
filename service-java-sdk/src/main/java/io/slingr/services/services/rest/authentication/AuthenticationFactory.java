@@ -1,7 +1,6 @@
 package io.slingr.services.services.rest.authentication;
 
 import io.slingr.services.services.rest.authentication.strategy.*;
-import io.slingr.services.ws.WebServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +43,8 @@ public class AuthenticationFactory {
                 return new OAuthAuthenticationStrategy(params);
             case DIGEST:
                 return new DigestAuthenticationStrategy(params);
+            case AWS_SIGNATURE:
+                return new AwsAuthenticationStrategy(params);
             default:
                 throw new IllegalArgumentException("Invalid authentication type: " + type);
         }

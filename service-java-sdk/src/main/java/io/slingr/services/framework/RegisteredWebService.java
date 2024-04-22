@@ -37,17 +37,6 @@ public class RegisteredWebService implements Comparable<RegisteredWebService> {
     private final Pattern extractPattern;
     private final Class<?> serviceClass;
 
-    private static Method namedGroupsMethod = null;
-    static {
-        try {
-            namedGroupsMethod = Pattern.class.getDeclaredMethod("namedGroups");
-            namedGroupsMethod.setAccessible(true);
-        } catch (Exception ex){
-            logger.error(String.format("Service can not extract variables on web services path: %s", ex.getMessage()), ex);
-            namedGroupsMethod = null;
-        }
-    }
-
     /**
      * Instances a function declared on the service
      *
@@ -97,19 +86,22 @@ public class RegisteredWebService implements Comparable<RegisteredWebService> {
                 .replaceAll("\\{(\\w+):(.*)}", "(?<$1>$2)")
                 .replaceAll("\\{(\\w+)}", "(?<$1>[\\\\w\\\\-\\\\.]+)")
                 .replaceAll("\\*", ".+");
-        
+
         this.pattern = Pattern.compile(String.format("\\/?%s\\/?", regex), Pattern.CASE_INSENSITIVE);
         this.extractPattern = Pattern.compile(String.format("\\/?%s\\/?", extractRegex), Pattern.CASE_INSENSITIVE);
 
-        if(namedGroupsMethod != null) {
-            try {
-                final Map<String, Integer> namedGroups = (Map<String, Integer>) namedGroupsMethod.invoke(this.extractPattern);
-                if(namedGroups != null && !namedGroups.isEmpty()) {
-                    variables.putAll(namedGroups);
+        // Replace reflection
+        try {
+            Matcher extractMatcher = this.extractPattern.matcher("");
+            for (int i = 1; i <= extractMatcher.groupCount(); i++) {
+                String groupName = extractMatcher.group(i);
+                if (groupName != null) {
+                    variables.put(groupName, i);
                 }
-            } catch (Exception ex){
-                logger.error(String.format("Service can not extract variables from web services path [%s]: %s", path, ex.getMessage()), ex);
             }
+        } catch (Exception ex){
+            // Ignore exception
+            //logger.info(String.format("Service can not extract variables from web services path [%s]: %s", path, ex.getMessage()));
         }
 
         this.key = name.replaceAll("\\{[\\w\\-.]+:([\\w\\-\\.]+)}", "aaaaaaa-filter-zz$1")

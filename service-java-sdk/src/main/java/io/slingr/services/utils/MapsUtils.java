@@ -10,7 +10,6 @@ import java.util.Map;
 /**
  * Utils to perform operation with maps
  *
- * Created by lefunes on 08/04/15.
  */
 public class MapsUtils {
 
@@ -30,7 +29,7 @@ public class MapsUtils {
             if(((Json) object).isList()){
                 return cleanDotKeys(((Json) object).toList());
             } else if(((Json) object).isMap()){
-                return cleanDotKeys((Map)((Json) object).toMap());
+                return cleanDotKeys(((Json) object).toMap());
             } else {
                 return null;
             }

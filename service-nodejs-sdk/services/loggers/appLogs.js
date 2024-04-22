@@ -7,7 +7,7 @@ const
     } = require('../configuration/configuration').settings,
     httpModule = require('../httpModule/httpModule');
 
-// app log (POST /api/svcs/logs)
+ // app log (POST /api/services/logs)
 const sendAppLog = (level, message, additionalInfo) => {
     if (!additionalInfo) {
         additionalInfo = {}
@@ -22,7 +22,7 @@ const sendAppLog = (level, message, additionalInfo) => {
         message: message,
         additionalInfo: additionalInfo
     };
-    httpModule.post('/svcs/logs', appLog)
+    httpModule.post('/services/logs', appLog)
         .then(body => logger.debug('[APP LOG][' + level + '] ' + appLog.message))
         .catch(error => {
             logger.debug('[APP LOG][' + level + '] ' + appLog.message + ' >> [NO SENT]');

@@ -40,7 +40,7 @@ let svc = {
     httpModule: {}
 };
 let settings,
-    svcConfig,
+    serviceConfig,
     definitions,
     logger,
     appLogger,
@@ -159,7 +159,7 @@ const loadPlatformWebServices = () => {
                         _token: '-',
                         _profile: settings.profile,
                         _svcs_services_api: settings.svcsServicesApi,
-                        _svc_config: settings.svcConfig
+                        _service_config: settings.serviceConfig
                     },
                     js: '',
                     listeners: '',
@@ -387,10 +387,10 @@ const loadSvcWebServices = () => {
 
 const startSvc = async () => {
 
-    ; ({ settings, svcConfig, definitions } = require('./services/configuration/configuration'));
+    ; ({ settings, serviceConfig: serviceConfig, definitions } = require('./services/configuration/configuration'));
 
     svc.settings = settings;
-    svc.svcConfig = svcConfig;
+    svc.serviceConfig = serviceConfig;
     svc.definitions = definitions;
     if (svc.hooks.onConfigurationReady) hooks.onConfigurationReady();
 

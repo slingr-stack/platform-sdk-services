@@ -4,7 +4,7 @@ const {setPropertyOnSettings} = require('../configuration/configuration');
 
 const checkProxyStatus = async () => {
     try {
-        let res = await httpModule.get('/svcs/configuration');
+        let res = await httpModule.get('/services/configuration');
         let data = res.data;
         return data.proxy
     } catch (err) {
@@ -14,7 +14,7 @@ const checkProxyStatus = async () => {
 
 const refreshCache = async () => {
         try {
-            await httpModule.put('/svcs/management/clearCache');
+            await httpModule.put('/services/management/clearCache');
         } catch (err) {
             console.log("err is:",err);
         }

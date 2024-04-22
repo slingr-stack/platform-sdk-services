@@ -7,8 +7,7 @@ import java.util.List;
 
 /**
  * Response to a find request on a data store
- *
- * Created by lefunes on 24/01/17.
+ * <p>
  */
 public class DataStoreResponse {
     private final List<Json> items;

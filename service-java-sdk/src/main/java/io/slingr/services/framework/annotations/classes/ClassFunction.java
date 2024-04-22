@@ -20,7 +20,7 @@ import javax.lang.model.type.TypeMirror;
 public class ClassFunction {
     public final static String SF_NAME = ServiceFunction.class.getSimpleName();
 
-    private ExecutableElement annotatedElement;
+    private final ExecutableElement annotatedElement;
     private final String simpleName;
 
     private final String name;

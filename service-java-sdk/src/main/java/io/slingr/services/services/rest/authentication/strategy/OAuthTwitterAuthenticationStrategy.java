@@ -1,5 +1,6 @@
 package io.slingr.services.services.rest.authentication.strategy;
 
+import io.slingr.services.services.rest.HttpRequest;
 import io.slingr.services.utils.Json;
 import io.slingr.services.utils.Strings;
 import org.apache.commons.codec.binary.Base64;
@@ -10,7 +11,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
-import java.io.UnsupportedEncodingException;
+import javax.ws.rs.client.WebTarget;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -33,7 +34,7 @@ public class OAuthTwitterAuthenticationStrategy implements AuthenticationStrateg
     }
 
     @Override
-    public void addAuthentication(Client client) {
+    public void addAuthentication(Client client, WebTarget apiTarget, HttpRequest request) {
 
         client.register((ClientRequestFilter) requestContext -> {
 

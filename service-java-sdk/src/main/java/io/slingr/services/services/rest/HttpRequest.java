@@ -75,7 +75,7 @@ public class HttpRequest implements JsonSource {
     public enum PartType {
         FILE("file"), OTHER("other");
 
-        private String jsonValue;
+        private final String jsonValue;
 
         PartType(String jsonValue) {
             this.jsonValue = jsonValue;
@@ -595,12 +595,7 @@ public class HttpRequest implements JsonSource {
             json.set(Parameter.HTTP_REQUEST_FILE_NAME, getFilename());
         }
         if(isMultipart()){
-            json.set("parts", Json.list(getParts(), new Json.ListGenerator<Part>() {
-                @Override
-                public Object element(Part item) {
-                    return item.toJson();
-                }
-            }));
+            json.set("parts", Json.list(getParts(), Part::toJson));
         }
         return json;
     }
@@ -688,49 +683,46 @@ public class HttpRequest implements JsonSource {
                     request.setForceDisableCookies(forceDisableCookies);
                 }
 
-            final Boolean removeRefererHeaderOnRedirect = settings.bool(Parameter.HTTP_REQUEST_REMOVE_REFERER_HEADER_ON_REDIRECT);
-            if (removeRefererHeaderOnRedirect != null) {
-                request.setRemoveRefererHeaderOnRedirect(removeRefererHeaderOnRedirect);
-            }
+                final Boolean removeRefererHeaderOnRedirect = settings.bool(Parameter.HTTP_REQUEST_REMOVE_REFERER_HEADER_ON_REDIRECT);
+                if (removeRefererHeaderOnRedirect != null) {
+                    request.setRemoveRefererHeaderOnRedirect(removeRefererHeaderOnRedirect);
+                }
 
-            final Boolean defaultCallback = settings.bool(Parameter.HTTP_REQUEST_CALLBACK);
+                final Boolean defaultCallback = settings.bool(Parameter.HTTP_REQUEST_CALLBACK);
                 if (defaultCallback != null) {
                     request.setDefaultCallback(defaultCallback);
                 }
 
-
-            final Boolean  followAuthorizationHeader = settings.bool(Parameter.HTTP_REQUEST_FOLLOW_AUTHORIZATION_HEADER);
+                final Boolean  followAuthorizationHeader = settings.bool(Parameter.HTTP_REQUEST_FOLLOW_AUTHORIZATION_HEADER);
                 if (followAuthorizationHeader != null) {
                     request.setFollowAuthorizationHeader(followAuthorizationHeader);
                 }
 
-            final Boolean followOriginalHttpMethod = settings.bool(Parameter.HTTP_REQUEST_FOLLOW_ORIGINAL_HTTP_METHOD);
-            if (followOriginalHttpMethod != null) {
-                request.setFollowOriginalHttpMethod(followOriginalHttpMethod);
-            }
+                final Boolean followOriginalHttpMethod = settings.bool(Parameter.HTTP_REQUEST_FOLLOW_ORIGINAL_HTTP_METHOD);
+                if (followOriginalHttpMethod != null) {
+                    request.setFollowOriginalHttpMethod(followOriginalHttpMethod);
+                }
 
-            final Boolean  useSSL = settings.bool(Parameter.HTTP_USE_SSL);
+                final Boolean  useSSL = settings.bool(Parameter.HTTP_USE_SSL);
                 if (useSSL != null) {
                     request.setUseSSL(useSSL);
                 }
-
-            }
-
-            final String filename = json.string(Parameter.HTTP_REQUEST_FILE_NAME);
-            if (filename != null) {
-                request.setFilename(filename);
-            }
-
-            Boolean multipart = json.bool(Parameter.HTTP_USE_MULTI_PART);
-            if (multipart != null && multipart) {
-                request.setMultipart(true);
-                for (Json partJson : json.jsons("parts")) {
-                    Part part = new Part();
-                    part.fromJson(partJson);
-                    request.getParts().add(part);
+                final String filename = settings.string(Parameter.HTTP_REQUEST_FILE_NAME);
+                if (filename != null) {
+                    request.setFilename(filename);
                 }
-            } else {
-                request.setMultipart(false);
+
+                Boolean multipart = settings.bool(Parameter.HTTP_USE_MULTI_PART);
+                if (multipart != null && multipart) {
+                    request.setMultipart(true);
+                    for (Json partJson : settings.jsons("parts")) {
+                        Part part = new Part();
+                        part.fromJson(partJson);
+                        request.getParts().add(part);
+                    }
+                } else {
+                    request.setMultipart(false);
+                }
             }
         }
         return request;
@@ -739,7 +731,7 @@ public class HttpRequest implements JsonSource {
     public static class HttpRequestBuilder {
 
         private RestMethod restMethod;
-        private String path = null;
+        private final String path = null;
         private Json params = Json.map();
         private Json headers = Json.map();
         private Json authorization = Json.map();

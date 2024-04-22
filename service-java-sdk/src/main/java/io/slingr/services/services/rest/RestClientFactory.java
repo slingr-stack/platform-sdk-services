@@ -75,7 +75,7 @@ public class RestClientFactory {
     // FEFF because this is the Unicode char represented by the UTF-8 byte order mark (EF BB BF).
     public static final String UTF8_BOM = "\uFEFF";
 
-    private Client client = null;
+    private final Client client;
     protected boolean debug = false;
     private boolean rememberCookies = false;
     private final ReentrantLock cookiesLock = new ReentrantLock();
@@ -163,9 +163,9 @@ public class RestClientFactory {
         return this;
     }
 
-    public WebTarget setupAuthentication(WebTarget apiTarget, AuthenticationType type, Map<String, String> params) {
-        authService.setupAuthentication(type,params);
-        authService.addAuthentication(client);
+    public WebTarget setupAuthentication(WebTarget apiTarget, HttpRequest request) {
+        authService.setupAuthentication(request);
+        authService.addAuthentication(client, apiTarget, request);
         return this.client.target(apiTarget.getUri());
     }
 
@@ -477,7 +477,7 @@ public class RestClientFactory {
             if(response.getHeaders() != null) {
                 response.getHeaders()
                         .forEach((k, objects) -> {
-                            if(objects != null && objects.size() > 0) {
+                            if(objects != null && !objects.isEmpty()) {
                                 final Object header;
                                 if(objects.size() == 1){
                                     header = objects.get(0);
@@ -558,7 +558,7 @@ public class RestClientFactory {
         }
 
         // prepare content to be sent on request
-        Entity postData = null;
+        Entity<?> postData = null;
         if(method == RestMethod.POST || method == RestMethod.PUT || method == RestMethod.PATCH) {
             if (content == null) {
                 content = Json.map();
@@ -684,7 +684,7 @@ public class RestClientFactory {
 
                 if(!request.isRemoveRefererHeaderOnRedirect()){
                     //Add Referer header
-                    this.history.add(this.history.size() == 0 ? request.getPath() : uri);
+                    this.history.add(this.history.isEmpty() ? request.getPath() : uri);
                     headers.set(HttpHeaders.REFERER, this.history.get(this.history.size() - 1));
                 }
 

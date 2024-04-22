@@ -4,8 +4,8 @@ import io.slingr.services.Service;
 import io.slingr.services.configurations.Configuration;
 import io.slingr.services.configurations.ServiceDefinitions;
 import io.slingr.services.configurations.ServicesProperties;
-import io.slingr.services.exceptions.ServiceException;
 import io.slingr.services.exceptions.ErrorCode;
+import io.slingr.services.exceptions.ServiceException;
 import io.slingr.services.framework.annotations.classes.FunctionResponseType;
 import io.slingr.services.framework.annotations.classes.MethodAccessorType;
 import io.slingr.services.framework.annotations.classes.MethodParameterType;
@@ -15,8 +15,8 @@ import io.slingr.services.services.datastores.DataStore;
 import io.slingr.services.services.exchange.Parameter;
 import io.slingr.services.services.logs.ServiceLayout;
 import io.slingr.services.utils.Json;
-import io.slingr.services.utils.tests.ServiceTests;
 import io.slingr.services.utils.tests.ExtensionBrokerMock;
+import io.slingr.services.utils.tests.ServiceTests;
 import io.slingr.services.ws.WebServices;
 import io.slingr.services.ws.WebServicesProcessor;
 import io.slingr.services.ws.exchange.FunctionRequest;
@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 /**
  * Base module that implements utilities for all {@link Service} implementations
  *
- * <p>Created by lefunes on 12/03/18.
  */
 public class BaseModule implements IService, IBaseService {
     private static final Logger logger = LoggerFactory.getLogger(BaseModule.class);
@@ -49,8 +48,8 @@ public class BaseModule implements IService, IBaseService {
     private ServicesProperties properties = null;
     private ServiceDefinitions definitions = null;
     private WebServices webServicesServer = null;
-    private List<ServiceLifecycleListener> systemLifecycleListeners = new ArrayList<>();
-    private List<ServiceLifecycleListener> lifecycleListeners = new ArrayList<>();
+    private final List<ServiceLifecycleListener> systemLifecycleListeners = new ArrayList<>();
+    private final List<ServiceLifecycleListener> lifecycleListeners = new ArrayList<>();
 
     // services
     private ExtensionBrokerApi extensionBroker;
@@ -59,7 +58,7 @@ public class BaseModule implements IService, IBaseService {
     private Locks locks;
     private Files files;
     private DataStores dataStores;
-    private ESConfigurations configurations;
+    private EBConfigurations configurations;
     private AppUsers appUsers;
     private Management management;
 
@@ -84,7 +83,6 @@ public class BaseModule implements IService, IBaseService {
     // interceptors
     private final AtomicBoolean enabledConfiguratorInterceptor = new AtomicBoolean(false);
     private final AtomicBoolean enabledFunctionInterceptor = new AtomicBoolean(false);
-    private final AtomicBoolean enabledWebServiceInterceptor = new AtomicBoolean(false);
 
     /**
      * Builds the base service instance
@@ -92,8 +90,8 @@ public class BaseModule implements IService, IBaseService {
     public BaseModule(){}
 
     /**
-     * Add a priority listener to be called when the a lifecycle event is emitted. These priority listener are called
-     * before the other listeners.
+     * Add a priority listener to be called when a lifecycle event is emitted.
+     * These priority listeners are called before the other listeners.
      *
      * @param listener listener to subscribe
      */
@@ -104,7 +102,7 @@ public class BaseModule implements IService, IBaseService {
     }
 
     /**
-     * Add a listener to be called when the a lifecycle event is emitted
+     * Add a listener to be called when a lifecycle event is emitted
      *
      * @param listener listener to subscribe
      */
@@ -186,7 +184,7 @@ public class BaseModule implements IService, IBaseService {
                             this.properties.getServicesApiVersion()
                     );
                 } else {
-                    // stating the testing mode using a mock of the Extension Broker
+                    // stating the testing mode using the mock of the Extension Broker
                     logger.info(String.format("%s --------------", ServiceTests.TEST));
                     logger.info(String.format("%s Testing mode ", ServiceTests.TEST));
                     this.extensionBroker = new ExtensionBrokerMock();
@@ -199,7 +197,7 @@ public class BaseModule implements IService, IBaseService {
                 this.locks = new Locks(this.extensionBroker, this.properties.isDebug());
                 this.files = new Files(this.extensionBroker, this.properties.isDebug());
                 this.dataStores = new DataStores(this.extensionBroker, this.definitions.getDataStoresNames(), this.properties.isDebug());
-                this.configurations = new ESConfigurations(this.extensionBroker, this.properties.isDebug());
+                this.configurations = new EBConfigurations(this.extensionBroker, this.properties.isDebug());
                 this.appUsers = new AppUsers(this.extensionBroker, this.properties.isDebug());
                 this.management = new Management(this.extensionBroker);
 
@@ -278,7 +276,7 @@ public class BaseModule implements IService, IBaseService {
         }
 
         if (properties.isUsingProxy()) {
-            // if we are using the proxy we will clear cache after restarting the services
+            // if we are using the proxy, we will clear cache after restarting the services
             // this is to make development of services easier so developers just need to
             // restart the services when there are changes
             management.clearCache();
@@ -286,9 +284,9 @@ public class BaseModule implements IService, IBaseService {
     }
 
     /**
-     * Throws an exception if the services is not already configured
+     * Throws an exception if the service is not already configured
      *
-     * @throws ServiceException if the services is not already configured
+     * @throws ServiceException if the service is not already configured
      */
     private void errorIfNotConfigured() throws ServiceException {
         if(!configured.get()){
@@ -311,7 +309,7 @@ public class BaseModule implements IService, IBaseService {
     }
 
     /**
-     * Throws an exception if the users are not ready to be used yet.
+     * Throws an exception if the users are not ready to be already used.
      */
     private void errorIfWebServicesNotConfigured(){
         if(!this.webServicesConfigured.get()) {
@@ -331,7 +329,7 @@ public class BaseModule implements IService, IBaseService {
             listener.serviceStopped(cause);
         }
 
-        // hook to permit to the Services implementations to execute code when a terminate signal is received
+        // hook to permit to the Services implementations executing code when a terminated signal is received
         for (ServiceLifecycleListener listener : lifecycleListeners) {
             listener.serviceStopped(cause);
         }
@@ -387,7 +385,7 @@ public class BaseModule implements IService, IBaseService {
     }
 
     @Override
-    public ESConfigurations serviceConfigurations() {
+    public EBConfigurations serviceConfigurations() {
         errorIfExtensionBrokerNotConfigured();
         return this.configurations;
     }
@@ -431,7 +429,7 @@ public class BaseModule implements IService, IBaseService {
     }
 
     /**
-     * Get the list of properties and metadata of services used when the services is connected through a Proxy service.
+     * Get the list of properties and metadata of services used when the services are connected through a Proxy service.
      *
      * @return a map that contains configuration and metadata about the services
      */
@@ -593,11 +591,11 @@ public class BaseModule implements IService, IBaseService {
                 }
             }
 
-            if (method == null) {
-                logger.error(String.format("Method [%s] for function [%s] is not defined for the services", function.getMethod(), function.getName()));
-                throw ServiceException.permanent(ErrorCode.CLIENT, String.format("Function [%s] is not implemented on the services", function.getName())).returnCode(500);
-            } else {
+            try {
                 declaredMethodsCache.put(function.getName(), method);
+            } catch (Exception e) {
+                logger.error(String.format("Method [%s] for function [%s] is not defined for the services: [%s]", function.getMethod(), function.getName(), e.getMessage()));
+                throw ServiceException.permanent(ErrorCode.CLIENT, String.format("Function [%s] is not implemented on the services", function.getName())).returnCode(500);
             }
 
             if (function.getAccessorType() == MethodAccessorType.PRIVATE) {
@@ -703,7 +701,7 @@ public class BaseModule implements IService, IBaseService {
                     .sorted(RegisteredWebService::compareTo)
                     .collect(Collectors.toList());
 
-            if (validWebServices != null && !validWebServices.isEmpty()) {
+            if (!validWebServices.isEmpty()) {
                 if (validWebServices.size() > 1) {
                     logger.info(String.format("More than one valid routes for [%s %s]: %s", request.getMethod().name(), request.getPath(),
                             validWebServices.stream()
@@ -714,8 +712,6 @@ public class BaseModule implements IService, IBaseService {
 
                 webService = validWebServices.get(0);
             }
-        } catch (Exception ex) {
-            webService = null;
         } finally {
             webServicesLock.readLock().unlock();
         }
@@ -724,10 +720,7 @@ public class BaseModule implements IService, IBaseService {
             if(enabledFunctionInterceptor.get()){
                 // execute web services interceptor
                 try {
-                    final WebServiceResponse webServiceResponse = executeOnInterceptor(request);
-                    if(webServiceResponse != null){
-                        return webServiceResponse;
-                    }
+                    return executeOnInterceptor(request);
                 } catch (ServiceException e) {
                     throw e;
                 } catch (Exception e) {
@@ -738,8 +731,6 @@ public class BaseModule implements IService, IBaseService {
                     }
                     throw ServiceException.permanent(ErrorCode.GENERAL, msg, e).returnCode(500);
                 }
-
-                logger.info(String.format("The web service interceptor returns a null response for the request [%s %s].", request.getMethod().name(), request.getPath()));
             }
             throw ServiceException.permanent(ErrorCode.ARGUMENT, "Web service not found").returnCode(404);
         }
@@ -776,11 +767,11 @@ public class BaseModule implements IService, IBaseService {
                 }
             }
 
-            if (method == null) {
-                logger.error(String.format("Method [%s] for web service [%s %s] is not defined for the service", webService.getMethod(), webService.getRestMethod().name(), webService.getPath()));
-                throw ServiceException.permanent(ErrorCode.CLIENT, String.format("Web service [%s %s] is not implemented on the service", webService.getRestMethod().name(), webService.getPath())).returnCode(500);
-            } else {
+            try {
                 declaredMethodsCache.put(webService.getName(), method);
+            } catch (Exception e) {
+                logger.error(String.format("Method [%s] for web service [%s %s] is not defined for the service [%s]", webService.getMethod(), webService.getRestMethod().name(), webService.getPath(), e.getMessage()));
+                throw ServiceException.permanent(ErrorCode.CLIENT, String.format("Web service [%s %s] is not implemented on the service", webService.getRestMethod().name(), webService.getPath())).returnCode(500);
             }
 
             if (webService.getAccessorType() == MethodAccessorType.PRIVATE) {
@@ -863,7 +854,6 @@ public class BaseModule implements IService, IBaseService {
 
     @Override
     public final void enableWebServicesInterceptor(){
-        enabledWebServiceInterceptor.set(true);
         if(this.properties.isDebug()) {
             logger.info(String.format("%s web services interceptor enabled", Service.DEBUG));
         }
@@ -964,33 +954,4 @@ public class BaseModule implements IService, IBaseService {
     public final Object webServicesInterceptor(WebServiceRequest request) throws ServiceException {
         return service.webServicesInterceptor(request);
     }
-
-
-
-
-    /*
-        final String path = (String) headers.getOrDefault(Exchange.HTTP_PATH, "/");
-        final String method = (String) headers.getOrDefault(Exchange.HTTP_METHOD, "GET");
-        final Map<String, String> parameters = ParametersHelper.parse((String) headers.getOrDefault(Exchange.HTTP_QUERY, ""));
-
-        body = BodyConverter.parseHttpBody(body, exchange, logger);
-
-        Object response = customWsProcessor(RestMethod.valueOf(method.toUpperCase()), path, body, headers, parameters);
-        if(response == null) {
-            response = body;
-            headers.put(Exchange.HTTP_RESPONSE_CODE, 404);
-        }
-        return response;
-
-
-
-        if (response == null || function.getResponseType() == FunctionResponseType.VOID) {
-            return Json.map();
-        } else if (function.getResponseType() == FunctionResponseType.OTHER) {
-            return Json.map().setIfNotEmpty(Parameter.PARAMS_BODY, response);
-        } else {
-            // JSON response
-            return Json.fromObject(response);
-        }
-    */
 }

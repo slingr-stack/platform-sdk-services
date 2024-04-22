@@ -1,7 +1,7 @@
 const definitions = require('../configuration/configuration').definitions;
 const httpModule = require('../httpModule/httpModule');
 
-const DATASTORES_API_PATH = '/svcs/dataStores/';
+const DATASTORES_API_PATH = '/services/dataStores/';
 
 const isEmpty = (obj) => {
     return obj 

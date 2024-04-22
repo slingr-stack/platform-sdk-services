@@ -11,10 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.mail.Multipart;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Converts the inputs to Json.
@@ -29,7 +26,7 @@ public final class JsonConverter {
             return baseFromObject(message);
         } catch (Exception ex){
             ex.printStackTrace();
-            return fromString("{ \"error\":\""+ex.toString()+"\"}");
+            return fromString("{ \"error\":\""+ ex +"\"}");
         }
     }
 
@@ -287,8 +284,7 @@ public final class JsonConverter {
                         // the key contains an array, like: customer[id]=ASD123
                         final String[] ks = parts[0].split("[\\[\\]]+");
 
-                        final ArrayList<String> keys = new ArrayList<>();
-                        keys.addAll(Arrays.asList(ks));
+                        final ArrayList<String> keys = new ArrayList<>(Arrays.asList(ks));
 
                         setInternalValue(response, keys, val);
                     } else {
@@ -335,10 +331,7 @@ public final class JsonConverter {
         if (value != null) {
             try {
                 Json response = Json.fromObject(value, true, true);
-                if (response != null) {
-                    return response;
-                }
-                return value;
+                return Objects.requireNonNullElse(response, value);
             } catch (Exception ex) {
                 // do nothing
             }

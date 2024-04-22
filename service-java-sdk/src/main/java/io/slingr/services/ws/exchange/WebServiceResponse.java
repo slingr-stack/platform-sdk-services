@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public class WebServiceResponse implements JsonSource {
 
-    private int httpCode = 200;
+    private int httpCode;
     private final Object body;
     private final Json headers;
 

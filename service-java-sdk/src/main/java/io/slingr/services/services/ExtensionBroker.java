@@ -25,9 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Implementation of the methods defined on the Extension Broker  API
+ * Implementation of the methods defined on the Extension Broker API
  *
- * <p>Created by lefunes on 14/03/18.
  */
 public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
     private static final Logger logger = LoggerFactory.getLogger(ExtensionBroker.class);
@@ -54,9 +53,9 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
         setUploadBody(Parameter.FILE_UPLOAD_BODY);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: Events
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     EB API: Events
+     ************************/
 
     @Override
     public void newEvent(Long date, String event, Object data, String fromFunctionId, String userId, String userEmail) throws ServiceException {
@@ -75,7 +74,7 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
                 .setIfNotEmpty(Parameter.USER_EMAIL, userEmail);
 
         try {
-            post(target(ApiUri.ES_URL_ASYNC_EVENT), restContent, buildHeaders());
+            post(target(ApiUri.EB_URL_ASYNC_EVENT), restContent, buildHeaders());
         } catch (ServiceException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -99,7 +98,7 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
                 .setIfNotEmpty(Parameter.USER_ID, userId)
                 .setIfNotEmpty(Parameter.USER_EMAIL, userEmail);
         try {
-            final Json jsonResponse = post(target(ApiUri.ES_URL_SYNC_EVENT), restContent, buildHeaders());
+            final Json jsonResponse = post(target(ApiUri.EB_URL_SYNC_EVENT), restContent, buildHeaders());
             return getSyncObject(jsonResponse);
         } catch (ServiceException ex) {
             throw ex;
@@ -109,9 +108,9 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
     }
 
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: App logs
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     EB API: App logs
+     ************************/
 
     @Override
     public void newAppLogs(Long date, String level, String message, Json additionalInfo) throws ServiceException {
@@ -131,7 +130,7 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
                 .set(Parameter.APP_LOG_MESSAGE, message)
                 .setIfNotEmpty(Parameter.APP_LOG_ADDITIONAL_INFO, additionalInfo);
         try {
-            post(target(ApiUri.ES_URL_APP_LOG), restContent, buildHeaders());
+            post(target(ApiUri.EB_URL_APP_LOG), restContent, buildHeaders());
         } catch (ServiceException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -140,9 +139,9 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
     }
 
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: Distributed locks
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     EB API: Distributed locks
+     ************************/
 
     @Override
     public Json acquireLock(String key) throws ServiceException {
@@ -173,9 +172,9 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
     }
 
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: Files management
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     EB API: Files management
+     ************************/
 
     @Override
     public Json uploadFile(String filename, InputStream content, String contentType) throws ServiceException {
@@ -195,7 +194,7 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
             return null;
         }
 
-        // send file to ES
+        // send file to EB
         final FileInputStream inputStream;
         try {
             inputStream = new FileInputStream(tmp);
@@ -207,7 +206,7 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
         if (mediaType != null) {
             contentType = mediaType.toString();
         }
-        final Json uploadResult = upload(target(ApiUri.ES_URL_FILE_UPLOAD), null, buildHeaders(), false, inputStream, filename, contentType);
+        final Json uploadResult = upload(target(ApiUri.EB_URL_FILE_UPLOAD), null, buildHeaders(), false, inputStream, filename, contentType);
         if (uploadResult == null || uploadResult.isEmpty()) {
             throw ServiceException.permanent(ErrorCode.CLIENT, String.format("File [%s] was not uploaded. Empty response from extension broker.", filename));
         }
@@ -251,9 +250,9 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
     }
 
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: Data stores management
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     EB API: Data stores management
+     ************************/
 
     @Override
     public DataStoreResponse findDocuments(String dataStoreName, Json filter) throws ServiceException {
@@ -391,14 +390,14 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
     }
 
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: Properties
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     EB API: Properties
+     ************************/
 
     @Override
     public Json getConfiguration() throws ServiceException {
         try {
-            return get(target(ApiUri.ES_URL_CONFIGURATION), buildHeaders());
+            return get(target(ApiUri.EB_URL_CONFIGURATION), buildHeaders());
         } catch (ServiceException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -407,9 +406,9 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
     }
 
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ES API: Users
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     EB API: Users
+     ************************/
 
     @Override
     public AppUser getUserInformationByToken(String token) throws ServiceException {
@@ -417,7 +416,7 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
         isNotBlank(token, "empty token");
 
         try {
-            final Json response = get(target(ApiUri.ES_URL_USERS).queryParam(Parameter.USER_TOKEN, token), buildHeaders());
+            final Json response = get(target(ApiUri.EB_URL_USERS).queryParam(Parameter.USER_TOKEN, token), buildHeaders());
             final AppUser user = AppUser.fromJson(response);
             if (user != null) {
                 return user;
@@ -437,7 +436,7 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
         isNotBlank(email, "empty email");
 
         try {
-            final Json response = get(target(ApiUri.ES_URL_USERS).queryParam(Parameter.USER_EMAIL, email), buildHeaders());
+            final Json response = get(target(ApiUri.EB_URL_USERS).queryParam(Parameter.USER_EMAIL, email), buildHeaders());
             final AppUser user = AppUser.fromJson(response);
             if (user != null) {
                 return user;
@@ -454,7 +453,7 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
     @Override
     public void clearCache() throws ServiceException {
         try {
-            put(target(ApiUri.ES_URL_CLEAR_CACHE), null, buildHeaders());
+            put(target(ApiUri.EB_URL_CLEAR_CACHE), null, buildHeaders());
         } catch (ServiceException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -463,9 +462,9 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
     }
 
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Utilities
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     Utilities
+     ************************/
 
     /**
      * Throws an exception if the value is blank
@@ -506,19 +505,19 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
             filter = Json.map();
         } else if (filter.isList()) {
             if (!filter.isEmpty()) {
-                logger.warn(String.format("data store filter will be ignored because is a list: %s", filter.toString()));
+                logger.warn(String.format("data store filter will be ignored because is a list: %s", filter));
             }
             filter = Json.map();
         }
         return filter;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // function helper methods
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+     function helper methods
+    ************************/
 
     /**
-     * Extracts the object wrapped on the sync response received from the Extension Broker .
+     * Extracts the object wrapped on the sync response received from the Extension Broker.
      *
      * @param jsonResponse json response received from the Extension Broker
      * @return object response

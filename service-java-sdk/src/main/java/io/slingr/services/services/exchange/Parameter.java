@@ -3,7 +3,6 @@ package io.slingr.services.services.exchange;
 /**
  * Parameters used to exchange information with the Extension Broker app
  *
- * <p>Created by lefunes on 24/04/15.
  */
 public final class Parameter {
     // generics

@@ -8,9 +8,8 @@ import io.slingr.services.ws.exchange.WebServiceResponse;
 import io.slingr.services.framework.annotations.SlingrService;
 
 /**
- * Interface that the HTTP {@link SlingrService} must be implement
+ * Interface that the HTTP {@link SlingrService} must be implemented
  *
- * <p>Created by lefunes on 12/03/18.
  */
 public interface IHttpService {
 

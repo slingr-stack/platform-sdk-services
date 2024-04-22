@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -42,7 +43,7 @@ public abstract class RestClient {
     public static final String BASIC_AUTHENTICATION_HEADER = "Basic";
     public static final String BEARER_AUTHENTICATION_HEADER = "Bearer";
     public static final String OAUTH_AUTHENTICATION_HEADER = "OAuth";
-    public static int DEFAULT_MAX_REDIRECTS = 10;
+    public static final int DEFAULT_MAX_REDIRECTS = 10;
 
     protected boolean debug = false;
     private boolean skipEncodeParams = false;
@@ -61,7 +62,7 @@ public abstract class RestClient {
     private String authUsername = null;
     private String authPassword = null;
 
-    private static RestClientFactory defaultFactory = null;
+    private static final RestClientFactory defaultFactory = null;
     private static final ReentrantLock defaultFactoryLock = new ReentrantLock();
 
     /**
@@ -120,7 +121,7 @@ public abstract class RestClient {
     /**
      * Disable encode params
      *
-     * @param skipEncodeParams
+     * @param skipEncodeParams -
      */
     public void setSkipEncodeParams(boolean skipEncodeParams) {
         this.skipEncodeParams = skipEncodeParams;
@@ -164,9 +165,8 @@ public abstract class RestClient {
     }
 
 
-    public void setupAuthentication(Map<String, String> params) {
-        AuthenticationType authenticationType = AuthenticationType.fromType(params);
-        this.apiTarget = factory.setupAuthentication(apiTarget, authenticationType, params);
+    public void setupAuthentication(HttpRequest request) {
+        this.apiTarget = factory.setupAuthentication(apiTarget, request);
     }
 
     /**
@@ -1916,7 +1916,7 @@ public abstract class RestClient {
                     simpleClient = simpleClient.parameter(param.getKey(), param.getValue());
                 }
                 if (request.getAuthorization().isNotEmpty()) {
-                    simpleClient.setupAuthentication(request.getAuthorization().toMapString());
+                    simpleClient.setupAuthentication(request);
                 }
                 target = simpleClient.target();
             }

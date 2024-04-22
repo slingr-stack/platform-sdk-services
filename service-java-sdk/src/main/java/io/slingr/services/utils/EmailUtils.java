@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 /**
  * Utility classes to work with emails.
- *
+ * <p>
  * User: dgaviola
  * Date: 6/29/13
  */

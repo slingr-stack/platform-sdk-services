@@ -9,7 +9,6 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
@@ -30,7 +29,7 @@ public class WebServices {
     private final WebServicesProcessor webServicesProcessor;
     private final AtomicBoolean status = new AtomicBoolean(false);
     private final ReentrantLock statusLock = new ReentrantLock();
-    private final static List<PropertySource> envVarsSource = Arrays.asList(new EnvVarsSource());
+    private final static List<PropertySource> envVarsSource = List.of(new EnvVarsSource());
     // ssl config properties
     private final static String USE_SSL_PROPERTY = "USE_SSL";
     private final static String SSL_KEYSTORE_PATH_PROPERTY = "SSL_KEYSTORE_PATH";
@@ -47,10 +46,13 @@ public class WebServices {
         final ServerConnector connector;
         boolean useSsl = !properties.isLocalDeployment() || useSsl();
         logger.info(String.format("Use SSL connection: [%s]", useSsl));
+        server.setStopTimeout(TIMEOUT_10_MINUTES);
         if (useSsl) {
             HttpConfiguration https = new HttpConfiguration();
-            https.addCustomizer(new SecureRequestCustomizer());
-            SslContextFactory sslContextFactory = new SslContextFactory();
+            SecureRequestCustomizer src = new SecureRequestCustomizer();
+            src.setSniHostCheck(false);
+            https.addCustomizer(src);
+            SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
             sslContextFactory.setKeyStorePath(getKeystorePath());
             sslContextFactory.setKeyStorePassword(getKeystorePass());
             sslContextFactory.setKeyManagerPassword(getKeystorePass());
@@ -61,8 +63,6 @@ public class WebServices {
         connector.setPort(properties.getWebServicesPort());
         connector.setHost("0.0.0.0");
         connector.setIdleTimeout(TIMEOUT_10_MINUTES);
-        connector.setStopTimeout(TIMEOUT_10_MINUTES);
-        connector.setSoLingerTime(TIMEOUT_10_MINUTES);
 
         server.setConnectors(new Connector[]{connector});
         server.setHandler(webServicesProcessor);

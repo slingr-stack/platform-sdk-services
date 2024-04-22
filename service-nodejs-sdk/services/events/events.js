@@ -2,8 +2,8 @@ const util = require('util');
 const httpModule = require('../httpModule/httpModule');
 const logger = require('../loggers/logs');
 
-const EVENTS_API_PATH = '/svcs/events';
-const EVENTS_SYNC_API_PATH = '/svcs/events/sync';
+const EVENTS_API_PATH = '/services/events';
+const EVENTS_SYNC_API_PATH = '/services/events/sync';
 
 
 let lastStatistic = null;

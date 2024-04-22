@@ -3,7 +3,6 @@ package io.slingr.services.framework;
 /**
  * Interface to implement by objects that waits for Service lifecycle events
  *
- * <p>Created by lefunes on 06/04/18.
  */
 public interface ServiceLifecycleListener {
     /**
@@ -13,7 +12,7 @@ public interface ServiceLifecycleListener {
     void serviceConfigured();
 
     /**
-     * This method is called when the Extension Broker  API configuration process is done.
+     * This method is called when the Extension Broker API configuration process is done.
      * <p>The communication with the Extension Broker app is ready to be used at this point.
      */
     void extensionBrokerConfigured();

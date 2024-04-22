@@ -43,9 +43,7 @@ public class WebServiceRequest implements JsonSource {
         this.body = body;
         if (headers != null) {
             Json lowerCaseHeaders = Json.map();
-            headers.forEachMap((key, value) -> {
-                lowerCaseHeaders.set(key.toLowerCase(), value);
-            });
+            headers.forEachMap((key, value) -> lowerCaseHeaders.set(key.toLowerCase(), value));
             this.headers = lowerCaseHeaders;
         } else {
             this.headers = null;

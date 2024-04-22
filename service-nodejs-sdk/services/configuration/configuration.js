@@ -14,22 +14,23 @@ const {
     _webservices_port: webServicesPort,
     _token: token,
     _profile: profile,
-    _svcs_services_api: svcsServicesApi,
-    USE_SSL: _useSsl,
+    _extension_broker_api: _extension_broker_api,
+    _useSsl: _useSsl,
     SSL_KEY: sslKey,
     SSL_CERT: sslCert,
     // System properties
     _custom_domain: domainCustom,
     _base_domain: domainBase,
     // Service specific properties
-    _svc_config: _svc_config
+    _service_config: _service_config
 } = { ...process.env };
+
 
 const podId = _podId.length > 5 ? _podId.substring(_podId.length - 5) : _podId;
 const localDeployment = _localDeployment !== 'false' && !!_localDeployment;
 const debug = _debug !== 'false' && !!_debug;
 const useSsl = !localDeployment || _useSsl;
-const svcConfig = JSON.parse(_svc_config);
+const serviceConfig = JSON.parse(_service_config);
 
 const maskToken = token => {
     if (!token) {
@@ -51,7 +52,7 @@ if (cDomain) {
 const domain = cDomain.toLowerCase();
 const secondaryDomain = ((localDeployment ? 'http' : 'https') + '://' + domainBase + '/' + applicationName + '/' + environment).toLowerCase();
 
-const webhookUrl = domain + '/svcs/' + svcName;
+const webhookUrl = domain + '/services/' + svcName;
 
 const proto = useSsl ? 'https' : 'http';
 console.log('Configured service [' + svcName + ']: ' +
@@ -71,7 +72,7 @@ const settings = {
     token,
     maskedToken,
     profile,
-    svcsServicesApi,
+    _extension_broker_api,
     webhookUrl,
     useSsl,
     sslKey,
@@ -80,12 +81,12 @@ const settings = {
     secondaryDomain,
     domainBase,
     debug,
-    svcConfig
+    serviceConfig: serviceConfig
 }
 
 module.exports = {
     settings,
-    svcConfig: settings.svcConfig
+    serviceConfig: settings.serviceConfig
 };
 
 //Some definitions constants

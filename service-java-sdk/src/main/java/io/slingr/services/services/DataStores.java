@@ -116,7 +116,7 @@ public class DataStores {
         if(filter == null || filter.isEmpty()){
             filter = null;
         } else {
-            log = String.format("find [%s]", filter.toString());
+            log = String.format("find [%s]", filter);
         }
 
         if(debug) {
@@ -205,7 +205,7 @@ public class DataStores {
         if(filter == null || filter.isEmpty()){
             filter = null;
         } else {
-            log = String.format("count [%s]", filter.toString());
+            log = String.format("count [%s]", filter);
         }
 
         if(debug) {
@@ -297,7 +297,7 @@ public class DataStores {
         if(filter == null || filter.isEmpty()){
             filter = null;
         } else {
-            log = String.format("find one [%s]", filter.toString());
+            log = String.format("find one [%s]", filter);
         }
 
         if(debug) {
@@ -484,7 +484,7 @@ public class DataStores {
         if(filter == null || filter.isEmpty()){
             filter = null;
         } else {
-            log = String.format("remove [%s]", filter.toString());
+            log = String.format("remove [%s]", filter);
         }
 
         if(debug) {

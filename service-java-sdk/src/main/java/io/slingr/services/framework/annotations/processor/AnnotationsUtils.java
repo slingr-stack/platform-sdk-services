@@ -113,14 +113,14 @@ public abstract class AnnotationsUtils {
     /**
      * 
      */
-    public static PropertyType isValid(Class clazz, VariableElement element, String name, boolean isProperty, String accessor) {
+    public static PropertyType isValid(Class<?> clazz, VariableElement element, String name, boolean isProperty, String accessor) {
         return isValid(clazz, element, name, isProperty, accessor, false);
     }
 
     /**
      * 
      */
-    public static PropertyType isValid(Class clazz, VariableElement element, String name, boolean isProperty, String accessor, boolean isServiceConfiguration) {
+    public static PropertyType isValid(Class<?> clazz, VariableElement element, String name, boolean isProperty, String accessor, boolean isServiceConfiguration) {
         final PropertyType type;
         if(isProperty) {
             type = isValidProperty(clazz, element, name, accessor, isServiceConfiguration);
@@ -133,14 +133,14 @@ public abstract class AnnotationsUtils {
     /**
      * 
      */
-    public static PropertyType isValidProperty(Class clazz, VariableElement element, String name, String property) {
+    public static PropertyType isValidProperty(Class<?> clazz, VariableElement element, String name, String property) {
         return isValidProperty(clazz, element, name, property, false);
     }
 
     /**
      * 
      */
-    public static PropertyType isValidProperty(Class clazz, VariableElement element, String name, String property, boolean isServiceConfiguration) {
+    public static PropertyType isValidProperty(Class<?> clazz, VariableElement element, String name, String property, boolean isServiceConfiguration) {
         PropertyType type = PropertyType.OTHER;
         final Element typeElement = element.getEnclosingElement();
 
@@ -164,14 +164,14 @@ public abstract class AnnotationsUtils {
     /**
      * 
      */
-    public static PropertyType isValidSetter(Class clazz, VariableElement element, String name, String setter){
+    public static PropertyType isValidSetter(Class<?> clazz, VariableElement element, String name, String setter){
         return isValidSetter(clazz, element, name, setter, false);
     }
 
     /**
      * 
      */
-    public static PropertyType isValidSetter(Class clazz, VariableElement element, String name, String setter, boolean isServiceConfiguration) {
+    public static PropertyType isValidSetter(Class<?> clazz, VariableElement element, String name, String setter, boolean isServiceConfiguration) {
         PropertyType type = PropertyType.OTHER;
 
         final Element typeElement = element.getEnclosingElement();
@@ -236,14 +236,14 @@ public abstract class AnnotationsUtils {
     /**
      * 
      */
-    public static PropertyType isValidSetter2(Class clazz, VariableElement element, String name, String setter) {
+    public static PropertyType isValidSetter2(Class<?> clazz, VariableElement element, String name, String setter) {
         return isValidSetter2(clazz, element, name, setter, false);
     }
 
     /**
      * 
      */
-    public static PropertyType isValidSetter2(Class clazz, VariableElement element, String name, String setter, boolean isServiceConfiguration) {
+    public static PropertyType isValidSetter2(Class<?> clazz, VariableElement element, String name, String setter, boolean isServiceConfiguration) {
         PropertyType type = PropertyType.OTHER;
 
         final Element typeElement = element.getEnclosingElement();
@@ -308,7 +308,7 @@ public abstract class AnnotationsUtils {
     /**
      * Checks if the variable that represent the class has a valid format
      */
-    public static boolean isValidVariable(Class clazz, VariableElement parameter) {
+    public static boolean isValidVariable(Class<?> clazz, VariableElement parameter) {
         return parameter.asType().getKind().equals(TypeKind.DECLARED) &&
                 parameter.asType().toString().equals(clazz.getCanonicalName());
     }

@@ -18,7 +18,7 @@ import static org.apache.commons.io.FileUtils.toFile;
 
 /**
  * Utilities to handle files.
- *
+ * <p>
  * Created by dgaviola on 19/1/16.
  */
 public class FilesUtils {
@@ -120,7 +120,7 @@ public class FilesUtils {
      * @param absolute true if the path must be absolute
      * @return URL of the file
      */
-    public static URL getInternalFileURL(String filename, boolean absolute) throws IOException {
+    public static URL getInternalFileURL(String filename, boolean absolute) {
         if(StringUtils.isBlank(filename)){
             throw new IllegalArgumentException("Empty filename");
         }

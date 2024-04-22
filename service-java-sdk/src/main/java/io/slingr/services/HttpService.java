@@ -15,7 +15,6 @@ import io.slingr.services.framework.annotations.SlingrService;
  *
  * <p>This contains all the basic support to interact with the Slingr platform and with an external HTTP service.
  *
- * <p>Created by lefunes on 12/03/18.
  */
 public abstract class HttpService extends Service implements IHttpService, IApiUriSource {
 

@@ -9,6 +9,8 @@ import org.apache.http.conn.ConnectTimeoutException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
@@ -21,6 +23,8 @@ import static org.junit.Assert.*;
 
 public class RestClientFactoryTest {
 
+    @SuppressWarnings("unused")
+    private static final Logger logger = LoggerFactory.getLogger(RestClientFactoryTest.class);
 
     private RestClientFactory restClientFactory;
     private Method method;
@@ -226,7 +230,7 @@ public class RestClientFactoryTest {
 
 
     @Test
-    public void maxRedirectsIsReached() throws InvocationTargetException, IllegalAccessException {
+    public void maxRedirectsIsReached() throws IllegalAccessException {
 
 
         HttpRequest request = new HttpRequest.HttpRequestBuilder()

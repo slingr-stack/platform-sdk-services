@@ -10,10 +10,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Manages all messages related to configuration of the Extension Broker exchanged with the Extension Broker
  *
- * <p>Created by lefunes on 20/03/18.
  */
-public class ESConfigurations {
-    private static final Logger logger = LoggerFactory.getLogger(ESConfigurations.class);
+public class EBConfigurations {
+    private static final Logger logger = LoggerFactory.getLogger(EBConfigurations.class);
 
     private final ExtensionBrokerApi api;
     private final boolean debug;
@@ -24,21 +23,20 @@ public class ESConfigurations {
      * @param api extension broker implementation
      * @param debug true if the service shows information useful for debug
      */
-    public ESConfigurations(ExtensionBrokerApi api, boolean debug) {
+    public EBConfigurations(ExtensionBrokerApi api, boolean debug) {
         this.api = api;
         this.debug = debug;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Get configuration
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /************************
+      Get configuration
+     ************************/
 
     /**
      * Receive the configuration about the Extension Broker .
      *
      * <p>This method is used by the service to know if it is working directly with Extension Broker or through a
-     * Proxy
-     * service.
+     * Proxy service.
      *
      * @return a json map that contains configuration and metadata about the service
      * @throws ServiceException if there is an issue with the exchange
@@ -54,13 +52,12 @@ public class ESConfigurations {
             }
             return response;
         } catch (ServiceException ex){
-            logger.warn(String.format("Exception when get Extension Broker configuration: %s", ex.getMessage()), ex);
+            logger.warn(String.format("Exception when get Extension Broker configuration: [%s]", ex.getMessage()), ex);
             throw ex;
         } catch (Exception ex){
-            final String log = String.format("Exception when get Extension Broker configuration: %s", ex.getMessage());
+            final String log = String.format("Exception when get Extension Broker configuration: [%s]", ex.getMessage());
             logger.warn(log, ex);
             throw ServiceException.retryable(ErrorCode.CLIENT, log, ex);
         }
     }
-
 }

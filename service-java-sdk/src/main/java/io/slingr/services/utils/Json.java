@@ -2922,7 +2922,7 @@ public class Json implements JsonSource {
                 if(list.size() != json.list.size()){
                     return false;
                 }
-                if (!list.containsAll(json.list) || !json.list.containsAll(list)) {
+                if (!new HashSet<>(list).containsAll(json.list) || !new HashSet<>(json.list).containsAll(list)) {
                     return false;
                 }
                 for (int i = 0; i < list.size(); i++) {
@@ -3008,7 +3008,7 @@ public class Json implements JsonSource {
         if(number instanceof Byte || number instanceof Short || number instanceof Integer || number instanceof Long)
             return new BigDecimal(number.longValue());
         if(number instanceof Float || number instanceof Double)
-            return new BigDecimal(number.doubleValue());
+            return BigDecimal.valueOf(number.doubleValue());
 
         try {
             return new BigDecimal(number.toString());
