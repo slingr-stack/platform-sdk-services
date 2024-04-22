@@ -6,7 +6,7 @@ const stream = require('node:stream');
 const pStream = stream.promises;
 const FormData = require('form-data');
 
-const FILES_API_PATH = '/svcss/files'
+const FILES_API_PATH = '/services/files'
 const TMP_FILES_PATH = './tmp/'
 
 const clearTmpFile = async (filePath) => {
