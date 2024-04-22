@@ -500,6 +500,7 @@ public class HttpService extends RestClient {
         } else {
             json.set("body", "");
         }
+        json.set("rawBody", request.getRawBody());
         return json;
     }
 
