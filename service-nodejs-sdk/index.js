@@ -130,7 +130,7 @@ const loadPlatformWebServices = () => {
         if (settings.token === req?.headers?.token) {
             validToken = true
         }
-        if (!validToken && localDeployment) {
+        if (!validToken && settings.localDeployment) {
             // if the service is running in local environment, pass token validation
             if (!firstLocalDeploymentWarning) {
                 firstLocalDeploymentWarning = true;
@@ -282,7 +282,14 @@ const loadPlatformWebServices = () => {
                     });
 
                 } else {
-                    next(new Error('Cannot find function [' + functionName + '] on service [' + svcName + ']'));
+                    // The platform was retrying this request multiple times since it didn't get a response in this case
+                    // so lets send it a 500
+                    appLogger.error(`Cannot find function [${functionName}] on service [${settings.svcName}]`);
+                    res.status(500).send({
+                        date: + new Date(),
+                        data: convertException(`Cannot find function [${functionName}] on service [${settings.svcName}]`)
+                    });
+                    next(new Error('Cannot find function [' + functionName + '] on service [' + settings.svcName + ']'));
                 }
 
             }
