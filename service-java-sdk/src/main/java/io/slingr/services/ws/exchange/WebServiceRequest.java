@@ -7,6 +7,8 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -231,6 +233,17 @@ public class WebServiceRequest implements JsonSource {
     public String getPathVariable(String variable){
         if(StringUtils.isNotBlank(variable)){
             return variables.string(variable);
+        }
+        return null;
+    }
+
+    public String getPathVariableByPattern(String patternBase, String variable){
+        if(StringUtils.isNotBlank(variable)){
+            Pattern pattern = Pattern.compile(patternBase.replace("{"+ variable + "}", "([a-f0-9]+)"));
+            Matcher matcher = pattern.matcher(this.path);
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
         }
         return null;
     }
