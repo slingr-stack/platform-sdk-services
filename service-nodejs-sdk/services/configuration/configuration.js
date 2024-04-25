@@ -4,7 +4,7 @@ const fs = require('fs');
 //////////////////////////////////////
 const {
     // Service constants
-    _svc_name: svcName,
+    _service_name: svcName,
     _app_name: applicationName,
     _pod_id: _podId,
     _environment: environment,
