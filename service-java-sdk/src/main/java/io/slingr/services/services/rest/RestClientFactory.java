@@ -1,12 +1,11 @@
 package io.slingr.services.services.rest;
 
 import io.slingr.services.Service;
-import io.slingr.services.exceptions.ServiceException;
 import io.slingr.services.exceptions.ErrorCode;
+import io.slingr.services.exceptions.ServiceException;
 import io.slingr.services.services.Files;
 import io.slingr.services.services.exchange.Parameter;
 import io.slingr.services.services.rest.authentication.AuthenticationService;
-import io.slingr.services.services.rest.authentication.AuthenticationType;
 import io.slingr.services.utils.FilesUtils;
 import io.slingr.services.utils.FormUtils;
 import io.slingr.services.utils.Json;
@@ -255,7 +254,7 @@ public class RestClientFactory {
             Json responseAsJson = JsonConverter.convertString(removeUTF8BOM(responseAsString), contentType, true);
 
             boolean errorResponse = response.getStatus() < 200 || response.getStatus() > 299;
-            if(errorResponse && !fullResponse && responseAsJson != null && responseAsJson.json("data") != null && responseAsJson.json("data").isMap() && responseAsJson.json("data").bool(Parameter.EXCEPTION_FLAG)){
+            if(errorResponse && !fullResponse && responseAsJson != null && (responseAsJson.isMap() && responseAsJson.json("data") != null && responseAsJson.json("data").isMap() && responseAsJson.json("data").bool(Parameter.EXCEPTION_FLAG))){
                 // an Service Exception error when process the request
                 response.close();
 

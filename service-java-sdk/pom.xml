@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.slingr-stack</groupId>
     <artifactId>slingr-services</artifactId>
-    <version>1.5.4</version>
+    <version>1.5.5</version>
     <name>Slingr Services Framework</name>
     <description>Framework to generate services to use on Slingr platform</description>
     <packaging>jar</packaging>
