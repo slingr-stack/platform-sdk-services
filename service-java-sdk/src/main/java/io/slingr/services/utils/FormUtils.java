@@ -37,7 +37,7 @@ public class FormUtils {
                     String indexedKey = parentKey.isEmpty() ? key + "[" + i + "]" : parentKey + "[" + key + "][" + i + "]";
                     form.param(indexedKey, list.get(i).toString());
                 }
-            } else {
+            } else if (value != null){
                 String finalKey = parentKey.isEmpty() ? key : parentKey + "[" + key + "]";
                 form.param(finalKey, value.toString());
             }

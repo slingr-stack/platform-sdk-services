@@ -15,7 +15,12 @@ public class FormUtilsTest {
         Json json = Json.map()
                 .set("prop1", "a")
                 .set("prop2", "b")
-                .set("array", Json.list().push("1").push("2"));
+                .set("array", Json.list()
+                        .push("1")
+                        .push("2"))
+                .set("address", Json.map()
+                        .set("city", "NY")
+                        .set("state", null));
         Form form = FormUtils.convertFromJsonToForm(json);
         Map<String, List<String>> map = form.asMap();
         assertEquals("a", map.get("prop1").get(0));
