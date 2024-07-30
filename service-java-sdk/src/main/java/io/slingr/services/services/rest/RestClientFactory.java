@@ -31,10 +31,7 @@ import org.glassfish.jersey.client.RequestEntityProcessing;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.client.spi.ConnectorProvider;
 import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.media.multipart.Boundary;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.glassfish.jersey.media.multipart.MultiPart;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.media.multipart.*;
 import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,10 +45,10 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -83,6 +80,8 @@ public class RestClientFactory {
     private final List<String> history = new ArrayList<>();
 
     private final AuthenticationService authService = new AuthenticationService();
+
+    private static final String BOUNDARY = "my-boundary";
 
     /**
      * Initialize factory
@@ -410,6 +409,99 @@ public class RestClientFactory {
             throw ex;
         } catch (Exception ex) {
             throw ServiceException.permanent(ErrorCode.CONVERSION, ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Processes the multipart-related request and prepares the multipart data.
+     *
+     * @param request the HTTP request containing the parts.
+     * @param files   the Files service to handle file metadata and downloads.
+     * @return the response as a Json object.
+     * @throws ServiceException if a file is not found.
+     * @throws IOException      if an I/O error occurs.
+     */
+    public Json processMultipartRelated(HttpRequest request, Files files) throws ServiceException, IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        for (HttpRequest.Part part : request.getParts()) {
+            outputStream.write(("--" + BOUNDARY + "\r\n").getBytes(StandardCharsets.UTF_8));
+            if (part.getType() == HttpRequest.PartType.FILE) {
+                Json descriptor = files.metadata(part.getFileId());
+                if (descriptor != null && !descriptor.isEmpty()) {
+                    DownloadedFile file = files.download(part.getFileId());
+                    outputStream.write(("Content-Type: " + descriptor.string(Parameter.FILE_CONTENT_TYPE) + "\r\n\r\n").getBytes(StandardCharsets.UTF_8));
+                    try (InputStream fileStream = file.getFile()) {
+                        byte[] buffer = new byte[4096];
+                        int bytesRead;
+                        while ((bytesRead = fileStream.read(buffer)) != -1) {
+                            outputStream.write(buffer, 0, bytesRead);
+                        }
+                    }
+                    outputStream.write("\r\n".getBytes(StandardCharsets.UTF_8));
+                } else {
+                    throw ServiceException.permanent(ErrorCode.ARGUMENT, String.format("File with id [%s] not found", part.getFileId()));
+                }
+            } else {
+                String contentType = part.getContentType();
+                Object content = part.getContent();
+                outputStream.write(("Content-Type: " + contentType + "\r\n\r\n").getBytes(StandardCharsets.UTF_8));
+                if (content instanceof JsonSource) {
+                    outputStream.write(((JsonSource) content).toJson().toString().getBytes(StandardCharsets.UTF_8));
+                } else {
+                    outputStream.write(content.toString().getBytes(StandardCharsets.UTF_8));
+                }
+                outputStream.write("\r\n".getBytes(StandardCharsets.UTF_8));
+            }
+        }
+
+        outputStream.write(("--" + BOUNDARY + "--\r\n").getBytes(StandardCharsets.UTF_8));
+
+        byte[] multipartData = outputStream.toByteArray();
+        return Json.fromObject(uploadFileMultipartRelated(request, multipartData));
+    }
+
+    /**
+     * Uploads the file data to the specified URL.
+     *
+     * @param request       the HTTP request containing the URL and headers.
+     * @param multipartData the byte array of the multipart data.
+     * @return the server response as a String.
+     * @throws IOException if an I/O error occurs.
+     */
+    public static String uploadFileMultipartRelated(HttpRequest request, byte[] multipartData) throws IOException {
+        URL url = new URL(request.getPath());
+        String accessToken = request.getHeaders().string("Authorization");
+        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+        httpConn.setDoOutput(true);
+        httpConn.setRequestMethod("POST");
+        httpConn.setRequestProperty("Authorization", accessToken);
+        httpConn.setRequestProperty("Content-Type", "multipart/related; boundary=" + BOUNDARY);
+        httpConn.setRequestProperty("Content-Length", String.valueOf(multipartData.length));
+
+        try (OutputStream outputStream = httpConn.getOutputStream()) {
+            outputStream.write(multipartData);
+        }
+
+        int responseCode = httpConn.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            StringBuilder response = new StringBuilder();
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(httpConn.getInputStream()))) {
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+            }
+            return response.toString();
+        } else {
+            StringBuilder errorResponse = new StringBuilder();
+            try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(httpConn.getErrorStream()))) {
+                String inputLine;
+                while ((inputLine = errorReader.readLine()) != null) {
+                    errorResponse.append(inputLine);
+                }
+            }
+            throw new IOException("Error uploading file: " + responseCode + ", " + errorResponse);
         }
     }
 

@@ -1627,7 +1627,12 @@ public abstract class RestClient {
             throw ServiceException.permanent(ErrorCode.ARGUMENT, "Invalid request");
         }
         try {
-            request.setBody(factory.processMultipart(request, files));
+            String contentType = request.getHeaders().string(Parameter.CONTENT_TYPE);
+            if ("multipart/related".equalsIgnoreCase(contentType)) {
+                return factory.processMultipartRelated(request, files);
+            } else {
+                request.setBody(factory.processMultipart(request, files));
+            }
             if (request.getRestMethod() == RestMethod.POST) {
                 return httpPost(request);
             } else if (request.getRestMethod() == RestMethod.PUT) {
