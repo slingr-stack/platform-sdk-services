@@ -667,6 +667,10 @@ public class RestClientFactory {
                     } else if (ContentTypeFormat.isUrlEncodedFormContentType(contentType)) {
                         Form form = FormUtils.convertFromJsonToForm((Json) content);
                         postData = Entity.form(form);
+                    }else if (ContentTypeFormat.isMultipartContentType(contentType)){
+                        FormDataMultiPart formDataMultiPart = FormUtils.convertFromJsonToFormDataMultiPart((Json) content);
+                        postData = Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE);
+
                     } else {
                         postData = Entity.entity(content.toString(), contentType);
                     }

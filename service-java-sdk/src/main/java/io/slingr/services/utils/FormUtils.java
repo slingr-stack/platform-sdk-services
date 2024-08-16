@@ -1,5 +1,7 @@
 package io.slingr.services.utils;
 
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+
 import javax.ws.rs.core.Form;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,41 @@ public class FormUtils {
             } else if (value != null){
                 String finalKey = parentKey.isEmpty() ? key : parentKey + "[" + key + "]";
                 form.param(finalKey, value.toString());
+            }
+        }
+    }
+
+    /**
+     * Convert a JSON object to a FormDataMultiPart.
+     *
+     * @param content JSON object
+     * @return FormDataMultiPart
+     */
+    public static FormDataMultiPart convertFromJsonToFormDataMultiPart(Json content) {
+        FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
+
+        if (content != null && content.isMap()) {
+            flattenJson("", content.toMap(), formDataMultiPart);
+        }
+
+        return formDataMultiPart;
+    }
+
+    private static void flattenJson(String parentKey, Map<String, Object> map, FormDataMultiPart formDataMultiPart) {
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            if (value instanceof Map) {
+                flattenJson(parentKey.isEmpty() ? key : parentKey + "[" + key + "]", (Map<String, Object>) value, formDataMultiPart);
+            } else if (value instanceof List) {
+                List<?> list = (List<?>) value;
+                for (int i = 0; i < list.size(); i++) {
+                    String indexedKey = parentKey.isEmpty() ? key + "[" + i + "]" : parentKey + "[" + key + "][" + i + "]";
+                    formDataMultiPart.field(indexedKey, list.get(i).toString());
+                }
+            } else if (value != null) {
+                String finalKey = parentKey.isEmpty() ? key : parentKey + "[" + key + "]";
+                formDataMultiPart.field(finalKey, value.toString());
             }
         }
     }
