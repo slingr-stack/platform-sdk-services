@@ -323,7 +323,7 @@ public class BaseModule implements IService, IBaseService {
      * @param cause cause of the termination
      */
     @Override
-    public final void stopService(final String cause){
+    public final void stopService(final String cause) {
         webServicesServer.stop();
         for (ServiceLifecycleListener listener : systemLifecycleListeners) {
             listener.serviceStopped(cause);
