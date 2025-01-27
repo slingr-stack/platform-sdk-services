@@ -45,7 +45,7 @@ public class RestClientTest {
 
         Json response = restClient.executeHttpRequest(RestMethod.GET, request);
 
-        assertEquals("http://postman-echo.com/get/?foo1=bar1%20bar3", response.object("url"));
+        assertEquals("https://postman-echo.com/get/?foo1=bar1%20bar3", response.object("url"));
 
     }
 
@@ -61,7 +61,7 @@ public class RestClientTest {
 
         Json response = restClient.executeHttpRequest(RestMethod.GET, request);
 
-        assertEquals("http://postman-echo.com/get/?foo1=bar1+bar3", response.object("url"));
+        assertEquals("https://postman-echo.com/get/?foo1=bar1+bar3", response.object("url"));
 
     }
 
