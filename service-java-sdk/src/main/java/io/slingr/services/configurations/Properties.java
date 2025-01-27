@@ -9,8 +9,6 @@ import org.apache.commons.lang3.StringUtils;
  * <p>Created by lefunes on 02/05/16.
  */
 public class Properties implements ServicesProperties {
-
-    // properties
     private final String serviceName;
     private final String applicationName;
     private final String environment;
@@ -30,10 +28,6 @@ public class Properties implements ServicesProperties {
     private final boolean testingMode;
     private final boolean shared;
     private boolean usingProxy = false;
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // initialization
-    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Builds a Properties instance
@@ -77,10 +71,6 @@ public class Properties implements ServicesProperties {
         this.shared = shared;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // setters
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
     @Override
     public void setDefaultWebServicesUri(String defaultWebServicesUri) {
         this.defaultWebServicesUri = defaultWebServicesUri;
@@ -90,10 +80,6 @@ public class Properties implements ServicesProperties {
     public void setUsingProxy(boolean usingProxy) {
         this.usingProxy = usingProxy;
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // getters
-    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public String getServiceName() {

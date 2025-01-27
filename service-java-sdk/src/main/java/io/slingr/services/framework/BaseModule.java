@@ -274,13 +274,7 @@ public class BaseModule implements IService, IBaseService {
         for (ServiceLifecycleListener listener : lifecycleListeners) {
             listener.serviceStarted();
         }
-
-        if (properties.isUsingProxy()) {
-            // if we are using the proxy, we will clear cache after restarting the services
-            // this is to make development of services easier so developers just need to
-            // restart the services when there are changes
-            management.clearCache();
-        }
+        management.clearCache();
     }
 
     /**
