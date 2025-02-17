@@ -551,15 +551,13 @@ public class HttpService extends RestClient {
     }
 
     private void processCallback(HttpRequest request, String functionId){
-        if(request.isDefaultCallback()){
-            Executors.newSingleThreadExecutor().execute(() -> {
-                try {
-                    Json body = request.getJsonBody();
-                    this.events.send(CALLBACK_EVENT, body, functionId);
-                } catch (Exception e) {
-                    logger.warn(String.format("Exception when try to send the 'callback' event - exception: %s", e.getMessage()), e);
-                }
-            });
-        }
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                Json body = request.getJsonBody();
+                this.events.send(CALLBACK_EVENT, body, functionId);
+            } catch (Exception e) {
+                logger.warn(String.format("Exception when try to send the 'callback' event - exception: %s", e.getMessage()), e);
+            }
+        });
     }
 }

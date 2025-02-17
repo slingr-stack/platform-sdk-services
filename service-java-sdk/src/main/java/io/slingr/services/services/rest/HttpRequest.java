@@ -26,7 +26,6 @@ public class HttpRequest implements JsonSource {
     private String filename = RestClient.DEFAULT_FILE_NAME;
     private boolean forceDownload = false;
     private boolean downloadSync = false;
-    private boolean defaultCallback = false;
     private boolean forceDisableCookies = false;
     private int maxRedirects = RestClient.DEFAULT_MAX_REDIRECTS;
     private Boolean encodeUrl = null;
@@ -47,7 +46,6 @@ public class HttpRequest implements JsonSource {
         this.filename = builder.filename;
         this.forceDownload = builder.forceDownload;
         this.downloadSync = builder.downloadSync;
-        this.defaultCallback = builder.defaultCallback;
         this.forceDisableCookies = builder.forceDisableCookies;
         this.removeRefererHeaderOnRedirect = builder.removeRefererHeaderOnRedirect;
         this.maxRedirects = builder.maxRedirects;
@@ -455,30 +453,12 @@ public class HttpRequest implements JsonSource {
     }
 
     /**
-     * Gets the value that determines if contain Callback
-     *
-     * @return true if contain default callback.
-     */
-    public boolean isDefaultCallback() {
-        return defaultCallback;
-    }
-
-    /**
      * Sets if the file must be downloaded synchronously
      *
      * @param downloadSync true if the file must be downloaded synchronously
      */
     public void setDownloadSync(boolean downloadSync) {
         this.downloadSync = downloadSync;
-    }
-
-    /**
-     * Sets if contain default callback
-     *
-     * @param defaultCallback true if contain default callback.
-     */
-    public void setDefaultCallback(boolean defaultCallback) {
-        this.defaultCallback = defaultCallback;
     }
 
     public boolean isMultipart() {
@@ -688,11 +668,6 @@ public class HttpRequest implements JsonSource {
                     request.setRemoveRefererHeaderOnRedirect(removeRefererHeaderOnRedirect);
                 }
 
-                final Boolean defaultCallback = settings.bool(Parameter.HTTP_REQUEST_CALLBACK);
-                if (defaultCallback != null) {
-                    request.setDefaultCallback(defaultCallback);
-                }
-
                 final Boolean  followAuthorizationHeader = settings.bool(Parameter.HTTP_REQUEST_FOLLOW_AUTHORIZATION_HEADER);
                 if (followAuthorizationHeader != null) {
                     request.setFollowAuthorizationHeader(followAuthorizationHeader);
@@ -745,7 +720,6 @@ public class HttpRequest implements JsonSource {
         private String filename = RestClient.DEFAULT_FILE_NAME;
         private boolean forceDownload = false;
         private boolean downloadSync = false;
-        private boolean defaultCallback = false;
         private boolean forceDisableCookies = false;
         private boolean removeRefererHeaderOnRedirect = false;
         private boolean followOriginalHttpMethod = false;
@@ -825,11 +799,6 @@ public class HttpRequest implements JsonSource {
 
         public HttpRequestBuilder setDownloadSync(boolean downloadSync) {
             this.downloadSync = downloadSync;
-            return this;
-        }
-
-        public HttpRequestBuilder setDefaultCallback(boolean defaultCallback) {
-            this.defaultCallback = defaultCallback;
             return this;
         }
 

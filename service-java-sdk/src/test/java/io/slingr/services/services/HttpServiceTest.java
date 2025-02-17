@@ -83,8 +83,7 @@ public class HttpServiceTest {
 
         buildHttpService("https://postman-echo.com/status/" + HttpStatus.SC_OK);
 
-        Json json = Json.map().set("id", "5f40a9a2-dfb8-4d29-9bf5-2f8c8945fe17")
-                .set("params",Json.map().set("defaultCallback","true"));
+        Json json = Json.map().set("id", "5f40a9a2-dfb8-4d29-9bf5-2f8c8945fe17");
 
         FunctionRequest functionRequest = new FunctionRequest(json);
         Json response = httpService.defaultGetRequest(functionRequest);
