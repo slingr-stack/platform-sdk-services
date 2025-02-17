@@ -3,19 +3,21 @@
 //////////////////
 //We load env vars from dotenv if we are in local deployment
 //The file loaded will depend on the NODE_ENV var.If not defined, it dafaults to .env
+
 if (process.env._local_deployment === undefined) {
     let envPath = process.env.NODE_ENV === undefined ? './.env' : `./.${process.env.NODE_ENV}.env`;
     require('dotenv').config({ path: envPath}); 
 }
-const
-    util = require('util'),
-    fs = require('fs'),
-    http = require('http'),
-    https = require('https'),
-    axios = require('axios'),
-    compression = require('compression'),
-    express = require('express'),
-    bodyParser = require('body-parser');
+
+const util = require('util');
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
+const axios = require('axios');
+const compression = require('compression');
+const express = require('express');
+const bodyParser = require('body-parser');
+const servicesSettings = require('./services/settings/settings');
 
 //The instance of the service.
 let svc = {
@@ -429,10 +431,11 @@ const startSvc = async () => {
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     // Service Started
     ///////////////////////////////////////////////////////////////////////////////////////////////////
+
     appLogger.info('Service [' + settings.svcName + '] started');
     svc.hooks.onSvcStart();
 
-    if (settings.isUsingProxy) require('./services/settings/settings').refreshCache();
+    await servicesSettings.refreshCache();
 };
 svc.start = startSvc;
 

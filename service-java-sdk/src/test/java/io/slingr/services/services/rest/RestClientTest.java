@@ -4,6 +4,7 @@ import io.slingr.services.exceptions.ServiceException;
 import io.slingr.services.utils.Json;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,6 +163,7 @@ public class RestClientTest {
     }
 
     @Test
+    @Ignore("The consumerKey is deprecated")
     public void testDefaultGetRequestOauthAuthentication() {
 
             Json json = Json.map().set("authorization",

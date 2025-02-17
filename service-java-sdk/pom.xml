@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.slingr-stack</groupId>
     <artifactId>slingr-services</artifactId>
-    <version>1.6.0</version>
+    <version>1.6.2</version>
     <name>Slingr Services Framework</name>
     <description>Framework to generate services to use on Slingr platform</description>
     <packaging>jar</packaging>
@@ -14,19 +14,19 @@
         <org.glassfish.jersey.inject>2.40</org.glassfish.jersey.inject>
         <jetty.version>11.0.19</jetty.version>
         <jericho-html.version>3.4</jericho-html.version>
-        <commons-io.version>2.15.1</commons-io.version>
+        <commons-io.version>2.16.1</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-collections.version>4.4</commons-collections.version>
-        <commons-lang3.version>3.14.0</commons-lang3.version>
-        <javax.mail.version>1.4.7</javax.mail.version>
-        <slf4j.version>2.0.12</slf4j.version>
+        <commons-collections.version>4.5.0-M1</commons-collections.version>
+        <commons-lang3.version>3.15.0</commons-lang3.version>
+        <javax.mail.version>1.5.0-b01</javax.mail.version>
+        <slf4j.version>2.0.13</slf4j.version>
         <log4j.version>1.2.17</log4j.version>
-        <javapoet.version>1.12.1</javapoet.version>
+        <javapoet.version>1.13.0</javapoet.version>
         <oauth.signpost.version>2.1.1</oauth.signpost.version>
         <!-- Tests properties -->
         <junit.version>4.13.2</junit.version>
-        <mockito.version>1.10.19</mockito.version>
-        <com.github.tomakehurst.version>2.35.1</com.github.tomakehurst.version>
+        <mockito.version>2.0.2-beta</mockito.version>
+        <wiremock-standalone.version>3.9.1</wiremock-standalone.version>
         <!-- Build properties -->
         <jdk.version>17</jdk.version>
         <maven.compiler.source>17</maven.compiler.source>
@@ -172,9 +172,9 @@
             <version>${mockito.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock-jre8-standalone</artifactId>
-            <version>${com.github.tomakehurst.version}</version>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+            <version>${wiremock-standalone.version}</version>
         </dependency>
     </dependencies>
     <distributionManagement>
@@ -220,4 +220,11 @@
             </plugin>
         </plugins>
     </build>
+    <repositories>
+        <repository>
+            <id>maven_central</id>
+            <name>Maven Central</name>
+            <url>https://repo.maven.apache.org/maven2/</url>
+        </repository>
+    </repositories>
 </project>

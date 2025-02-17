@@ -78,6 +78,11 @@ public class WebServicesProcessor extends AbstractHandler {
         this.token = token;
         this.localDeployment = localDeployment;
         this.debug = debug;
+        if (!localDeployment) {
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                baseService.stopService("Signal SIGTERM received from kubernetes. Shutting down...");
+            }));
+        }
     }
 
     /**
