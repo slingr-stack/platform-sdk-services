@@ -13,7 +13,6 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -151,7 +150,7 @@ public class Strings {
     }
 
     /**
-     * Parse a HTTP query parameters string. The keys without values are included on response.
+     * Parse an HTTP query parameters string. The keys without values are included on response.
      *
      * @param queryString string to parse
      * @return a json map with the parameters
@@ -161,7 +160,7 @@ public class Strings {
     }
 
     /**
-     * Parse a HTTP query parameters string
+     * Parse an HTTP query parameters string
      *
      * @param queryString string to parse
      * @param includeKeyWithoutValues true if you want to include the keys that does not have a value associated
@@ -193,98 +192,6 @@ public class Strings {
     }
 
     /**
-     * Converts a json with parameters tp a HTTP query string
-     *
-     * @param parameters a json map with the query string parameters to convert
-     * @return query string
-     */
-    public static String convertToQueryString(Json parameters){
-        return convertToQueryString(parameters, false);
-    }
-
-    /**
-     * Converts a json with parameters tp a HTTP query string
-     *
-     * @param parameters a json map with the query string parameters to convert
-     * @param includeKeyWithoutValues true if you want to include with a 'true' as value the keys that does not have a
-     *                                value associated
-     * @return query string
-     */
-    public static String convertToQueryString(Json parameters, boolean includeKeyWithoutValues){
-        final List<String> response = new ArrayList<>();
-        if(parameters != null) {
-            if(parameters.isMap()){
-                parameters.forEachMapString((key, value) -> {
-                    if(StringUtils.isNotBlank(key)) {
-                        if (StringUtils.isBlank(value)) {
-                            if (includeKeyWithoutValues) {
-                                response.add(String.format("%s", key.trim()));
-                            } else {
-                                response.add(String.format("%s=true", key.trim()));
-                            }
-                        } else {
-                            response.add(String.format("%s=%s", key.trim(), value.trim()));
-                        }
-                    }
-                });
-            } else {
-                parameters.forEachList(key -> {
-                    if(key != null && StringUtils.isNotBlank(key.toString())) {
-                        if (includeKeyWithoutValues) {
-                            response.add(String.format("%s", key.toString().trim()));
-                        } else {
-                            response.add(String.format("%s=true", key.toString().trim()));
-                        }
-                    }
-                });
-            }
-        }
-        final String query = response.stream().reduce((s1, s2) -> String.format("%s&%s", s1, s2)).orElse("");
-        return Strings.urlEncode(query);
-    }
-
-    /**
-     * Parse a HTTP query parameters string and expand the maps.
-     * Per example {@code key1[subKey1][subKey2]=1234&key1[subKey1][subKey3]=5678&key2=abc } will be returned as
-     * {@code {"key1":{"subKey1":{"subKey2":"1234", "subKey3":"5678"}}, "key2":"abc"} }
-     *
-     * @param parametersString string to parse
-     * @return a json map with the parameters
-     */
-    public static Json parseAndExpandParameters(String parametersString) {
-        final Json response = Json.map();
-
-        final Json parameters = parseQueryString(parametersString, false);
-        parameters.forEachMapString((parameter, value) -> {
-            final String key = parameter.replaceAll("\\[", ".").replaceAll("]", "");
-            if(StringUtils.isNotBlank(key)) {
-                final String[] keyParts = key.split("\\.");
-                if (keyParts.length > 0) {
-                    Json currentLevel = response;
-                    for (int i = 0; i < keyParts.length; i++) {
-                        final String currentKeyPart = keyParts[i];
-                        if (i == keyParts.length - 1) {
-                            // if last part, store in current level
-                            currentLevel.set(currentKeyPart, value);
-                        } else {
-                            // select current level
-                            if (currentLevel.object(currentKeyPart) == null) {
-                                final Json newLevel = Json.map();
-                                currentLevel.set(currentKeyPart, newLevel);
-                                currentLevel = newLevel;
-                            } else {
-                                currentLevel = currentLevel.json(currentKeyPart);
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        return response;
-    }
-
-
-    /**
      * Encodes a list of parameters in order to be used on the URLs
      *
      * @param parameters list of parameters
@@ -294,34 +201,6 @@ public class Strings {
         return parameters.stream()
                 .map(Strings::urlEncode)
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * Encodes an object in order to be used on the URLs
-     *
-     * @param object object to encode
-     * @return encoded string
-     */
-    public static String urlEncode(Object object){
-        try {
-            return urlEncode(object, false);
-        } catch (Exception ex) {
-            logger.warn(String.format("Error when try to encode object [%s]: %s", object, ex.getMessage()));
-        }
-        return "";
-    }
-
-    /**
-     * Encodes an object in order to be used on the URLs
-     *
-     * @param object object to encode
-     * @return encoded string
-     */
-    public static String urlEncode(Object object, boolean throwExceptionOnError) throws Exception {
-        if(object != null) {
-            return urlEncode((String) object, throwExceptionOnError);
-        }
-        return "";
     }
 
     /**
@@ -346,7 +225,7 @@ public class Strings {
      * @param throwExceptionOnError true if the method have to throw an exception if an error happened
      * @return encoded string
      */
-    public static String urlEncode(String string, boolean throwExceptionOnError) throws Exception {
+    public static String urlEncode(String string, boolean throwExceptionOnError) {
         if(StringUtils.isNotBlank(string)) {
             try {
                 return URLEncoder.encode(string, StandardCharsets.UTF_8).replace("+", "%20").replace("*", "%2A");
@@ -358,35 +237,6 @@ public class Strings {
                 }
             }
             return string;
-        }
-        return "";
-    }
-
-    /**
-     * Decodes an object received used on URLs
-     *
-     * @param object object to decode
-     * @return decoded string
-     */
-    public static String urlDecode(Object object){
-        try {
-            return urlDecode(object, false);
-        } catch (Exception ex) {
-            logger.warn(String.format("Error when try to decode object [%s]: %s", object, ex.getMessage()));
-        }
-        return "";
-    }
-
-    /**
-     * Decodes an object received used on URLs
-     *
-     * @param object object to decode
-     * @param throwExceptionOnError true if the method have to throw an exception if an error happened
-     * @return decoded string
-     */
-    public static String urlDecode(Object object, boolean throwExceptionOnError) throws Exception {
-        if(object != null) {
-            return urlDecode((String) object, throwExceptionOnError);
         }
         return "";
     }
@@ -414,7 +264,7 @@ public class Strings {
      * @param throwExceptionOnError true if the method have to throw an exception if an error happened
      * @return decoded string
      */
-    public static String urlDecode(String string, boolean throwExceptionOnError) throws Exception {
+    public static String urlDecode(String string, boolean throwExceptionOnError) {
         if(StringUtils.isNotBlank(string)) {
             try {
                 return URLDecoder.decode(string, StandardCharsets.UTF_8);
@@ -423,7 +273,7 @@ public class Strings {
                     throw ex;
                 } else {
                     logger.warn(String.format("Error when try to decode string: %s", ex.getMessage()));
-                    logger.debug(String.format("String to decode: %s", string != null ? (string.length() < 500 ? string : string.substring(497)+"...") : "-"));
+                    logger.debug(String.format("String to decode: %s", string.length() < 500 ? string : string.substring(497)+"..."));
                 }
             }
             return string;

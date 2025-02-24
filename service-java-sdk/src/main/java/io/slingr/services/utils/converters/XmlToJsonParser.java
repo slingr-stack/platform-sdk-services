@@ -7,7 +7,6 @@ import io.slingr.services.utils.XmlUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
@@ -113,7 +112,7 @@ public class XmlToJsonParser extends DefaultHandler {
 
     @Override
     public void characters(char[] ch, int start, int length) {
-        // characters that are inside of the element [<element>Hello world</element>].
+        // characters that are inside the element [<element>Hello world</element>].
         // if the characters are not contiguous, the method is called more that once,
         // [<element>Hello <test /> world</element>] is called two times with "Hello " and " world"
 
@@ -189,7 +188,7 @@ public class XmlToJsonParser extends DefaultHandler {
                 parentElement.set(elementName, elementToStore);
 
             } else {
-                // there is a element with the same name, create a list or add to the existent one
+                // there is an element with the same name, create a list or add to the existent one
                 Object elementWithSameName = parentElement.object(elementName);
                 if (elementWithSameName instanceof Json) {
                     ((Json) elementWithSameName).push(elementToStore);

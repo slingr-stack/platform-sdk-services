@@ -201,7 +201,7 @@ public class Users {
     }
 
     /**
-     * Sends an user connected event to the app runtime
+     * Sends a user connected event to the app runtime
      *
      * @param userId id of the connected user
      * @param userConfiguration saved user configuration
@@ -211,7 +211,7 @@ public class Users {
     }
 
     /**
-     * Sends an user connected event to the app runtime
+     * Sends a user connected event to the app runtime
      *
      * @param functionId function id that generates the event (used to identify the callbacks)
      * @param userId id of the connected user
@@ -222,7 +222,7 @@ public class Users {
     }
 
     /**
-     * Sends an user disconnected event to the app runtime
+     * Sends a user disconnected event to the app runtime
      *
      * @param userId id of the disconnected user
      */
@@ -231,7 +231,7 @@ public class Users {
     }
 
     /**
-     * Sends an user disconnected event to the app runtime
+     * Sends a user disconnected event to the app runtime
      *
      * @param functionId function id that generates the event (used to identify the callbacks)
      * @param userId id of the disconnected user

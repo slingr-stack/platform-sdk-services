@@ -7,7 +7,7 @@ import io.slingr.services.ws.exchange.WebServiceRequest;
 import io.slingr.services.framework.annotations.SlingrService;
 
 /**
- * Interface that the PER USER {@link SlingrService} must be implement
+ * Interface that the PER USER {@link SlingrService} must be implemented
  *
  * <p>Created by lefunes on 12/03/18.
  */

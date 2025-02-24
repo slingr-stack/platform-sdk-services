@@ -14,10 +14,6 @@ import java.io.InputStream;
  */
 public interface ExtensionBrokerApi {
 
-    /************************
-     Events
-     ************************/
-
     /**
      * Sends an event to the application.
      *
@@ -67,10 +63,6 @@ public interface ExtensionBrokerApi {
      */
     Object newSyncEvent(Long date, String event, Object data, String fromFunctionId, String userId, String userEmail) throws ServiceException;
 
-    /************************
-     App logs
-     ************************/
-
     /**
      * Sends an app log to the application in order to show the message to the app developer.
      *
@@ -87,10 +79,6 @@ public interface ExtensionBrokerApi {
      * @throws ServiceException if there is an issue with the exchange
      */
     void newAppLogs(Long date, String level, String message, Json additionalInfo) throws ServiceException;
-
-    /************************
-     Distributed locks
-     ************************/
 
     /**
      * Tries to acquire the lock for the specified key.
@@ -114,10 +102,6 @@ public interface ExtensionBrokerApi {
      * @throws ServiceException if there is an issue with the exchange
      */
     Json releaseLock(String key) throws ServiceException;
-
-    /************************
-     Files management
-     ************************/
 
     /**
      * Uploads the given file to the platform.
@@ -160,10 +144,6 @@ public interface ExtensionBrokerApi {
      * @throws ServiceException if there is an issue with the exchange
      */
     Json getFileMetadata(String fileId) throws ServiceException;
-
-    /************************
-     Data stores management
-     ************************/
 
     /**
      * Finds documents from a data store.
@@ -282,10 +262,6 @@ public interface ExtensionBrokerApi {
      */
     Json removeDocument(String dataStoreName, String documentId) throws ServiceException;
 
-    /************************
-     Properties
-     ************************/
-
     /**
      * Receive the configuration about the Extension Broker .
      *
@@ -297,10 +273,6 @@ public interface ExtensionBrokerApi {
      * @throws ServiceException if there is an issue with the exchange
      */
     Json getConfiguration() throws ServiceException;
-
-    /************************
-     Users
-     ************************/
 
     /**
      * Gets the user information using an active token
@@ -317,10 +289,6 @@ public interface ExtensionBrokerApi {
      * @return information about a user on the application if the email is valid
      */
     AppUser getUserInformationByEmail(String email) throws ServiceException;
-
-    /************************
-     Management
-     ************************/
 
     /**
      * Clears the cache of the app.

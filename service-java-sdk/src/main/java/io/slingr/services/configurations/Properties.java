@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
  * <p>Created by lefunes on 02/05/16.
  */
 public class Properties implements ServicesProperties {
+
     private final String serviceName;
     private final String applicationName;
     private final String environment;

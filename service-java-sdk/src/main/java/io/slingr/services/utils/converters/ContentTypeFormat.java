@@ -60,108 +60,84 @@ public enum ContentTypeFormat {
 
     public static boolean isJsonContentType(MediaType contentType){
         if(contentType != null){
-            if(JSON.match(contentType)){
-                return true;
-            }
+            return JSON.match(contentType);
         }
         return false;
     }
 
     public static boolean isJsonContentType(String contentType){
         if(StringUtils.isNotBlank(contentType)){
-            if(JSON.match(contentType)){
-                return true;
-            }
+            return JSON.match(contentType);
         }
         return false;
     }
 
     public static boolean isUrlEncodedFormContentType(MediaType contentType){
         if(contentType != null){
-            if(FORM_URLENCODED.match(contentType)){
-                return true;
-            }
+            return FORM_URLENCODED.match(contentType);
         }
         return false;
     }
 
     public static boolean isUrlEncodedFormContentType(String contentType){
         if(StringUtils.isNotBlank(contentType)){
-            if(FORM_URLENCODED.match(contentType)){
-                return true;
-            }
+            return FORM_URLENCODED.match(contentType);
         }
         return false;
     }
 
     public static boolean isXmlContentType(MediaType contentType){
         if(contentType != null){
-            if(XML.match(contentType) || XML_APP.match(contentType) || XML_ATOM.match(contentType) || XML_SVG.match(contentType) || XML_XHTML.match(contentType)){
-                return true;
-            }
+            return XML.match(contentType) || XML_APP.match(contentType) || XML_ATOM.match(contentType) || XML_SVG.match(contentType) || XML_XHTML.match(contentType);
         }
         return false;
     }
 
     public static boolean isXmlContentType(String contentType){
         if(StringUtils.isNotBlank(contentType)){
-            if(XML.match(contentType) || XML_APP.match(contentType) || XML_ATOM.match(contentType) || XML_SVG.match(contentType) || XML_XHTML.match(contentType)){
-                return true;
-            }
+            return XML.match(contentType) || XML_APP.match(contentType) || XML_ATOM.match(contentType) || XML_SVG.match(contentType) || XML_XHTML.match(contentType);
         }
         return false;
     }
 
     public static boolean isHtmlContentType(MediaType contentType){
         if(contentType != null){
-            if(HTML.match(contentType)){
-                return true;
-            }
+            return HTML.match(contentType);
         }
         return false;
     }
 
     public static boolean isHtmlContentType(String contentType){
         if(StringUtils.isNotBlank(contentType)){
-            if(HTML.match(contentType)){
-                return true;
-            }
+            return HTML.match(contentType);
         }
         return false;
     }
 
     public static boolean isPlainTextContentType(MediaType contentType){
         if(contentType != null){
-            if(PLAIN_TEXT.match(contentType)){
-                return true;
-            }
+            return PLAIN_TEXT.match(contentType);
         }
         return false;
     }
 
     public static boolean isPlainTextContentType(String contentType){
         if(StringUtils.isNotBlank(contentType)){
-            if(PLAIN_TEXT.match(contentType)){
-                return true;
-            }
+            return PLAIN_TEXT.match(contentType);
         }
         return false;
     }
 
     public static boolean isMultipartContentType(MediaType contentType){
         if(contentType != null){
-            if(MULTIPART.match(contentType)){
-                return true;
-            }
+            return MULTIPART.match(contentType);
         }
         return false;
     }
 
     public static boolean isMultipartContentType(String contentType){
         if(StringUtils.isNotBlank(contentType)){
-            if(MULTIPART.match(contentType)){
-                return true;
-            }
+            return MULTIPART.match(contentType);
         }
         return false;
     }

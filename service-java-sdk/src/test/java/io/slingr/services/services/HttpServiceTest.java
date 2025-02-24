@@ -5,14 +5,10 @@ import io.slingr.services.utils.tests.ExtensionBrokerMock;
 import io.slingr.services.ws.exchange.FunctionRequest;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 
 public class HttpServiceTest {
-    @SuppressWarnings("unused")
-    private static final Logger logger = LoggerFactory.getLogger(HttpServiceTest.class);
 
     private HttpService httpService;
 
@@ -25,7 +21,6 @@ public class HttpServiceTest {
         assertEquals("image.jpg", HttpService.extractFileName("image.jpg?param=abc"));
         assertEquals("image.jpg", HttpService.extractFileName("/image.jpg?param=abc"));
     }
-
 
     @Test
     public void testDefaultGetRequest() {
@@ -49,7 +44,6 @@ public class HttpServiceTest {
         Json response = httpService.defaultPostRequest(functionRequest);
         assertEquals("This is a body", response.object("data"));
     }
-
 
     @Test
     public void testDefaultPutRequest() {
@@ -90,7 +84,6 @@ public class HttpServiceTest {
         assertEquals(HttpStatus.SC_OK, response.object("status"));
     }
 
-
     private void buildHttpService(String apiUri) {
         Events events = new Events(new ExtensionBrokerMock(), false);
         this.httpService = new HttpService(
@@ -100,6 +93,4 @@ public class HttpServiceTest {
                 false
         );
     }
-
-
 }

@@ -44,7 +44,7 @@ public class ClassProperty implements SettableProperty {
         name = StringUtils.isNotBlank(propertyName) ? propertyName : simpleName;
         AnnotationsUtils.checkNotEmpty(name, "name", SP_NAME, "property", name);
 
-        final String setterName = String.format("set%S%s", simpleName.substring(0,1), simpleName.length() > 1 ? simpleName.substring(1) : "");
+        final String setterName = String.format("set%S%s", simpleName.charAt(0), simpleName.length() > 1 ? simpleName.substring(1) : "");
         type = AnnotationsUtils.isValidSetter(null, annotatedElement, simpleName, setterName, this.isServiceConfiguration);
         if (!this.isServiceConfiguration && (type == PropertyType.BOOLEAN || type == PropertyType.STRING || type == PropertyType.JSON)){
             // valid setter
@@ -108,9 +108,9 @@ public class ClassProperty implements SettableProperty {
     }
 
     /**
-     * True if the property is an Service Configuration type
+     * True if the property is a Service Configuration type
      *
-     * @return true if the property is an Service Configuration type
+     * @return true if the property is a Service Configuration type
      */
     public boolean isServiceConfiguration() {
         return isServiceConfiguration;

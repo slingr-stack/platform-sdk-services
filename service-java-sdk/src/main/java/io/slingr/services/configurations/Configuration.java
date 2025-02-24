@@ -40,7 +40,6 @@ public class Configuration {
     public static final String PROPERTY_IS_SHARED = "_shared";
     public static final String PROPERTY_USING_PROXY = "_using_proxy";
     public static final String PROPERTY_TESTING_MODE = "_testing_mode";
-    public static final String PROPERTY_USE_SSL = "_use_ssl";
 
     // definitions name
     public static final String DEFINITION_LABEL = "label";
@@ -68,10 +67,6 @@ public class Configuration {
     public static final String DEFINITION_UI_CONFIGURATION = "configuration";
     public static final String DEFINITION_UI_USER_CONFIGURATION = "userConfiguration";
     public static final String DEFINITION_UI_USER_CONFIGURATION_BUTTONS = "userConfigurationButtons";
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // initialization
-    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     // definition file: appService.json by default
     private final String definitionsFile;
@@ -181,10 +176,6 @@ public class Configuration {
         // definition file
         this.definitionsFile = StringUtils.isNotBlank(definitionsFile) ? definitionsFile : "appService.json";
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ServiceDefinitions builder
-    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Builds the service configuration from the properties sources
@@ -311,10 +302,6 @@ public class Configuration {
         return builder.build();
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // ServiceProperties builder
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Builds the service configuration from the properties sources
      *
@@ -380,9 +367,7 @@ public class Configuration {
                     webServicesUri = String.format("%s/services/%s", domain, serviceName);
                 }
             }
-            if (webServicesUri != null) {
-                builder.webServicesUri = webServicesUri;
-            }
+            builder.webServicesUri = webServicesUri;
 
             final String extensionBrokerApi = resolveProperty(sources, PROPERTY_EXTENSION_BROKER_API, "https://extension-broker/api");
             if(StringUtils.isBlank(extensionBrokerApi)){
@@ -404,10 +389,7 @@ public class Configuration {
                 throw ServiceException.permanent(ErrorCode.GENERAL, String.format("Empty token on properties [%s]. Token is required.", token));
             }
 
-            final Json serviceConfiguration = resolveJsonProperty(sources, PROPERTY_SERVICE_CONFIG);
-            if (serviceConfiguration != null) {
-                builder.serviceConfiguration = serviceConfiguration;
-            }
+            builder.serviceConfiguration = resolveJsonProperty(sources, PROPERTY_SERVICE_CONFIG);
 
             builder.debug = resolveBooleanProperty(sources, PROPERTY_DEBUG, false);
             builder.testingMode = resolveBooleanProperty(sources, PROPERTY_TESTING_MODE, false);
@@ -420,10 +402,6 @@ public class Configuration {
         }
         return builder.build();
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // get properties
-    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Finds a json property on the stores with the given name.
@@ -452,7 +430,6 @@ public class Configuration {
                 json = Json.parse(response);
             } catch (Exception ex) {
                 logger.warn(String.format("Exception when try to convert json for property [%s], json [%s]: [%s]", propertyName, response, ex.getMessage()));
-                json = null;
             }
         }
         return json != null ? json : (defaultValue != null ? defaultValue : Json.map());
@@ -519,7 +496,7 @@ public class Configuration {
                     return true;
             }
         }
-        return defaultValue != null && Boolean.TRUE.equals(defaultValue);
+        return Boolean.TRUE.equals(defaultValue);
     }
 
     /**
@@ -548,10 +525,10 @@ public class Configuration {
             try {
                 value = Integer.parseInt(response);
             } catch (Exception ex){
-                value = null;
+                logger.warn(String.format("Exception when try to convert integer for property [%s], value [%s]: [%s]", propertyName, response, ex.getMessage()));
             }
         }
-        return value != null ? value.intValue() : (defaultValue != null ? defaultValue : null);
+        return value != null ? value : (defaultValue);
     }
 
     /**
@@ -588,10 +565,6 @@ public class Configuration {
         }
         return StringUtils.isNotBlank(response) ? response : defaultValue;
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // builders
-    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Helper used to build Definitions objects

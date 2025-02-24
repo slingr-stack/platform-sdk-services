@@ -25,7 +25,7 @@ public final class JsonConverter {
         try{
             return baseFromObject(message);
         } catch (Exception ex){
-            ex.printStackTrace();
+            logger.error("Error parsing JSON from input stream", ex);
             return fromString("{ \"error\":\""+ ex +"\"}");
         }
     }

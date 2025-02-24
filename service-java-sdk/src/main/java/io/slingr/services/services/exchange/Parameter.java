@@ -118,10 +118,6 @@ public final class Parameter {
     public static final String HTTP_USE_SSL = "useSSL";
     public static final String HTTP_USE_MULTI_PART = "multipart";
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Parameter only used on applications side
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
     // events
     public static final String EVENT_PROCESSED_JOB = "job";
 

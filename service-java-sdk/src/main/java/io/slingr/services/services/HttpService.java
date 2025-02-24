@@ -78,16 +78,6 @@ public class HttpService extends RestClient {
     /**
      * Process the GET requests to the external HTTP service
      *
-     * @param request request to send to the external HTTP service
-     * @return response from the external HTTP service
-     */
-    public Json defaultGetRequest(Json request) {
-        return defaultGetRequest(request, null);
-    }
-
-    /**
-     * Process the GET requests to the external HTTP service
-     *
      * @param request        request to send to the external HTTP service
      * @param fromFunctionId Id of a function related to the event. It is used to send {@link HttpService#FILE_DOWNLOADED_EVENT} events.
      * @return response from the external HTTP service
@@ -156,7 +146,7 @@ public class HttpService extends RestClient {
         String fileName = request.getFilename();
         if (StringUtils.isBlank(fileName) || fileName.equals(DEFAULT_FILE_NAME)) {
             // try to get file name from headers
-            fileName = extractFileNameFromHeader(file, fileName);
+            fileName = extractFileNameFromHeader(file);
             if(fileName.equals(DEFAULT_FILE_NAME)) {
                 // try to guess filename from path if name not provided
                 final String path = request.getPath();
@@ -164,14 +154,15 @@ public class HttpService extends RestClient {
                 if (StringUtils.isEmpty(fileName)) {
                     fileName = DEFAULT_FILE_NAME;
                 }
-            };
+            }
 
         }
         return files.upload(fileName, file);
     }
-    private static String extractFileNameFromHeader(DownloadedFile file, String fileName) {
-        if(file.getHeaders().string("content-disposition") != null) {
-            String[] parts = file.getHeaders().string("content-disposition").split(";");
+
+    private static String extractFileNameFromHeader(DownloadedFile file) {
+        if(file.headers().string("content-disposition") != null) {
+            String[] parts = file.headers().string("content-disposition").split(";");
             for (String part : parts) {
                 if (part.trim().startsWith("filename")) {
                     return part.substring(part.indexOf('=') + 1).trim().replace("\"", "");
@@ -180,6 +171,7 @@ public class HttpService extends RestClient {
         }
         return "file";
     }
+
     /**
      * Extracts the file name from a path
      *

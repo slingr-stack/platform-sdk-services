@@ -3,41 +3,22 @@ package io.slingr.services.services.rest;
 import io.slingr.services.utils.Json;
 
 import java.io.InputStream;
-import java.util.Map;
 
 /**
  * Response to a download request
  *
  * <p>Created by lefunes on 16/03/18.
  */
-public class DownloadedFile {
-
-    private final int status;
-    private final InputStream file;
-    private final Json headers;
+public record DownloadedFile(int status, InputStream file, Json headers) {
 
     /**
      * Creates a download response
      *
-     * @param status HTTP status
-     * @param file input stream
+     * @param status  HTTP status
+     * @param file    input stream
      * @param headers HTTP headers
      */
-    public DownloadedFile(int status, InputStream file, Json headers) {
-        this.status = status;
-        this.file = file;
-        this.headers = headers;
-    }
-
-    /**
-     * Creates a download response
-     *
-     * @param status HTTP status
-     * @param file input stream
-     * @param headers HTTP headers
-     */
-    public DownloadedFile(int status, InputStream file, Map<String, String> headers) {
-        this(status, file, headers != null ? Json.fromMap(headers) : Json.map());
+    public DownloadedFile {
     }
 
     /**
@@ -45,7 +26,8 @@ public class DownloadedFile {
      *
      * @return HTTP status
      */
-    public int getStatus() {
+    @Override
+    public int status() {
         return status;
     }
 
@@ -54,7 +36,8 @@ public class DownloadedFile {
      *
      * @return input stream
      */
-    public InputStream getFile() {
+    @Override
+    public InputStream file() {
         return file;
     }
 
@@ -63,7 +46,8 @@ public class DownloadedFile {
      *
      * @return HTTP headers
      */
-    public Json getHeaders() {
+    @Override
+    public Json headers() {
         return headers;
     }
 }

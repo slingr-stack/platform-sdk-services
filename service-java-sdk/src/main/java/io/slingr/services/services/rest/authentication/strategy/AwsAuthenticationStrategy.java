@@ -22,8 +22,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class AwsAuthenticationStrategy implements AuthenticationStrategy {
-
     private static final Logger logger = LoggerFactory.getLogger(AwsAuthenticationStrategy.class);
+
     private final String accessKeyID;
     private final String secretAccessKey;
     private final String region;
@@ -80,7 +80,6 @@ public class AwsAuthenticationStrategy implements AuthenticationStrategy {
             requestContext.getHeaders().add("host", hostHeader);
         };
     }
-
 
     public static class AWSSignatureV4Generator {
 
@@ -453,5 +452,4 @@ public class AwsAuthenticationStrategy implements AuthenticationStrategy {
         }
 
     }
-
 }

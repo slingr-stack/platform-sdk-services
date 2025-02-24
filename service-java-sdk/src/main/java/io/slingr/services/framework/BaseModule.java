@@ -35,7 +35,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
 /**
  * Base module that implements utilities for all {@link Service} implementations
@@ -693,7 +692,7 @@ public class BaseModule implements IService, IBaseService {
                     .filter(ws -> request.getMethod() == ws.getRestMethod())
                     .filter(ws -> ws.isValidRoute(request.getPath()))
                     .sorted(RegisteredWebService::compareTo)
-                    .collect(Collectors.toList());
+                    .toList();
 
             if (!validWebServices.isEmpty()) {
                 if (validWebServices.size() > 1) {

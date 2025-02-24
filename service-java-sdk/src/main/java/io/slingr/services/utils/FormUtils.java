@@ -31,17 +31,16 @@ public class FormUtils {
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
+            final String parentKey1 = parentKey.isEmpty() ? key : parentKey + "[" + key + "]";
             if (value instanceof Map) {
-                flattenJson(parentKey.isEmpty() ? key : parentKey + "[" + key + "]", (Map<String, Object>) value, form);
-            } else if (value instanceof List) {
-                List<?> list = (List<?>) value;
+                flattenJson(parentKey1, (Map<String, Object>) value, form);
+            } else if (value instanceof List<?> list) {
                 for (int i = 0; i < list.size(); i++) {
                     String indexedKey = parentKey.isEmpty() ? key + "[" + i + "]" : parentKey + "[" + key + "][" + i + "]";
                     form.param(indexedKey, list.get(i).toString());
                 }
             } else if (value != null){
-                String finalKey = parentKey.isEmpty() ? key : parentKey + "[" + key + "]";
-                form.param(finalKey, value.toString());
+                form.param(parentKey1, value.toString());
             }
         }
     }
@@ -66,17 +65,16 @@ public class FormUtils {
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
+            final String parentKey1 = parentKey.isEmpty() ? key : parentKey + "[" + key + "]";
             if (value instanceof Map) {
-                flattenJson(parentKey.isEmpty() ? key : parentKey + "[" + key + "]", (Map<String, Object>) value, formDataMultiPart);
-            } else if (value instanceof List) {
-                List<?> list = (List<?>) value;
+                flattenJson(parentKey1, (Map<String, Object>) value, formDataMultiPart);
+            } else if (value instanceof List<?> list) {
                 for (int i = 0; i < list.size(); i++) {
                     String indexedKey = parentKey.isEmpty() ? key + "[" + i + "]" : parentKey + "[" + key + "][" + i + "]";
                     formDataMultiPart.field(indexedKey, list.get(i).toString());
                 }
             } else if (value != null) {
-                String finalKey = parentKey.isEmpty() ? key : parentKey + "[" + key + "]";
-                formDataMultiPart.field(finalKey, value.toString());
+                formDataMultiPart.field(parentKey1, value.toString());
             }
         }
     }

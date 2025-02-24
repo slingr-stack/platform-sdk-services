@@ -8,6 +8,7 @@ import javax.ws.rs.client.WebTarget;
 import java.util.Map;
 
 public class DigestAuthenticationStrategy implements AuthenticationStrategy {
+
     private final String username;
     private final String password;
 
@@ -21,6 +22,4 @@ public class DigestAuthenticationStrategy implements AuthenticationStrategy {
         final HttpAuthenticationFeature feature = HttpAuthenticationFeature.digest(username, password);
         client.register(feature);
     }
-
-
 }

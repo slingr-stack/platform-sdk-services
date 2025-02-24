@@ -34,7 +34,6 @@ public class HttpRequest implements JsonSource {
     private boolean followOriginalHttpMethod = false;
     private boolean useSSL = true;
 
-
     public HttpRequest(HttpRequestBuilder builder) {
         this.restMethod = builder.restMethod;
         this.path = builder.path;
@@ -433,7 +432,6 @@ public class HttpRequest implements JsonSource {
         return encodeUrl;
     }
 
-
     /**
      * Sets true if the URL params will be encoded
      *
@@ -522,7 +520,6 @@ public class HttpRequest implements JsonSource {
     public void setFollowOriginalHttpMethod(boolean followOriginalHttpMethod) {
         this.followOriginalHttpMethod = followOriginalHttpMethod;
     }
-
 
     public List<Part> getParts() {
         return parts;

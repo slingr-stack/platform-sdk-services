@@ -40,7 +40,7 @@ public class ClassDataStore implements SettableProperty {
 
         AnnotationsUtils.checkNotEmpty(name, "name", SDS_NAME, "data store", name);
 
-        final String setterName = String.format("set%S%s", simpleName.substring(0,1), simpleName.length() > 1 ? simpleName.substring(1) : "");
+        final String setterName = String.format("set%S%s", simpleName.charAt(0), simpleName.length() > 1 ? simpleName.substring(1) : "");
         PropertyType type = AnnotationsUtils.isValidSetter(DataStore.class, annotatedElement, simpleName, setterName);
         if (type == null) {
             // check property

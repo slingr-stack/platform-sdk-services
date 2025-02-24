@@ -14,17 +14,12 @@ import java.util.concurrent.ThreadPoolExecutor;
  *
  */
 public class ConcurrencyService {
-
     private final Logger logger = LoggerFactory.getLogger(ConcurrencyService.class);
 
     private final static int MAX_THREADS = 10;
-
     private final static int SLEEP_TIME = 100;
-
     private final ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
-
     private volatile boolean running = Boolean.FALSE;
-
     private final Queue<Task> pendingTasks = new LinkedList<>();
 
     public void start() {
@@ -62,5 +57,4 @@ public class ConcurrencyService {
     public interface Task extends Runnable {
 
     }
-
 }

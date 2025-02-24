@@ -185,10 +185,6 @@ public class JsonTest {
         assertArrayEquals(new String[]{"String", "STRING", "string"}, json.toList().toArray(new Object[0]));
     }
 
-
-
-
-
     @Test
     public void testEquals() {
         Assert.assertFalse(Json.map().equals(null));

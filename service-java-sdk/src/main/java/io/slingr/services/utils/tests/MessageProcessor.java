@@ -5,7 +5,7 @@ import io.slingr.services.utils.Json;
 
 /**
  * Interface to be implemented by the tests that want to return custom responses when process events. The
- * behavior mimic an script on the application side.
+ * behavior mimic a script on the application side.
  *
  * <p>Created by lefunes on 18/06/18.
  */
