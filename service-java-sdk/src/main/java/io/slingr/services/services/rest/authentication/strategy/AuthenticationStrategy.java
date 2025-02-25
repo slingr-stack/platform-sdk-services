@@ -14,8 +14,6 @@ public interface AuthenticationStrategy {
      * Adds authentication to the specified {@link Client} instance.
      *
      * @param client  The client to which authentication should be added.
-     * @param request
      */
     void addAuthentication(Client client, WebTarget apiTarget, HttpRequest request);
-
 }

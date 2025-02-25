@@ -31,7 +31,6 @@ public class RegisteredFunction {
         this(name, method, parameterType, responseType, accessorType, null);
     }
 
-
     /**
      * Instances a function declared on the service
      *

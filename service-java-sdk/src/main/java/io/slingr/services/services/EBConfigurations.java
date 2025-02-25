@@ -28,10 +28,6 @@ public class EBConfigurations {
         this.debug = debug;
     }
 
-    /************************
-      Get configuration
-     ************************/
-
     /**
      * Receive the configuration about the Extension Broker .
      *

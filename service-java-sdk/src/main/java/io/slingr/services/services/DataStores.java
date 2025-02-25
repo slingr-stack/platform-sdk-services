@@ -49,10 +49,6 @@ public class DataStores {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Data Stores
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Gets the User Data Store to use in the service.
      *
@@ -100,7 +96,7 @@ public class DataStores {
      * <p>This method is used to find one or more stored documents on a data store. A list of key-value pairs is used as
      * filter of the documents to find.
      *
-     * <p>Keep in mind that in this moment the filters only work over string fields.
+     * <p>Keep in mind that at this moment the filters only work over string fields.
      *
      * <p>If no filter is given, the request will return all the documents in the data store.
      *
@@ -129,7 +125,7 @@ public class DataStores {
             }
 
             if(debug) {
-                logger.info(String.format("%s dataStore=%s - %s - items [%s] - total [%s]", Service.DEBUG, dataStoreName, log, response.getItems().size(), response.getTotal()));
+                logger.info(String.format("%s dataStore=%s - %s - items [%s] - total [%s]", Service.DEBUG, dataStoreName, log, response.items().size(), response.total()));
             }
             return response;
         } catch (ServiceException ex){
@@ -145,7 +141,7 @@ public class DataStores {
      * <p>This method is used to find one or more stored documents on a data store. A list of key-value pairs is used as
      * filter of the documents to find.
      *
-     * <p>Keep in mind that in this moment the filters only work over string fields.
+     * <p>Keep in mind that at this moment the filters only work over string fields.
      *
      * <p>If no filter is given, the request will return all the documents in the data store.
      *
@@ -173,7 +169,7 @@ public class DataStores {
     /**
      * Counts all documents from a data store.
      *
-     * <p>This method is used to known how many documents there are stored on a data store.
+     * <p>This method is used to know how many documents there are stored on a data store.
      *
      * @param dataStoreName data store name
      * @return result of the execution of the command on data store
@@ -186,10 +182,10 @@ public class DataStores {
     /**
      * Counts documents from a data store.
      *
-     * <p>This method is used to known how many documents there are stored on a data store. A list of key-value pairs is
+     * <p>This method is used to know how many documents there are stored on a data store. A list of key-value pairs is
      * used as filter of the documents to count.
      *
-     * <p>Keep in mind that in this moment the filters only work over string fields.
+     * <p>Keep in mind that at this moment the filters only work over string fields.
      *
      * <p>If no filter is given, the request will return all the documents in the data store.
      *
@@ -281,7 +277,7 @@ public class DataStores {
      * <p>This method is used to find one stored documents on a data store. A list of key-value pairs is used as
      * filter of the documents to find.
      *
-     * <p>Keep in mind that in this moment the filters only work over string fields.
+     * <p>Keep in mind that at this moment the filters only work over string fields.
      *
      * <p>If no filter is given, the request will return the first of all the documents in the data store.
      *
@@ -308,8 +304,8 @@ public class DataStores {
             if(response == null){
                 throw ServiceException.retryable(ErrorCode.CLIENT, String.format("Invalid data store response [%s]", dataStoreName));
             }
-            if(response.getItems() != null && !response.getItems().isEmpty()){
-                Json item = response.getItems().get(0);
+            if(response.items() != null && !response.items().isEmpty()){
+                Json item = response.items().get(0);
                 if(item != null) {
                     if(debug) {
                         logger.info(String.format("%s dataStore=%s - %s - found document id [%s]", Service.DEBUG, dataStoreName, log, item.string(Parameter.DATA_STORE_ID)));
@@ -466,7 +462,7 @@ public class DataStores {
      * <p>The service can delete one or more documents through this method. A list of key-value pairs is used as filter
      * of the documents to delete.
      *
-     * <p>Keep in mind that in this moment the filters only work over string fields.
+     * <p>Keep in mind that at this moment the filters only work over string fields.
      *
      * <p>If no filter is given, the request will remove all the documents in the data store.
      *
@@ -530,10 +526,6 @@ public class DataStores {
             throw ServiceException.retryable(ErrorCode.CONVERSION, String.format("Exception when remove a document by id on data store [%s]: %s", dataStoreName, ex.getMessage()), ex);
         }
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // helper methods
-    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Process the response from a remove document method

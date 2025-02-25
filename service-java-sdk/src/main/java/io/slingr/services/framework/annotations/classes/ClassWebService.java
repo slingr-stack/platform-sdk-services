@@ -39,7 +39,6 @@ public class ClassWebService {
     private final MethodAccessorType accessorType;
 
     private final Class<?> methodClass;
-    private final boolean generated;
 
     /**
      * Register a service web service in order to generate the {@code Runner} class code
@@ -77,7 +76,6 @@ public class ClassWebService {
         this.annotatedElement = (ExecutableElement) sWebServiceElement;
         this.simpleName = this.annotatedElement.getSimpleName().toString().trim();
 
-        this.generated = generated;
         this.methodClass = methodClass;
 
         this.path = normalizePath(processorPath);

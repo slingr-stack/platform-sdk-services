@@ -492,7 +492,7 @@ public abstract class ServiceException extends RuntimeException implements JsonS
     }
 
     /**
-     * Exceptions is converted to a Json object
+     * Exceptions are converted to a Json object
      *
      * @return Json object
      */
@@ -502,7 +502,7 @@ public abstract class ServiceException extends RuntimeException implements JsonS
     }
 
     /**
-     * Exceptions is converted to a Json object
+     * Exceptions are converted to a Json object
      *
      * @param includeFlag true if the flag must be included on the Json
      * @return Json object
@@ -521,7 +521,7 @@ public abstract class ServiceException extends RuntimeException implements JsonS
     }
 
     /**
-     * Exceptions is converted to a Json string
+     * Exceptions are converted to a Json string
      *
      * @param includeFlag true if the flag must be included on the Json
      * @return Json string
@@ -531,7 +531,7 @@ public abstract class ServiceException extends RuntimeException implements JsonS
     }
 
     /**
-     * Exceptions is converted to a Json map
+     * Exceptions are converted to a Json map
      *
      * @return Json map
      */
@@ -540,7 +540,7 @@ public abstract class ServiceException extends RuntimeException implements JsonS
     }
 
     /**
-     * Exceptions is converted to a Json map
+     * Exceptions are converted to a Json map
      *
      * @param includeFlag true if the flag must be included on the Json
      * @return Json map
@@ -565,7 +565,7 @@ public abstract class ServiceException extends RuntimeException implements JsonS
     }
 
     /**
-     * Generates a ServiceException from a HTTP exception
+     * Generates a ServiceException from an HTTP exception
      *
      * @param exception HTTP exception
      * @param detailMessage message

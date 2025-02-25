@@ -22,7 +22,7 @@ public class ClassUserDataStore implements SettableProperty {
         VariableElement annotatedElement = (VariableElement) sDataStoreElement;
         this.simpleName = annotatedElement.getSimpleName().toString().trim();
 
-        final String setterName = String.format("set%S%s", simpleName.substring(0,1), simpleName.length() > 1 ? simpleName.substring(1) : "");
+        final String setterName = String.format("set%S%s", simpleName.charAt(0), simpleName.length() > 1 ? simpleName.substring(1) : "");
         PropertyType type = AnnotationsUtils.isValidSetter(DataStore.class, annotatedElement, simpleName, setterName);
         if (type != null){
             // valid setter

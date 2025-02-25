@@ -9,8 +9,6 @@ import org.apache.http.conn.ConnectTimeoutException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
@@ -23,13 +21,9 @@ import static org.junit.Assert.*;
 
 public class RestClientFactoryTest {
 
-    @SuppressWarnings("unused")
-    private static final Logger logger = LoggerFactory.getLogger(RestClientFactoryTest.class);
-
     private RestClientFactory restClientFactory;
     private Method method;
     private WireMockServer wireMockServer;
-
 
     @Before
     public void setUp() throws Exception {
@@ -82,7 +76,6 @@ public class RestClientFactoryTest {
 
     }
 
-
     @After
     public void teardown() {
         wireMockServer.stop();
@@ -105,7 +98,6 @@ public class RestClientFactoryTest {
 
 
     }
-
 
     @Test
     public void requestPostWithBodyRawText() throws Exception {
@@ -148,7 +140,6 @@ public class RestClientFactoryTest {
 
     }
 
-
     @Test
     public void requestPostWithBodyRawTextAndFullResponseIsFalse() throws Exception {
 
@@ -189,7 +180,6 @@ public class RestClientFactoryTest {
 
     }
 
-
     @Test
     public void requestGetWithConnectionTimeoutExceeds() throws Exception {
 
@@ -209,7 +199,6 @@ public class RestClientFactoryTest {
 
     }
 
-
     @Test
     public void followRedirectsIsTrue() throws InvocationTargetException, IllegalAccessException {
 
@@ -227,7 +216,6 @@ public class RestClientFactoryTest {
         assertEquals(HttpStatus.SC_OK, response.getStatus());
 
     }
-
 
     @Test
     public void maxRedirectsIsReached() throws IllegalAccessException {
@@ -250,7 +238,6 @@ public class RestClientFactoryTest {
         }
     }
 
-
     @Test
     public void followAuthorizationHeaderIsFalse() throws IllegalAccessException, InvocationTargetException {
 
@@ -271,7 +258,6 @@ public class RestClientFactoryTest {
         verify(getRequestedFor(urlEqualTo("/final-redirect"))
                 .withoutHeader("Authorization"));
     }
-
 
     @Test
     public void followAuthorizationHeaderIsTrue() throws IllegalAccessException, InvocationTargetException {
@@ -342,5 +328,4 @@ public class RestClientFactoryTest {
 
         assertEquals("Hello, World!", json.object("message"));
     }
-
 }

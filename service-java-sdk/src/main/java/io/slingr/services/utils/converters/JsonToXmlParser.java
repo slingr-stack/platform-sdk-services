@@ -125,7 +125,7 @@ public class JsonToXmlParser {
                     xml.append(endElement(name)).append(endString);
                 }
             } else {
-                // the element is a list, use the same name to generate each children
+                // the element is a list, use the same name to generate each child
                 // [{"dog":["a", "b"]}  =>  <dog>A</dog><dog>B</dog>]
                 for (Object element : json.objects()) {
                     parseElement(xml, name, element, level, complete, false);

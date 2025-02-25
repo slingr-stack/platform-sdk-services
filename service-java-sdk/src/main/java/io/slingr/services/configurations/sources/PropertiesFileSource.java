@@ -47,7 +47,7 @@ public class PropertiesFileSource implements PropertySource {
                     try {
                         input.close();
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        logger.error(String.format("Exception when close property file [%s]. This source will be ignored: %s", propertyFilename, e));
                     }
                 }
             }

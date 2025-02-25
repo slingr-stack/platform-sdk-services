@@ -19,7 +19,6 @@ public class AuthenticationTypeTest {
         fail("Expected IllegalArgumentException was not thrown.");
     }
 
-
     @Test(expected = IllegalArgumentException.class)
     public void testFromTypeNotExistTypeThrowsException() {
         Map<String, String> params = new HashMap<>();

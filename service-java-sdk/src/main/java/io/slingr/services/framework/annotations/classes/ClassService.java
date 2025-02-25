@@ -107,7 +107,7 @@ public class ClassService {
     /**
      * Gets the application logs names registered
      *
-     * @return list of names
+     * @return set of names
      */
     public Set<String> getAppLoggerNames() {
         return appLoggers.stream()
@@ -118,7 +118,7 @@ public class ClassService {
     /**
      * Gets the properties names registered
      *
-     * @return list of names
+     * @return set of names
      */
     public Set<String> getPropertiesNames() {
         return properties.stream()
@@ -129,7 +129,7 @@ public class ClassService {
     /**
      * Gets the data stores names registered
      *
-     * @return list of names
+     * @return set of names
      */
     public Set<String> getDataStoreNames() {
         return dataStores.stream()
@@ -140,7 +140,7 @@ public class ClassService {
     /**
      * Gets the user data stores names registered
      *
-     * @return list of names
+     * @return set of names
      */
     public Set<String> getUserDataStoreNames() {
         return userDataStores.stream()
@@ -151,7 +151,7 @@ public class ClassService {
     /**
      * Gets the functions names registered
      *
-     * @return list of names
+     * @return set of names
      */
     public Set<String> getFunctionsNames() {
         return functions.keySet();
@@ -160,7 +160,7 @@ public class ClassService {
     /**
      * Gets the web services names registered
      *
-     * @return list of names
+     * @return set of names
      */
     public Set<String> getWebServicesNames() {
         return webServices.keySet();
@@ -246,9 +246,7 @@ public class ClassService {
      */
     public boolean isFunctionRegistered(String name){
         if(StringUtils.isNotBlank(name)) {
-            if (functions.containsKey(name)) {
-                return true;
-            }
+            return functions.containsKey(name);
         }
         return false;
     }
@@ -298,9 +296,7 @@ public class ClassService {
      */
     public boolean isWebServiceRegistered(String path, RestMethod method){
         if(StringUtils.isNotBlank(path) && method != null) {
-            if (webServiceControl.containsKey(path) && Boolean.TRUE.equals(webServiceControl.get(path).get(method))) {
-                return true;
-            }
+            return webServiceControl.containsKey(path) && Boolean.TRUE.equals(webServiceControl.get(path).get(method));
         }
         return false;
     }

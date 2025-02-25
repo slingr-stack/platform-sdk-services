@@ -7,10 +7,7 @@ import io.slingr.services.framework.annotations.classes.WebServiceResponseType;
 import io.slingr.services.services.rest.RestMethod;
 import io.slingr.services.utils.Json;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -22,7 +19,6 @@ import java.util.regex.Pattern;
  * <p>Created by lefunes on 14/11/16.
  */
 public class RegisteredWebService implements Comparable<RegisteredWebService> {
-    private static final Logger logger = LoggerFactory.getLogger(RegisteredWebService.class);
 
     private final String key;
     private final String name;

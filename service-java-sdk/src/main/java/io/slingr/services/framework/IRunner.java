@@ -82,14 +82,12 @@ public abstract class IRunner {
         String value = null;
         if(args != null && StringUtils.isNotBlank(key)) {
             final String toFind = key + "=";
-            if(args != null && args.length > 0) {
-                for(String arg : args) {
-                    if(arg.startsWith(toFind)) {
-                        final String[] parts = arg.split("=");
-                        if(parts.length > 1 && StringUtils.isNotBlank(parts[1])) {
-                            value = parts[1];
-                            break;
-                        }
+            for (String arg : args) {
+                if (arg.startsWith(toFind)) {
+                    final String[] parts = arg.split("=");
+                    if (parts.length > 1 && StringUtils.isNotBlank(parts[1])) {
+                        value = parts[1];
+                        break;
                     }
                 }
             }

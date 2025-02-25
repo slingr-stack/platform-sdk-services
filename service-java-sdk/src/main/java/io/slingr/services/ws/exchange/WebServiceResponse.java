@@ -171,7 +171,7 @@ public class WebServiceResponse implements JsonSource {
     /**
      * Object is transformable to a Json object
      *
-     * @param escapeBody true if the body must to be escaped if it is not a known type
+     * @param escapeBody true if the body must be escaped if it is not a known type
      * @return Json object
      */
     public Json toJson(boolean escapeBody) {

@@ -13,9 +13,4 @@ public class PermanentException extends ServiceException {
     PermanentException(ErrorCode code, String message, Json additionalInfo, Throwable cause) {
         super(code, message, additionalInfo, cause);
     }
-
-    @Override
-    public boolean isRetryable() {
-        return false;
-    }
 }

@@ -72,7 +72,7 @@ public class ServiceLayout extends PatternLayout {
         return new ServicePatternParser(pattern);
     }
 
-    private class ServicePatternParser extends PatternParser{
+    private static class ServicePatternParser extends PatternParser{
 
         public ServicePatternParser(String pattern) {
             super(pattern);
@@ -115,14 +115,14 @@ public class ServiceLayout extends PatternLayout {
         }
     }
 
-    private class AppNameConverter extends PatternConverter {
+    private static class AppNameConverter extends PatternConverter {
         @Override
         protected String convert(LoggingEvent evt) {
             return application;
         }
     }
 
-    private class PodIdConverter extends PatternConverter {
+    private static class PodIdConverter extends PatternConverter {
         @Override
         protected String convert(LoggingEvent evt) {
             String podSuffix = podId;
@@ -133,35 +133,35 @@ public class ServiceLayout extends PatternLayout {
         }
     }
 
-    private class ServiceNameConverter extends PatternConverter {
+    private static class ServiceNameConverter extends PatternConverter {
         @Override
         protected String convert(LoggingEvent evt) {
             return service;
         }
     }
 
-    private class EnvironmentNameConverter extends PatternConverter {
+    private static class EnvironmentNameConverter extends PatternConverter {
         @Override
         protected String convert(LoggingEvent evt) {
             return environment;
         }
     }
 
-    private class DeploymentNameConverter extends PatternConverter {
+    private static class DeploymentNameConverter extends PatternConverter {
         @Override
         protected String convert(LoggingEvent evt) {
             return deployment;
         }
     }
 
-    private class ComponentConverter extends PatternConverter {
+    private static class ComponentConverter extends PatternConverter {
         @Override
         protected String convert(LoggingEvent evt) {
             return component;
         }
     }
 
-    private class BreakLineConverter extends PatternConverter {
+    private static class BreakLineConverter extends PatternConverter {
 
         @Override
         protected String convert(LoggingEvent evt) {

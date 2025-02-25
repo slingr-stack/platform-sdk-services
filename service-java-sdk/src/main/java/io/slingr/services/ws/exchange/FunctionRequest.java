@@ -48,8 +48,8 @@ public class FunctionRequest implements JsonSource {
         }
         this.request = body;
         this.redelivered = redelivered;
-        this.redeliveredCounter = redeliveredCounter < 0 ? 0 : redeliveredCounter;
-        this.redeliveredMaxCounter = redeliveredMaxCounter < 0 ? 0 : redeliveredMaxCounter;
+        this.redeliveredCounter = Math.max(redeliveredCounter, 0);
+        this.redeliveredMaxCounter = Math.max(redeliveredMaxCounter, 0);
     }
 
     /**
@@ -158,7 +158,7 @@ public class FunctionRequest implements JsonSource {
 
     /**
      * Gets the email of the user that calls to the function. This is an alternative method for identifying a user.
-     * The application will send both if knows both (id and email).
+     * The application will send both if it knows both (id and email).
      *
      * @return email of the user
      */

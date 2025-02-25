@@ -826,14 +826,14 @@ public class ServiceTests {
     }
 
     /**
-     * Add an user to be used on tests using a random token
+     * Add a user to be used on tests using a random token
      */
     public void addAppUser(AppUser appUser){
         addAppUser(Strings.randomUUIDString(), appUser);
     }
 
     /**
-     * Add an user to be used on tests
+     * Add a user to be used on tests
      */
     public void addAppUser(String token, AppUser appUser){
         isTestingModeEnabled();

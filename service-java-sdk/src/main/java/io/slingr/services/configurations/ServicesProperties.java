@@ -11,7 +11,7 @@ import io.slingr.services.utils.converters.JsonSource;
 public interface ServicesProperties extends JsonSource {
 
     /**
-     * Sets the value of the default web services uri. This is used when the service works through a proxy and we want
+     * Sets the value of the default web services uri. This is used when the service works through a proxy, and we want
      * to override the URI used by the external services. This URI is used instead of proxy web services uri and the
      * service uri.
      *
@@ -162,7 +162,7 @@ public interface ServicesProperties extends JsonSource {
 
     /**
      * Gets a map with the service properties. We will give priority to system environment properties
-     * first, then to JVM properties and finally we will use the indicated .properties file.
+     * first, then to JVM properties, and finally we will use the indicated .properties file.
      *
      * @return json object of properties
      */

@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of the methods defined on the Extension Broker API to be used on testing time
@@ -60,10 +59,6 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
      * @throws ServiceException if something fails when creates the Extension Broker APi instance
      */
     public ExtensionBrokerMock() throws ServiceException {}
-
-    /************************
-     EB API: Events
-     ************************/
 
     @Override
     public void newEvent(Long date, String event, Object data, String fromFunctionId, String userId, String userEmail) throws ServiceException {
@@ -195,10 +190,6 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         }
     }
 
-    /************************
-     EB API: App logs
-     ************************/
-
     @Override
     public void newAppLogs(Long date, String level, String message, Json additionalInfo) throws ServiceException {
         // review parameters
@@ -221,11 +212,6 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         logger.info(String.format("%s EB: app log: %s", ServiceTests.TEST, restContent));
         logger.info(String.format("%s --------------", ServiceTests.TEST));
     }
-
-
-    /************************
-     EB API: Distributed locks
-     ************************/
 
     @Override
     public Json acquireLock(String key) throws ServiceException {
@@ -301,18 +287,13 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
             locks.addAll(this.locks.entrySet().stream()
                     .filter(lock -> Boolean.TRUE.equals(lock.getValue()))
                     .map(Map.Entry::getKey)
-                    .collect(Collectors.toList())
+                    .toList()
             );
         } finally {
             locksLock.unlock();
         }
         return locks;
     }
-
-
-    /************************
-     EB API: Files management
-     ************************/
 
     @Override
     public Json uploadFile(String filename, InputStream content, String contentType) throws ServiceException {
@@ -517,11 +498,6 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         }
     }
 
-
-    /************************
-     EB API: Data stores management
-     ************************/
-
     @Override
     public DataStoreResponse findDocuments(String dataStoreName, Json filter) throws ServiceException {
         // review parameters
@@ -557,7 +533,7 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         try {
             final DataStoreResponse items = getDataStoreItems(dataStoreName, filter);
             response = Json.map()
-                    .set(Parameter.DATA_STORE_TOTAL, items.getTotal());
+                    .set(Parameter.DATA_STORE_TOTAL, items.total());
         } finally {
             dataStoresLock.unlock();
         }
@@ -725,7 +701,6 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         return response;
     }
 
-
     private List<Json> getDataStore(String dataStoreName){
         List<Json> ds = dataStores.get(dataStoreName);
         if(ds == null){
@@ -879,10 +854,6 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
         return response;
     }
 
-    /************************
-     EB API: Properties
-     ************************/
-
     @Override
     public Json getConfiguration() throws ServiceException {
         logger.info(String.format("%s --------------", ServiceTests.TEST));
@@ -897,11 +868,6 @@ public class ExtensionBrokerMock implements ExtensionBrokerApi {
 
         return jsonResponse;
     }
-
-
-    /************************
-     EB API: Users
-     ************************/
 
     @Override
     public AppUser getUserInformationByToken(String token) throws ServiceException {

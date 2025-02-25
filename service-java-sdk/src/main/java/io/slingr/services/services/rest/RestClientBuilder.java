@@ -14,7 +14,6 @@ import java.io.InputStream;
  * <p>Created by lefunes on 09/03/16.
  */
 public class RestClientBuilder extends RestClient {
-    private static final Logger logger = LoggerFactory.getLogger(RestClientBuilder.class);
 
     /**
      * Rest client builder to use over an URI in a unique request.

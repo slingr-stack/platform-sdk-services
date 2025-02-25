@@ -19,7 +19,6 @@ import java.util.Map;
  * </ol>
  */
 public class AuthenticationFactory {
-
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationFactory.class);
 
     /**
@@ -32,21 +31,13 @@ public class AuthenticationFactory {
      */
     public static AuthenticationStrategy createAuthenticationStrategy(AuthenticationType type, Map<String, String> params) {
         logger.info(String.format("Authenticating with %s", type.name()));
-        switch (type) {
-            case BASIC:
-                return new BasicAuthenticationStrategy(params);
-            case OAUTH_TWITTER:
-                return new OAuthTwitterAuthenticationStrategy(params);
-            case OAUTH2:
-                return new OAuth2AuthenticationStrategy(params);
-            case OAUTH:
-                return new OAuthAuthenticationStrategy(params);
-            case DIGEST:
-                return new DigestAuthenticationStrategy(params);
-            case AWS_SIGNATURE:
-                return new AwsAuthenticationStrategy(params);
-            default:
-                throw new IllegalArgumentException("Invalid authentication type: " + type);
-        }
+        return switch (type) {
+            case BASIC -> new BasicAuthenticationStrategy(params);
+            case OAUTH_TWITTER -> new OAuthTwitterAuthenticationStrategy(params);
+            case OAUTH2 -> new OAuth2AuthenticationStrategy(params);
+            case OAUTH -> new OAuthAuthenticationStrategy(params);
+            case DIGEST -> new DigestAuthenticationStrategy(params);
+            case AWS_SIGNATURE -> new AwsAuthenticationStrategy(params);
+        };
     }
 }

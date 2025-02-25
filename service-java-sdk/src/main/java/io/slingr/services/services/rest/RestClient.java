@@ -5,7 +5,6 @@ import io.slingr.services.exceptions.ServiceException;
 import io.slingr.services.exceptions.ErrorCode;
 import io.slingr.services.services.Files;
 import io.slingr.services.services.exchange.Parameter;
-import io.slingr.services.services.rest.authentication.AuthenticationType;
 import io.slingr.services.utils.Base64Utils;
 import io.slingr.services.utils.Json;
 import io.slingr.services.utils.Strings;
@@ -15,12 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * REST client to help to consume external services
@@ -42,12 +39,11 @@ public abstract class RestClient {
     static final String DEFAULT_UPLOAD_BODY = Parameter.FILE_UPLOAD_BODY;
     public static final String BASIC_AUTHENTICATION_HEADER = "Basic";
     public static final String BEARER_AUTHENTICATION_HEADER = "Bearer";
-    public static final String OAUTH_AUTHENTICATION_HEADER = "OAuth";
     public static final int DEFAULT_MAX_REDIRECTS = 10;
 
     protected boolean debug = false;
     private boolean skipEncodeParams = false;
-    private RestClientFactory factory;
+    private final RestClientFactory factory;
     private WebTarget apiTarget;
     private final Map<String, Object> apiHeaders = new HashMap<>();
     private final Map<String, String> apiParams = new HashMap<>();
@@ -61,9 +57,6 @@ public abstract class RestClient {
     private String defaultAuth = null;
     private String authUsername = null;
     private String authPassword = null;
-
-    private static final RestClientFactory defaultFactory = null;
-    private static final ReentrantLock defaultFactoryLock = new ReentrantLock();
 
     /**
      * Constructs a RestClient with default configuration
@@ -92,20 +85,12 @@ public abstract class RestClient {
     }
 
     /**
-     * Rest client builder to use over an URI in a unique request
+     * Rest client builder to use over a URI in a unique request
      *
      * @param apiUri base URI to build the requests to the API.
      */
     public static RestClientBuilder builder(String apiUri) {
         return new RestClientBuilder(apiUri, new RestClientFactory());
-    }
-
-    /**
-     * Restart status of client factory and target
-     */
-    public void restartClient() {
-        this.factory = new RestClientFactory();
-        this.apiTarget = factory.uri(this.apiTarget.getUri().toString());
     }
 
     /**
@@ -163,7 +148,6 @@ public abstract class RestClient {
 
         this.apiTarget = factory.setupDigestAuthentication(apiTarget, username, password);
     }
-
 
     public void setupAuthentication(HttpRequest request) {
         this.apiTarget = factory.setupAuthentication(apiTarget, request);
@@ -426,10 +410,6 @@ public abstract class RestClient {
         System.setProperty("jsse.enableSNIExtension", "false");
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // GET methods
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Perform a GET request from a HTTP request.
      *
@@ -500,7 +480,7 @@ public abstract class RestClient {
      * Perform a GET request with the target information and without content.
      *
      * @param target  target of the request
-     * @param headers headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -512,7 +492,7 @@ public abstract class RestClient {
     /**
      * Perform a GET request with the default target information and without content.
      *
-     * @param headers      headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
      *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
@@ -554,10 +534,6 @@ public abstract class RestClient {
     public Json get(WebTarget target, Json headers, HttpRequest request) throws ServiceException {
         return execute(RestMethod.GET, target, null, headers, request);
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // POST methods
-    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Perform a POST request from a HTTP request.
@@ -743,10 +719,6 @@ public abstract class RestClient {
         return execute(RestMethod.POST, target, content, headers, request);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // PUT methods
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Perform a PUT request from a HTTP request.
      *
@@ -930,10 +902,6 @@ public abstract class RestClient {
     public Json put(WebTarget target, Object content, Json headers, HttpRequest request) throws ServiceException {
         return execute(RestMethod.PUT, target, content, headers, request);
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // PATCH methods
-    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Perform a PATCH request from a HTTP request.
@@ -1134,10 +1102,6 @@ public abstract class RestClient {
         return execute(RestMethod.PATCH, target, content, headers, request);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // DELETE methods
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Perform a DELETE request from a HTTP request.
      *
@@ -1260,10 +1224,6 @@ public abstract class RestClient {
     public Json delete(WebTarget target, Json headers, HttpRequest request) throws ServiceException {
         return execute(RestMethod.DELETE, target, null, headers, request);
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // HEAD methods
-    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Perform a HEAD request from a HTTP request.
@@ -1389,10 +1349,6 @@ public abstract class RestClient {
         return execute(RestMethod.HEAD, target, null, headers, request);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // OPTIONS methods
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Perform a OPTIONS request from a HTTP request.
      *
@@ -1475,7 +1431,7 @@ public abstract class RestClient {
     /**
      * Perform a OPTIONS request with the default target information
      *
-     * @param headers      headers of HTTP request. the header on target with the same name will be override by these
+     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
      *                     properties
      * @param fullResponse true if the response must include extended information about response
      * @return processed response of the request
@@ -1517,10 +1473,6 @@ public abstract class RestClient {
     public Json options(WebTarget target, Json headers, HttpRequest request) throws ServiceException {
         return execute(RestMethod.OPTIONS, target, null, headers, request);
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // DOWNLOAD methods
-    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Perform a GET request from an HTTP request in order to download the remote HTTP resource.
@@ -1596,10 +1548,6 @@ public abstract class RestClient {
         return factory.processDownloadedFile(response);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // UPLOAD methods
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Perform a multipart POST request to a remote HTTP service in order. Usually needed when uploading
      * files.
@@ -1652,7 +1600,7 @@ public abstract class RestClient {
      * Perform a POST request to a remote HTTP service in order to upload a file.
      *
      * @param inputStream file part of the HTTP multipart request
-     * @param filename    filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param filename    filename of sent attachment (to be set as a part of {@code content-disposition}).
      * @param contentType MIME type of the {@code streamEntity} attachment.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1666,7 +1614,7 @@ public abstract class RestClient {
      *
      * @param target      target of the request
      * @param inputStream file part of the HTTP multipart request
-     * @param filename    filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param filename    filename of sent attachment (to be set as a part of {@code content-disposition}).
      * @param contentType MIME type of the {@code streamEntity} attachment.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1678,24 +1626,10 @@ public abstract class RestClient {
     /**
      * Perform a POST request to a remote HTTP service in order to upload a file.
      *
-     * @param fullResponse true if the response must include extended information about response
-     * @param inputStream  file part of the HTTP multipart request
-     * @param filename     filename of the sent attachment (to be set as a part of {@code content-disposition}).
-     * @param contentType  MIME type of the {@code streamEntity} attachment.
-     * @return processed response of the request
-     * @throws ServiceException if the request cannot be built or if the server returns an error message
-     */
-    public Json upload(boolean fullResponse, InputStream inputStream, String filename, String contentType) throws ServiceException {
-        return upload(null, fullResponse, inputStream, filename, contentType);
-    }
-
-    /**
-     * Perform a POST request to a remote HTTP service in order to upload a file.
-     *
      * @param target       target of the request
      * @param fullResponse true if the response must include extended information about response
      * @param inputStream  file part of the HTTP multipart request
-     * @param filename     filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param filename     filename of sent attachment (to be set as a part of {@code content-disposition}).
      * @param contentType  MIME type of the {@code streamEntity} attachment.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1707,89 +1641,12 @@ public abstract class RestClient {
     /**
      * Perform a POST request to a remote HTTP service in order to upload a file.
      *
-     * @param content     body part of the HTTP multipart request
-     * @param inputStream file part of the HTTP multipart request
-     * @param filename    filename of the sent attachment (to be set as a part of {@code content-disposition}).
-     * @param contentType MIME type of the {@code streamEntity} attachment.
-     * @return processed response of the request
-     * @throws ServiceException if the request cannot be built or if the server returns an error message
-     */
-    public Json upload(Object content, InputStream inputStream, String filename, String contentType) throws ServiceException {
-        return upload(null, content, inputStream, filename, contentType);
-    }
-
-    /**
-     * Perform a POST request to a remote HTTP service in order to upload a file.
-     *
-     * @param target      target of the request
-     * @param content     body part of the HTTP multipart request
-     * @param inputStream file part of the HTTP multipart request
-     * @param filename    filename of the sent attachment (to be set as a part of {@code content-disposition}).
-     * @param contentType MIME type of the {@code streamEntity} attachment.
-     * @return processed response of the request
-     * @throws ServiceException if the request cannot be built or if the server returns an error message
-     */
-    public Json upload(WebTarget target, Object content, InputStream inputStream, String filename, String contentType) throws ServiceException {
-        return upload(target, content, false, inputStream, filename, contentType);
-    }
-
-    /**
-     * Perform a POST request to a remote HTTP service in order to upload a file.
-     *
-     * @param content      body part of the HTTP multipart request
-     * @param fullResponse true if the response must include extended information about response
-     * @param inputStream  file part of the HTTP multipart request
-     * @param filename     filename of the sent attachment (to be set as a part of {@code content-disposition}).
-     * @param contentType  MIME type of the {@code streamEntity} attachment.
-     * @return processed response of the request
-     * @throws ServiceException if the request cannot be built or if the server returns an error message
-     */
-    public Json upload(Object content, boolean fullResponse, InputStream inputStream, String filename, String contentType) throws ServiceException {
-        return upload(null, content, fullResponse, inputStream, filename, contentType);
-    }
-
-    /**
-     * Perform a POST request to a remote HTTP service in order to upload a file.
-     *
-     * @param target       target of the request
-     * @param content      body part of the HTTP multipart request
-     * @param fullResponse true if the response must include extended information about response
-     * @param inputStream  file part of the HTTP multipart request
-     * @param filename     filename of the sent attachment (to be set as a part of {@code content-disposition}).
-     * @param contentType  MIME type of the {@code streamEntity} attachment.
-     * @return processed response of the request
-     * @throws ServiceException if the request cannot be built or if the server returns an error message
-     */
-    public Json upload(WebTarget target, Object content, boolean fullResponse, InputStream inputStream, String filename, String contentType) throws ServiceException {
-        return upload(target, content, null, fullResponse, inputStream, filename, contentType);
-    }
-
-    /**
-     * Perform a POST request to a remote HTTP service in order to upload a file.
-     *
-     * @param content      body part of the HTTP multipart request
-     * @param headers      headers of HTTP request. the header on target with the same name will be overridden by these
-     *                     properties
-     * @param fullResponse true if the response must include extended information about response
-     * @param inputStream  file part of the HTTP multipart request
-     * @param filename     filename of the sent attachment (to be set as a part of {@code content-disposition}).
-     * @param contentType  MIME type of the {@code streamEntity} attachment.
-     * @return processed response of the request
-     * @throws ServiceException if the request cannot be built or if the server returns an error message
-     */
-    public Json upload(Object content, Json headers, boolean fullResponse, InputStream inputStream, String filename, String contentType) throws ServiceException {
-        return upload(null, content, headers, fullResponse, inputStream, filename, contentType);
-    }
-
-    /**
-     * Perform a POST request to a remote HTTP service in order to upload a file.
-     *
      * @param target      target of the request
      * @param content     body part of the HTTP multipart request
      * @param headers     headers of HTTP request. the header on target with the same name will be overridden by these
      *                    properties
      * @param inputStream file part of the HTTP multipart request
-     * @param filename    filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param filename    filename of sent attachment (to be set as a part of {@code content-disposition}).
      * @param contentType MIME type of the {@code streamEntity} attachment.
      * @return processed response of the request
      * @throws ServiceException if the request cannot be built or if the server returns an error message
@@ -1811,7 +1668,7 @@ public abstract class RestClient {
      * @param followRedirects   automatic redirection. A value of {@code true} declares that the client will automatically
      *                          redirect to the URI declared in 3xx responses.
      * @param inputStream       file part of the HTTP multipart request
-     * @param filename          filename of the sent attachment (to be set as a part of {@code content-disposition}).
+     * @param filename          filename of sent attachment (to be set as a part of {@code content-disposition}).
      * @param contentType       MIME type of the {@code streamEntity} attachment.
      * @param uploadParameter   name of the parameter to use when upload a file to the REST service
      * @param uploadBody        name of the body part to use when upload a file to the REST service
@@ -1819,8 +1676,7 @@ public abstract class RestClient {
      * @throws ServiceException if the request cannot be built or if the server returns an error message
      */
     public Json upload(WebTarget target, Object content, Json headers, boolean fullResponse, Integer connectionTimeout, Integer readTimeout, Boolean followRedirects, Boolean forceDisableCookies,
-                       InputStream inputStream, String filename, String contentType, String uploadParameter, String uploadBody
-    ) throws ServiceException {
+                       InputStream inputStream, String filename, String contentType, String uploadParameter, String uploadBody) throws ServiceException {
         uploadParameter = uploadParameter != null ? uploadParameter : this.uploadParameter;
         uploadBody = uploadBody != null ? uploadBody : this.uploadBody;
 
@@ -1842,10 +1698,6 @@ public abstract class RestClient {
             throw ServiceException.permanent(ErrorCode.CLIENT, ex.getMessage(), ex);
         }
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // helper methods
-    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Perform the specified HTTP request to the target from an HTTP request.
@@ -1902,7 +1754,7 @@ public abstract class RestClient {
                 if (debug) {
                     logger.info(String.format("%s Exception when process HTTP request params: %s", Service.DEBUG, e.getMessage()));
                 } else {
-                    logger.debug("Exception when process HTTP request params: " + e.getMessage());
+                    logger.debug("Exception when process HTTP request params: {}", e.getMessage());
                 }
             }
         }

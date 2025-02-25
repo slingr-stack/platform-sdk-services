@@ -23,7 +23,7 @@ public class ClassApplicationLogger implements SettableProperty {
         final VariableElement annotatedElement = (VariableElement) sAppLoggerElement;
         this.simpleName = annotatedElement.getSimpleName().toString().trim();
 
-        final String setterName = String.format("set%S%s", simpleName.substring(0,1), simpleName.length() > 1 ? simpleName.substring(1) : "");
+        final String setterName = String.format("set%S%s", simpleName.charAt(0), simpleName.length() > 1 ? simpleName.substring(1) : "");
         PropertyType type = AnnotationsUtils.isValidSetter(AppLogs.class, annotatedElement, simpleName, setterName);
         if (type != null){
             // valid setter

@@ -39,10 +39,6 @@ public class Events {
         this.debug = debug;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Events
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Sends a service event to the Extension Broker app.
      *
@@ -226,109 +222,12 @@ public class Events {
      *
      * @param event Name of the event. This must be a valid event name (an event name is valid when is declared on the
      *              appService.json file)
-     * @return response from application
-     * @throws ServiceException if there is an issue with the exchange
-     */
-    public Object sendSync(String event) throws ServiceException {
-        return sendSync(null, event, null, null, null, null, null);
-    }
-
-    /**
-     * Sends a service event to the Extension Broker app and waits a JSON response.
-     *
-     * @param event Name of the event. This must be a valid event name (an event name is valid when is declared on the
-     *              appService.json file)
      * @param data  Information related to the event that we pretend to send to the application
      * @return response from application
      * @throws ServiceException if there is an issue with the exchange
      */
     public Object sendSync(String event, Object data) throws ServiceException {
         return sendSync(null, event, data, null, null, null, null);
-    }
-
-    /**
-     * Sends a service event to the Extension Broker specifying the target app. This is being used in shared services.
-     *
-     * @param event Name of the event. This must be a valid event name (an event name is valid when is declared on the
-     *              appService.json file)
-     * @param app   the app to send event. This is being used for in shared services.
-     * @param env   the env to send event. This is being used for in shared services.
-     * @param data  Information related to the event that we pretend to send to the application
-     * @throws ServiceException if there is an issue with the exchange
-     */
-    public Object sendSync(String event, String app, String env, Object data) throws ServiceException {
-        return sendSync(null, event, data, null, null, null, app, env, null);
-    }
-
-    /**
-     * Sends a service event to the Extension Broker app and waits a JSON response.
-     *
-     * @param event          Name of the event. This must be a valid event name (an event name is valid when is declared on the
-     *                       appService.json file)
-     * @param data           Information related to the event that we pretend to send to the application
-     * @param fromFunctionId Id of a function related to the event. It is useful to permit to known to the application
-     *                       if the event is a callback of a previous executed function
-     */
-    public Object sendSync(String event, Object data, String fromFunctionId) throws ServiceException {
-        return sendSync(null, event, data, fromFunctionId, null, null, null);
-    }
-
-    /**
-     * Sends a service event to the Extension Broker app and waits a JSON response.
-     *
-     * @param event          Name of the event. This must be a valid event name (an event name is valid when is declared on the
-     *                       appService.json file)
-     * @param data           Information related to the event that we pretend to send to the application
-     * @param fromFunctionId Id of a function related to the event. It is useful to permit to known to the application
-     *                       if the event is a callback of a previous executed function
-     * @param userId         Id of the user that generates the event.
-     * @return response from application
-     * @throws ServiceException if there is an issue with the exchange
-     */
-    public Object sendSync(String event, Object data, String fromFunctionId, String userId) throws ServiceException {
-        return sendSync(null, event, data, fromFunctionId, userId, null, null);
-    }
-
-    /**
-     * Sends a service event to the Extension Broker app and waits a JSON response.
-     *
-     * @param event          Name of the event. This must be a valid event name (an event name is valid when is declared on the
-     *                       appService.json file)
-     * @param data           Information related to the event that we pretend to send to the application
-     * @param fromFunctionId Id of a function related to the event. It is useful to permit to known to the application
-     *                       if the event is a callback of a previous executed function
-     * @param userId         Id of the user that generates the event. When we know this information, this is the preferred
-     *                       method for identifying a user
-     * @param userEmail      Email of the user that generates the event. This is an alternative method for identifying a
-     *                       user. Services can send both at the same time but the application starts to search the user by
-     *                       id.
-     * @return response from application
-     * @throws ServiceException if there is an issue with the exchange
-     */
-    public Object sendSync(String event, Object data, String fromFunctionId, String userId, String userEmail) throws ServiceException {
-        return sendSync(null, event, data, fromFunctionId, userId, userEmail, null);
-    }
-
-    /**
-     * Sends a service event to the Extension Broker app and waits a JSON response.
-     *
-     * @param date           Timestamp that represents the moment when the event was generated. It takes the value of the
-     *                       milliseconds from '01/01/1970 12:00 AM'. Per example 1465928711524 is '06/14/2016 6:25:11 PM'
-     * @param event          Name of the event. This must be a valid event name (an event name is valid when is declared on the
-     *                       appService.json file)
-     * @param data           Information related to the event that we pretend to send to the application
-     * @param fromFunctionId Id of a function related to the event. It is useful to permit to known to the application
-     *                       if the event is a callback of a previous executed function
-     * @param userId         Id of the user that generates the event. When we know this information, this is the preferred
-     *                       method for identifying a user
-     * @param userEmail      Email of the user that generates the event. This is an alternative method for identifying a
-     *                       user. Services can send both at the same time but the application starts to search the user by
-     *                       id.
-     * @return response from application
-     * @throws ServiceException if there is an issue with the exchange
-     */
-    public Object sendSync(Long date, String event, Object data, String fromFunctionId, String userId, String userEmail) throws ServiceException {
-        return sendSync(date, event, data, fromFunctionId, userId, userEmail, null);
     }
 
     /**
@@ -353,7 +252,6 @@ public class Events {
     public Object sendSync(Long date, String event, Object data, String fromFunctionId, String userId, String userEmail, Integer retries) throws ServiceException {
         return sendSync(date, event, data, fromFunctionId, userId, userEmail, null, null, retries);
     }
-
 
     /**
      * Sends a service event to the Extension Broker app and waits a JSON response.
@@ -394,10 +292,6 @@ public class Events {
         return sendSyncEvent(date, event, data, fromFunctionId, userId, userEmail, app, env, retries, retries);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // helper methods
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Tries to send the event to the Extension Broker app.
      * If it fails, the next try will be executed on i*SECONDS_BETWEEN_RETRIES seconds, where 'i' is the next try number
@@ -422,47 +316,40 @@ public class Events {
     private void sendAsyncEvent(final long date, final String event, final Object data, final String fromFunctionId, final String userId, final String userEmail, String app, String env, int retries, final int maxRetries) {
         boolean received = false;
         final String eventName = StringUtils.isNotBlank(event) ? event : "-";
-        /*String originalApp = ServiceContext.getCurrentApp();
-        String originalEnv = ServiceContext.getCurrentEnv();*/
         ServiceContext.initContext(app, env);
         try {
-            try {
-                if (retries == maxRetries) {
-                    if (debug) {
-                        logger.info(String.format("%s Sending async event [%s] [%s]", Service.DEBUG, eventName, data == null ? "-" : (data instanceof String || data instanceof JsonSource ? data.toString() : data.getClass().getName())));
-                    }
-                } else {
-                    logger.info(String.format("Retrying async event [%s], retry [%s/%s]", eventName, (maxRetries - retries) + 1, maxRetries));
-                }
-                api.newEvent(date, event, data, fromFunctionId, userId, userEmail);
-
+            if (retries == maxRetries) {
                 if (debug) {
-                    logger.info(String.format("%s Async event [%s] sent", Service.DEBUG, eventName));
+                    logger.info(String.format("%s Sending async event [%s] [%s]", Service.DEBUG, eventName, data == null ? "-" : (data instanceof String || data instanceof JsonSource ? data.toString() : data.getClass().getName())));
                 }
-                received = true;
-            } catch (ServiceException ex) {
-                logger.warn(String.format("Exception when try to send async event [%s]: %s", eventName, ex.getMessage()));
-            } catch (Exception ex) {
-                logger.warn(String.format("Exception when try to send async event [%s]: %s", eventName, ex.getMessage()), ex);
+            } else {
+                logger.info(String.format("Retrying async event [%s], retry [%s/%s]", eventName, (maxRetries - retries) + 1, maxRetries));
             }
-            if (!received && retries > 0) {
-                // retry the message
-                if (retries > ASYNC_MAX_RETRIES) {
-                    retries = ASYNC_MAX_RETRIES;
-                }
-                final int newRetries = retries - 1;
-                if (newRetries > 0) {
-                    Executors.newSingleThreadScheduledExecutor().schedule(() -> Events.this.sendAsyncEvent(date, event, data, fromFunctionId, userId, userEmail, app, env, newRetries, maxRetries),
-                            ASYNC_SECONDS_BETWEEN_RETRIES * (1 + ASYNC_MAX_RETRIES - retries),
-                            TimeUnit.SECONDS
-                    );
-                } else {
-                    logger.warn(String.format("Async event can not be sent to application [%s]", eventName));
-                }
+            api.newEvent(date, event, data, fromFunctionId, userId, userEmail);
+
+            if (debug) {
+                logger.info(String.format("%s Async event [%s] sent", Service.DEBUG, eventName));
             }
-        } finally {
-            /*ServiceContext.setCurrentApp(originalApp);
-            ServiceContext.setCurrentEnv(originalEnv);*/
+            received = true;
+        } catch (ServiceException ex) {
+            logger.warn(String.format("Exception when try to send async event [%s]: %s", eventName, ex.getMessage()));
+        } catch (Exception ex) {
+            logger.warn(String.format("Exception when try to send async event [%s]: %s", eventName, ex.getMessage()), ex);
+        }
+        if (!received && retries > 0) {
+            // retry the message
+            if (retries > ASYNC_MAX_RETRIES) {
+                retries = ASYNC_MAX_RETRIES;
+            }
+            final int newRetries = retries - 1;
+            if (newRetries > 0) {
+                Executors.newSingleThreadScheduledExecutor().schedule(() -> Events.this.sendAsyncEvent(date, event, data, fromFunctionId, userId, userEmail, app, env, newRetries, maxRetries),
+                        ASYNC_SECONDS_BETWEEN_RETRIES * (1 + ASYNC_MAX_RETRIES - retries),
+                        TimeUnit.SECONDS
+                );
+            } else {
+                logger.warn(String.format("Async event can not be sent to application [%s]", eventName));
+            }
         }
     }
 
@@ -542,5 +429,4 @@ public class Events {
         }
         return response;
     }
-
 }

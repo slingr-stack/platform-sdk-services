@@ -150,8 +150,6 @@ public class WebServices {
         this.webServicesProcessor.setupRetryableExceptionsProperties(maxRedelivers, delay);
     }
 
-    // helpers
-
     private static String getKeystorePath() {
         return Configuration.resolveProperty(envVarsSource, SSL_KEYSTORE_PATH_PROPERTY);
     }

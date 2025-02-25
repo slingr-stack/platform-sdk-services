@@ -204,8 +204,8 @@ public abstract class AnnotationsUtils {
             return null;
         }
 
+        final ExecutableElement method = (ExecutableElement) am;
         if(clazz == null){
-            final ExecutableElement method = (ExecutableElement) am;
             if(method.getParameters().size() != 1){
                 note(element, "Accessor [%s()] on [%s] must accept only one parameter of type either String or Boolean in order to set [%s]", setter, typeElement.getSimpleName(), name);
                 return null;
@@ -217,7 +217,6 @@ public abstract class AnnotationsUtils {
                 return null;
             }
         } else {
-            final ExecutableElement method = (ExecutableElement) am;
             if (method.getParameters().size() != 1) {
                 note(element, "Accessor [%s()] on [%s] must accept only one parameter of type %s in order to set [%s]", setter, typeElement.getSimpleName(), clazz.getSimpleName(), name);
                 return null;
@@ -276,8 +275,8 @@ public abstract class AnnotationsUtils {
             return null;
         }
 
+        final ExecutableElement method = (ExecutableElement) am;
         if(clazz == null){
-            final ExecutableElement method = (ExecutableElement) am;
             if(method.getParameters().size() != 1){
                 error(element, "Accessor [%s()] on [%s] must accept only one parameter of type either String or Boolean in order to set [%s]", setter, typeElement.getSimpleName(), name);
                 return null;
@@ -289,7 +288,6 @@ public abstract class AnnotationsUtils {
                 return null;
             }
         } else {
-            final ExecutableElement method = (ExecutableElement) am;
             if (method.getParameters().size() != 1) {
                 error(element, "Accessor [%s()] on [%s] must accept only one parameter of type %s in order to set [%s]", setter, typeElement.getSimpleName(), clazz.getSimpleName(), name);
                 return null;

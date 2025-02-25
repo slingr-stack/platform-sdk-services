@@ -157,68 +157,11 @@ public class AppLogs {
      *
      * @param level Level of the app log.
      * @param message Message to show as app log to the developer.
-     */
-    public void sendAppLog(AppLogLevel level, String message){
-        sendAppLog(level, message, null, null);
-    }
-
-    /**
-     * Sends an app log to the application in order to show the message to the app developer.
-     *
-     * @param level Level of the app log.
-     * @param message Message to show as app log to the developer.
-     * @param additionalInfo json that permits to include information related to the error.
-     */
-    public void sendAppLog(AppLogLevel level, String message, Json additionalInfo){
-        sendAppLog(level, message, additionalInfo, null);
-    }
-
-    /**
-     * Sends an app log to the application in order to show the message to the app developer.
-     *
-     * @param level Level of the app log.
-     * @param message Message to show as app log to the developer.
-     * @param throwable Throwable exception used as complementary information related to the message.
-     */
-    public void sendAppLog(AppLogLevel level, String message, Throwable throwable){
-        sendAppLog(level, message, null, throwable);
-    }
-
-    /**
-     * Sends an app log to the application in order to show the message to the app developer.
-     *
-     * @param level Level of the app log.
-     * @param message Message to show as app log to the developer.
      * @param additionalInfo json that permits to include information related to the error.
      * @param throwable Throwable exception used as complementary information related to the message.
      */
     public void sendAppLog(AppLogLevel level, String message, Json additionalInfo, Throwable throwable){
         sendAppLog(System.currentTimeMillis(), level, message, additionalInfo, throwable);
-    }
-
-    /**
-     * Sends an app log to the application in order to show the message to the app developer.
-     *
-     * @param date Timestamp that represents the moment when the app log was generated. It takes the value of the
-     *             milliseconds from '01/01/1970 12:00 AM'. Per example 1465928711524 is '06/14/2016 6:25:11 PM'
-     * @param level Level of the app log.
-     * @param message Message to show as app log to the developer.
-     */
-    public void sendAppLog(Long date, AppLogLevel level, String message){
-        sendAppLog(date, level, message, null);
-    }
-
-    /**
-     * Sends an app log to the application in order to show the message to the app developer.
-     *
-     * @param date Timestamp that represents the moment when the app log was generated. It takes the value of the
-     *             milliseconds from '01/01/1970 12:00 AM'. Per example 1465928711524 is '06/14/2016 6:25:11 PM'
-     * @param level Level of the app log.
-     * @param message Message to show as app log to the developer.
-     * @param additionalInfo json that permits to include information related to the error
-     */
-    public void sendAppLog(Long date, AppLogLevel level, String message, Json additionalInfo){
-        sendAppLog(date, level, message, additionalInfo, null);
     }
 
     /**
@@ -258,15 +201,16 @@ public class AppLogs {
             }
         }
 
+        final String formattedMessage = String.format("App Log: %s%s", message, sent ? "" : " [it was no sent to platform]");
         switch (level){
             case ERROR:
-                logger.warn(String.format("App Log: %s%s", message, sent ? "" : " [it was no sent to platform]"), throwable);
+                logger.error(formattedMessage, throwable);
                 break;
             case WARN:
-                logger.warn(String.format("App Log: %s%s", message, sent ? "" : " [it was no sent to platform]"), throwable);
+                logger.warn(formattedMessage, throwable);
                 break;
             case INFO:
-                logger.info(String.format("App Log: %s%s", message, sent ? "" : " [it was no sent to platform]"));
+                logger.info(formattedMessage);
                 break;
             default:
                 logger.warn(String.format("App Log: [Invalid level: %s] %s%s", level, message, sent ? "" : " [it was no sent to platform]"), throwable);

@@ -16,6 +16,7 @@ import io.slingr.services.utils.converters.JsonSource;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHeaders;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -31,7 +32,10 @@ import org.glassfish.jersey.client.RequestEntityProcessing;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.client.spi.ConnectorProvider;
 import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.media.multipart.*;
+import org.glassfish.jersey.media.multipart.Boundary;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +52,7 @@ import javax.ws.rs.core.Response;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
@@ -86,7 +91,7 @@ public class RestClientFactory {
     /**
      * Initialize factory
      */
-    public RestClientFactory(){
+    public RestClientFactory() {
         try {
             final ClientConfig clientConfig = new ClientConfig();
             clientConfig.register(MultiPartFeature.class);
@@ -126,8 +131,12 @@ public class RestClientFactory {
                     public X509Certificate[] getAcceptedIssuers() {
                         return null;
                     }
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) { }
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) { }
+
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
+
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                    }
                 }
         };
         final SSLContext sslContext = SSLContext.getInstance("SSL");
@@ -135,7 +144,7 @@ public class RestClientFactory {
         return new SSLConnectionSocketFactory(sslContext, new TrustAllHostNameVerifier());
     }
 
-    public RestClientFactory enableSSL(boolean useSSL) {
+    public void enableSSL(boolean useSSL) {
         try {
             final Registry<ConnectionSocketFactory> registry;
             if (useSSL) {
@@ -143,7 +152,7 @@ public class RestClientFactory {
                         .register("https", configureSSL())
                         .register("http", new PlainConnectionSocketFactory())
                         .build();
-            }else{
+            } else {
                 registry = RegistryBuilder.<ConnectionSocketFactory>create()
                         .register("http", new PlainConnectionSocketFactory())
                         .build();
@@ -158,7 +167,6 @@ public class RestClientFactory {
             logger.error("Error enabling ssl certification", e);
             throw new RuntimeException("Error enabling ssl certification", e);
         }
-        return this;
     }
 
     public WebTarget setupAuthentication(WebTarget apiTarget, HttpRequest request) {
@@ -192,13 +200,14 @@ public class RestClientFactory {
         this.rememberCookies = rememberCookies;
     }
 
-    public WebTarget uri(String apiUri){
+    public WebTarget uri(String apiUri) {
         return client.target(apiUri);
     }
 
     /**
      * Configures basic authentication in the client so calls will use it.
-     *  @param username the username to authenticate
+     *
+     * @param username the username to authenticate
      * @param password the password of the user
      */
     public WebTarget setupBasicAuthentication(WebTarget uri, String username, String password) {
@@ -209,7 +218,8 @@ public class RestClientFactory {
 
     /**
      * Configures digest authentication in the client so calls will use it.
-     *  @param username the username to authenticate
+     *
+     * @param username the username to authenticate
      * @param password the password of the user
      */
     public WebTarget setupDigestAuthentication(WebTarget uri, String username, String password) {
@@ -221,13 +231,13 @@ public class RestClientFactory {
     /**
      * Processes the response to be returned to clients
      *
-     * @param response response of HTTP request
-     * @param method method used to obtain the response
+     * @param response     response of HTTP request
+     * @param method       method used to obtain the response
      * @param fullResponse true if the response must include extended information about response
      * @return Json with the processed response
      * @throws ServiceException if there ir an error when process the response
      */
-    Json  processResponse(Response response, RestMethod method, boolean fullResponse) throws ServiceException {
+    Json processResponse(Response response, RestMethod method, boolean fullResponse) throws ServiceException {
         if (response == null) {
             throw ServiceException.permanent(ErrorCode.CLIENT, "Invalid response");
         }
@@ -237,7 +247,7 @@ public class RestClientFactory {
                 final Object entity = response.getEntity();
                 if (entity instanceof InputStream) {
                     responseContent = (InputStream) entity;
-                } else if(entity != null){
+                } else if (entity != null) {
                     responseContent = new ByteArrayInputStream(response.getEntity().toString().getBytes());
                 } else {
                     responseContent = new ByteArrayInputStream("".getBytes());
@@ -253,8 +263,8 @@ public class RestClientFactory {
             Json responseAsJson = JsonConverter.convertString(removeUTF8BOM(responseAsString), contentType, true);
 
             boolean errorResponse = response.getStatus() < 200 || response.getStatus() > 299;
-            if(errorResponse && !fullResponse && responseAsJson != null && (responseAsJson.isMap() && responseAsJson.json("data") != null && responseAsJson.json("data").isMap() && responseAsJson.json("data").bool(Parameter.EXCEPTION_FLAG))){
-                // an Service Exception error when process the request
+            if (errorResponse && !fullResponse && responseAsJson != null && (responseAsJson.isMap() && responseAsJson.json("data") != null && responseAsJson.json("data").isMap() && responseAsJson.json("data").bool(Parameter.EXCEPTION_FLAG))) {
+                // a Service Exception error when process the request
                 response.close();
 
                 final Json jsonData = responseAsJson.json("data");
@@ -267,22 +277,22 @@ public class RestClientFactory {
                         jsonData.json(Parameter.EXCEPTION_ADDITIONAL_INFO)
                 );
 
-            } else if(errorResponse || fullResponse) {
+            } else if (errorResponse || fullResponse) {
                 // if is an HTTP error or full request is required
                 Object res;
-                if(responseAsJson != null){
+                if (responseAsJson != null) {
                     res = responseAsJson;
                 } else {
                     boolean asBytes = false;
-                    if(StringUtils.isNotBlank(contentType)) {
+                    if (StringUtils.isNotBlank(contentType)) {
                         final String ct = contentType.toLowerCase();
-                        if(ct.contains("image") || ct.contains("audio") || ct.contains("video") || ct.contains("application") || ct.contains("multipart")) {
+                        if (ct.contains("image") || ct.contains("audio") || ct.contains("video") || ct.contains("application") || ct.contains("multipart")) {
                             // return content as bytes
                             asBytes = true;
                         }
                     }
 
-                    if(asBytes){
+                    if (asBytes) {
                         res = responseAsBytes;
                     } else {
                         res = responseAsString;
@@ -292,7 +302,7 @@ public class RestClientFactory {
             }
 
             response.close();
-            if(errorResponse){
+            if (errorResponse) {
                 // these might be retryable status codes according to W3: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html + Cloudflare Connection Timed Out (522)
                 if (response.getStatus() == 408 || response.getStatus() == 500 || response.getStatus() == 502 || response.getStatus() == 503 || response.getStatus() == 504 || response.getStatus() == 522) {
                     throw ServiceException.retryable(ErrorCode.API, String.format("%s[%s]", ServiceException.REST_CODE_EXCEPTION, response.getStatus()), responseAsJson).returnCode(response.getStatus());
@@ -325,7 +335,7 @@ public class RestClientFactory {
      */
     DownloadedFile processDownloadedFile(Response response) throws ServiceException {
         try {
-            if(response != null) {
+            if (response != null) {
                 final Json headers = Json.map();
                 for (String header : response.getHeaders().keySet()) {
                     headers.set(header, response.getHeaders().getFirst(header));
@@ -369,7 +379,7 @@ public class RestClientFactory {
      * Converts the request to a multipart object
      *
      * @param request the request to convert to multipart
-     * @param files the files service to download files from the app
+     * @param files   the files service to download files from the app
      * @return content to send to REST service
      * @throws ServiceException if the request cannot be built or if the server returns an error message
      */
@@ -384,7 +394,7 @@ public class RestClientFactory {
                     final Json descriptor = files.metadata(part.getFileId());
                     if (descriptor != null && !descriptor.isEmpty()) {
                         final DownloadedFile file = files.download(part.getFileId());
-                        final StreamDataBodyPart filePart = new StreamDataBodyPart(part.getName(), file.getFile(), descriptor.string(Parameter.FILE_NAME));
+                        final StreamDataBodyPart filePart = new StreamDataBodyPart(part.getName(), file.file(), descriptor.string(Parameter.FILE_NAME));
                         final MediaType mediaType = FilesUtils.getMediaTypeForMultipart(descriptor.string(Parameter.FILE_CONTENT_TYPE), descriptor.string(Parameter.FILE_NAME));
                         filePart.setMediaType(mediaType);
                         formDataMultiPart.bodyPart(filePart);
@@ -393,7 +403,7 @@ public class RestClientFactory {
                     }
                 } else {
                     Object content = part.getContent();
-                    if (content instanceof JsonSource){
+                    if (content instanceof JsonSource) {
                         formDataMultiPart.field(part.getName(), ((JsonSource) content).toJson().toString(), MediaType.APPLICATION_JSON_TYPE);
                     } else {
                         if (!StringUtils.isBlank(part.getContentType())) {
@@ -431,7 +441,7 @@ public class RestClientFactory {
                 if (descriptor != null && !descriptor.isEmpty()) {
                     DownloadedFile file = files.download(part.getFileId());
                     outputStream.write(("Content-Type: " + descriptor.string(Parameter.FILE_CONTENT_TYPE) + "\r\n\r\n").getBytes(StandardCharsets.UTF_8));
-                    try (InputStream fileStream = file.getFile()) {
+                    try (InputStream fileStream = file.file()) {
                         byte[] buffer = new byte[4096];
                         int bytesRead;
                         while ((bytesRead = fileStream.read(buffer)) != -1) {
@@ -470,7 +480,19 @@ public class RestClientFactory {
      * @throws IOException if an I/O error occurs.
      */
     public static String uploadFileMultipartRelated(HttpRequest request, byte[] multipartData) throws IOException {
-        URL url = new URL(request.getPath());
+        URIBuilder uriBuilder;
+        try {
+            uriBuilder = new URIBuilder(request.getPath());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        if (request.getParams() != null && !request.getParams().isEmpty()) {
+            for (String key : request.getParams().toMap().keySet()) {
+                uriBuilder.addParameter(key, (String) request.getParams().toMap().get(key));
+            }
+        }
+        String finalUrl = uriBuilder.toString();
+        URL url = new URL(finalUrl);
         String accessToken = request.getHeaders().string("Authorization");
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
         httpConn.setDoOutput(true);
@@ -508,13 +530,13 @@ public class RestClientFactory {
     /**
      * Converts the request to wrap the file to upload
      *
-     * @param inputStream file part of the HTTP multipart request
-     * @param filename filename of the sent attachment (to be set as a part of {@code content-disposition}).
-     * @param contentType MIME type of the {@code streamEntity} attachment.
-     * @param fileParameter name of the parameter to use when upload a file to the REST service
+     * @param inputStream      file part of the HTTP multipart request
+     * @param filename         filename of sent attachment (to be set as a part of {@code content-disposition}).
+     * @param contentType      MIME type of the {@code streamEntity} attachment.
+     * @param fileParameter    name of the parameter to use when upload a file to the REST service
      * @param contentParameter name of the body part to use when upload a file to the REST service; can be null
      *                         no need to upload content
-     * @param content body part of the HTTP multipart request; only will be sent if contentParameter is not null
+     * @param content          body part of the HTTP multipart request; only will be sent if contentParameter is not null
      * @return content to send to REST service
      * @throws ServiceException if the request cannot be built or if the server returns an error message
      */
@@ -529,7 +551,7 @@ public class RestClientFactory {
             final StreamDataBodyPart filePart = new StreamDataBodyPart(paramName, inputStream, filename);
 
             final MediaType mediaType = FilesUtils.getMediaTypeForMultipart(contentType, filename);
-            if(mediaType != null){
+            if (mediaType != null) {
                 filePart.setMediaType(mediaType);
             }
             formDataMultiPart.bodyPart(filePart);
@@ -537,7 +559,7 @@ public class RestClientFactory {
             // check if we also need to send more information together with the file
             if (content != null) {
                 final String bodyName = StringUtils.isNotBlank(contentParameter) ? contentParameter : Parameter.FILE_UPLOAD_BODY;
-                if(content instanceof JsonSource){
+                if (content instanceof JsonSource) {
                     formDataMultiPart.field(bodyName, ((JsonSource) content).toJson().toString(), MediaType.APPLICATION_JSON_TYPE);
                 } else {
                     formDataMultiPart.field(bodyName, content.toString());
@@ -555,27 +577,27 @@ public class RestClientFactory {
      * Converts the response to include a complete HTTP response detail
      *
      * @param response original HTTP response
-     * @param body original response body
+     * @param body     original response body
      * @return complete response
      */
     static Json processFullResponse(Response response, Object body) {
         int status = 0;
         final Json headers = Json.map();
 
-        if(response != null){
+        if (response != null) {
             status = response.getStatus();
 
-            if(response.getHeaders() != null) {
+            if (response.getHeaders() != null) {
                 response.getHeaders()
                         .forEach((k, objects) -> {
-                            if(objects != null && !objects.isEmpty()) {
+                            if (objects != null && !objects.isEmpty()) {
                                 final Object header;
-                                if(objects.size() == 1){
+                                if (objects.size() == 1) {
                                     header = objects.get(0);
                                 } else {
                                     header = Json.fromList(objects);
                                 }
-                                if(header != null) {
+                                if (header != null) {
                                     headers.set(k, header);
                                 }
                             }
@@ -588,28 +610,28 @@ public class RestClientFactory {
     /**
      * Converts the response to include a complete HTTP response detail
      *
-     * @param status HTTP status code
+     * @param status  HTTP status code
      * @param headers HTTP headers
-     * @param body response body
+     * @param body    response body
      * @return complete response
      */
     static Json processFullResponse(int status, Json headers, Object body) {
-        if(headers == null){
+        if (headers == null) {
             headers = Json.map();
         }
 
-        if(body instanceof JsonSource){
+        if (body instanceof JsonSource) {
             // convert json source instances
             body = ((JsonSource) body).toJson();
         }
-        if(body instanceof Json && ((Json) body).isMap() && ((Json) body).size() == 1 && ((Json) body).contains("body")){
+        if (body instanceof Json && ((Json) body).isMap() && ((Json) body).size() == 1 && ((Json) body).contains("body")) {
             // remove additional body level
-            body = ((Json) body).object( "body");
-        } else if(body instanceof Map && ((Map) body).size() == 1 && ((Map) body).containsKey("body")){
+            body = ((Json) body).object("body");
+        } else if (body instanceof Map && ((Map) body).size() == 1 && ((Map) body).containsKey("body")) {
             // remove additional body level
             body = ((Map) body).get("body");
         }
-        if(body == null){
+        if (body == null) {
             body = Json.map();
         }
 
@@ -622,8 +644,8 @@ public class RestClientFactory {
     /**
      * Perform the specified HTTP request to the target
      *
-     * @param method HTTP method to execute on request
-     * @param target target of the request
+     * @param method  HTTP method to execute on request
+     * @param target  target of the request
      * @param content body of the HTTP request. only processed for POST, PUT and PATCH methods.
      * @param headers headers of HTTP request. the header on target with the same name will be overridden by these
      *                properties
@@ -640,17 +662,17 @@ public class RestClientFactory {
             logger.info(String.format("%s Preparing request [%s %s]...", Service.DEBUG, method.name(), uri));
         }
 
-        if(method == null){
+        if (method == null) {
             // default HTTP method
             method = RestMethod.GET;
         }
-        if(headers == null){
+        if (headers == null) {
             headers = Json.map();
         }
 
         // prepare content to be sent on request
         Entity<?> postData = null;
-        if(method == RestMethod.POST || method == RestMethod.PUT || method == RestMethod.PATCH) {
+        if (method == RestMethod.POST || method == RestMethod.PUT || method == RestMethod.PATCH) {
             if (content == null) {
                 content = Json.map();
             }
@@ -667,7 +689,7 @@ public class RestClientFactory {
                     } else if (ContentTypeFormat.isUrlEncodedFormContentType(contentType)) {
                         Form form = FormUtils.convertFromJsonToForm((Json) content);
                         postData = Entity.form(form);
-                    }else if (ContentTypeFormat.isMultipartContentType(contentType)){
+                    } else if (ContentTypeFormat.isMultipartContentType(contentType)) {
                         FormDataMultiPart formDataMultiPart = FormUtils.convertFromJsonToFormDataMultiPart((Json) content);
                         postData = Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE);
 
@@ -706,13 +728,13 @@ public class RestClientFactory {
         // these headers override the previous defined headers on target with the same name
         headers.forEachMap(invocationBuilder::header);
 
-        if(rememberCookies && !request.isForceDisableCookies()){
+        if (rememberCookies && !request.isForceDisableCookies()) {
             // use cookies received on previous requests
             cookiesLock.lock();
             try {
                 cookies.forEach(invocationBuilder::cookie);
-            } catch (Exception ex){
-                if(this.debug){
+            } catch (Exception ex) {
+                if (this.debug) {
                     logger.info(String.format("%s Exception when try to process cookies [%s]", Service.DEBUG, ex.getMessage()), ex);
                 } else {
                     logger.debug(String.format("Exception when try to process cookies [%s]", ex.getMessage()), ex);
@@ -728,30 +750,17 @@ public class RestClientFactory {
                 logger.info(String.format("%s Executing method [%s %s] - Content [%s]", Service.DEBUG, method.name(), uri, postData));
             }
 
-            switch (method) {
-                case POST:
-                    response = invocationBuilder.post(postData);
-                    break;
-                case PUT:
-                    response = invocationBuilder.put(postData);
-                    break;
-                case PATCH:
-                    response = invocationBuilder.method(RestMethod.PATCH.name(), postData);
-                    break;
-                case DELETE:
-                    response = invocationBuilder.delete();
-                    break;
-                case HEAD:
-                    response = invocationBuilder.head();
-                    break;
-                case OPTIONS:
-                    response = invocationBuilder.options();
-                    break;
-                default:
+            response = switch (method) {
+                case POST -> invocationBuilder.post(postData);
+                case PUT -> invocationBuilder.put(postData);
+                case PATCH -> invocationBuilder.method(RestMethod.PATCH.name(), postData);
+                case DELETE -> invocationBuilder.delete();
+                case HEAD -> invocationBuilder.head();
+                case OPTIONS -> invocationBuilder.options();
+                default ->
                     // GET by default
-                    response = invocationBuilder.get();
-                    break;
-            }
+                        invocationBuilder.get();
+            };
 
             if (this.debug) {
                 logger.info(String.format("%s Response to method [%s %s] - Response [%s]", Service.DEBUG, method.name(), uri, response.getStatus()));
@@ -773,11 +782,11 @@ public class RestClientFactory {
                 }
 
                 //Remove Authorization if Follow Authorization header is false
-                if(!request.isFollowAuthorizationHeader()){
+                if (!request.isFollowAuthorizationHeader()) {
                     headers.remove("Authorization");
-            }
+                }
 
-                if(!request.isRemoveRefererHeaderOnRedirect()){
+                if (!request.isRemoveRefererHeaderOnRedirect()) {
                     //Add Referer header
                     this.history.add(this.history.isEmpty() ? request.getPath() : uri);
                     headers.set(HttpHeaders.REFERER, this.history.get(this.history.size() - 1));
@@ -786,17 +795,17 @@ public class RestClientFactory {
                 if (!request.isFollowOriginalHttpMethod()) method = RestMethod.GET;
 
                 response = request(method, target, content, headers, request);
-                if(!request.isRemoveRefererHeaderOnRedirect()) this.history.remove(this.history.size() - 1);
+                if (!request.isRemoveRefererHeaderOnRedirect()) this.history.remove(this.history.size() - 1);
             }
 
-            if(rememberCookies && !request.isForceDisableCookies()){
+            if (rememberCookies && !request.isForceDisableCookies()) {
                 // save cookies for the following requests
                 cookiesLock.lock();
                 try {
                     response.getCookies()
                             .forEach((s, newCookie) -> cookies.add(newCookie));
-                } catch (Exception ex){
-                    if(this.debug) {
+                } catch (Exception ex) {
+                    if (this.debug) {
                         logger.info(String.format("%s Exception when try to process cookies [%s]", Service.DEBUG, ex.getMessage()), ex);
                     } else {
                         logger.debug(String.format("Exception when try to process cookies [%s]", ex.getMessage()), ex);
@@ -806,14 +815,14 @@ public class RestClientFactory {
                 }
             }
             // Clear cookies if any mechanism is enabled
-            if(!rememberCookies || request.isForceDisableCookies()) cookies.clear();
+            if (!rememberCookies || request.isForceDisableCookies()) cookies.clear();
 
         } catch (ServiceException ee) {
             throw ee;
         } catch (ResponseProcessingException rpe) {
             throw ServiceException.permanent(ErrorCode.API, String.format("Error processing response [%s]: %s", rpe.getMessage(), rpe.getResponse() != null ? rpe.getResponse() : "-"), rpe).returnCode(500);
         } catch (ProcessingException pe) {
-            if(pe.getCause() instanceof IOException){
+            if (pe.getCause() instanceof IOException) {
                 throw ServiceException.permanent(ErrorCode.CLIENT, String.format("Error processing request [%s]", ServiceException.getProcessingExceptionMessage(pe)), pe).returnCode(500);
             } else {
                 throw ServiceException.retryable(ErrorCode.API, String.format("Error processing request [%s]", pe.getMessage()), pe).returnCode(400);
@@ -824,7 +833,11 @@ public class RestClientFactory {
             if (r != null && (r.getStatus() == 408 || r.getStatus() == 500 || r.getStatus() == 502 || r.getStatus() == 503 || r.getStatus() == 504 || r.getStatus() == 522)) {
                 throw ServiceException.retryable(ErrorCode.API, wae.getMessage(), wae).returnCode(r.getStatus());
             } else {
-                throw ServiceException.permanent(ErrorCode.API, wae.getMessage(), wae).returnCode(r.getStatus());
+                if (r != null) {
+                    throw ServiceException.permanent(ErrorCode.API, wae.getMessage(), wae).returnCode(r.getStatus());
+                } else {
+                    throw ServiceException.permanent(ErrorCode.API, wae.getMessage(), wae).returnCode(500);
+                }
             }
         } catch (Exception e) {
             // we assume this is an unhandled exception is a programming error

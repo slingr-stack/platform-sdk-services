@@ -10,24 +10,17 @@ import java.io.InputStream;
  *
  * <p>Created by lefunes on 23/04/18.
  */
-public class UploadedFile implements JsonSource {
-
-    private final String name;
-    private final String filename;
-    private final String contentType;
-    private final Long length;
-    private final InputStream file;
-    private final Json headers;
+public record UploadedFile(String name, String filename, String contentType, Long length, InputStream file, Json headers) implements JsonSource {
 
     /**
      * Creates an upload file
      *
-     * @param name name of the file
-     * @param filename received name of the file
+     * @param name        name of the file
+     * @param filename    received name of the file
      * @param contentType content type of the file
-     * @param length length of the file
-     * @param file input stream
-     * @param headers HTTP headers
+     * @param length      length of the file
+     * @param file        input stream
+     * @param headers     HTTP headers
      */
     public UploadedFile(String name, String filename, String contentType, Long length, InputStream file, Json headers) {
         this.name = name;
@@ -43,7 +36,8 @@ public class UploadedFile implements JsonSource {
      *
      * @return name of the file
      */
-    public String getName() {
+    @Override
+    public String name() {
         return name;
     }
 
@@ -52,7 +46,8 @@ public class UploadedFile implements JsonSource {
      *
      * @return received name of the file
      */
-    public String getFilename() {
+    @Override
+    public String filename() {
         return filename;
     }
 
@@ -61,7 +56,8 @@ public class UploadedFile implements JsonSource {
      *
      * @return content type of the file
      */
-    public String getContentType() {
+    @Override
+    public String contentType() {
         return contentType;
     }
 
@@ -70,7 +66,8 @@ public class UploadedFile implements JsonSource {
      *
      * @return length of the file
      */
-    public Long getLength() {
+    @Override
+    public Long length() {
         return length;
     }
 
@@ -79,7 +76,8 @@ public class UploadedFile implements JsonSource {
      *
      * @return input stream
      */
-    public InputStream getFile() {
+    @Override
+    public InputStream file() {
         return file;
     }
 
@@ -88,18 +86,19 @@ public class UploadedFile implements JsonSource {
      *
      * @return HTTP headers
      */
-    public Json getHeaders() {
+    @Override
+    public Json headers() {
         return headers;
     }
 
     @Override
     public Json toJson() {
         return Json.map()
-                .set("name", getName())
-                .setIfNotEmpty("filename", getFilename())
-                .setIfNotEmpty("contentType", getContentType())
-                .setIfNotNull("length", getLength())
-                .setIfNotEmpty("file", getFile() != null)
-                .setIfNotEmpty("headers", getHeaders());
+                .set("name", name())
+                .setIfNotEmpty("filename", filename())
+                .setIfNotEmpty("contentType", contentType())
+                .setIfNotNull("length", length())
+                .setIfNotEmpty("file", file() != null)
+                .setIfNotEmpty("headers", headers());
     }
 }

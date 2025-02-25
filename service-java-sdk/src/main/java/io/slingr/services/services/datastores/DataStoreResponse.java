@@ -9,11 +9,7 @@ import java.util.List;
  * Response to a find request on a data store
  * <p>
  */
-public class DataStoreResponse {
-    private final List<Json> items;
-    private final int total;
-    private final String offset;
-
+public record DataStoreResponse(List<Json> items, int total, String offset) {
     public DataStoreResponse(List<Json> items, int total, String offset) {
         this.items = items != null ? items : new ArrayList<>();
         this.total = total;
@@ -23,21 +19,24 @@ public class DataStoreResponse {
     /**
      * List of documents that fill the query and (if they are used) that are inside of the pagination requirements.
      */
-    public List<Json> getItems() {
+    @Override
+    public List<Json> items() {
         return items;
     }
 
     /**
      * Total of documents that fill the query. It can different to the 'items' size if the pagination is used.
      */
-    public int getTotal() {
+    @Override
+    public int total() {
         return total;
     }
 
     /**
      * Used to paginate results. This must be the value of '_offset' of the next query to do.
      */
-    public String getOffset() {
+    @Override
+    public String offset() {
         return offset;
     }
 }

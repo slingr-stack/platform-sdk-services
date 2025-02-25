@@ -53,10 +53,6 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
         setUploadBody(Parameter.FILE_UPLOAD_BODY);
     }
 
-    /************************
-     EB API: Events
-     ************************/
-
     @Override
     public void newEvent(Long date, String event, Object data, String fromFunctionId, String userId, String userEmail) throws ServiceException {
         // review parameters
@@ -107,11 +103,6 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
         }
     }
 
-
-    /************************
-     EB API: App logs
-     ************************/
-
     @Override
     public void newAppLogs(Long date, String level, String message, Json additionalInfo) throws ServiceException {
         // review parameters
@@ -137,11 +128,6 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
             throw ServiceException.retryable(ErrorCode.CLIENT, String.format("Exception when try to send an app log: %s", ex.getMessage()), ex);
         }
     }
-
-
-    /************************
-     EB API: Distributed locks
-     ************************/
 
     @Override
     public Json acquireLock(String key) throws ServiceException {
@@ -170,11 +156,6 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
             throw ServiceException.retryable(ErrorCode.CLIENT, String.format("Exception when try to lock key [%s]: %s", key, ex.getMessage()), ex);
         }
     }
-
-
-    /************************
-     EB API: Files management
-     ************************/
 
     @Override
     public Json uploadFile(String filename, InputStream content, String contentType) throws ServiceException {
@@ -248,11 +229,6 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
             throw ServiceException.retryable(ErrorCode.CLIENT, String.format("Exception when try to get file [%s] metadata: %s", fileId, ex.getMessage()), ex);
         }
     }
-
-
-    /************************
-     EB API: Data stores management
-     ************************/
 
     @Override
     public DataStoreResponse findDocuments(String dataStoreName, Json filter) throws ServiceException {
@@ -389,11 +365,6 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
         }
     }
 
-
-    /************************
-     EB API: Properties
-     ************************/
-
     @Override
     public Json getConfiguration() throws ServiceException {
         try {
@@ -404,11 +375,6 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
             throw ServiceException.retryable(ErrorCode.CLIENT, String.format("Exception when try to request the configuration: %s", ex.getMessage()), ex);
         }
     }
-
-
-    /************************
-     EB API: Users
-     ************************/
 
     @Override
     public AppUser getUserInformationByToken(String token) throws ServiceException {
@@ -461,11 +427,6 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
         }
     }
 
-
-    /************************
-     Utilities
-     ************************/
-
     /**
      * Throws an exception if the value is blank
      *
@@ -512,10 +473,6 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
         return filter;
     }
 
-    /************************
-     function helper methods
-    ************************/
-
     /**
      * Extracts the object wrapped on the sync response received from the Extension Broker.
      *
@@ -550,5 +507,4 @@ public class ExtensionBroker extends RestClient implements ExtensionBrokerApi {
         headers.setIfNotEmpty(Parameter.ENV, ServiceContext.getCurrentEnv());
         return headers;
     }
-
 }

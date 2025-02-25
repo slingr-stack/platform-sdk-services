@@ -459,5 +459,4 @@ public class EmailUtils {
         }
         return receiver;
     }
-
 }

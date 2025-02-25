@@ -3,8 +3,6 @@ package io.slingr.services.services.datastores;
 import io.slingr.services.exceptions.ServiceException;
 import io.slingr.services.services.DataStores;
 import io.slingr.services.utils.Json;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>Service class over the data stores
@@ -12,7 +10,6 @@ import org.slf4j.LoggerFactory;
  * <p>Created by lefunes on 29/05/15.
  */
 public class DataStore {
-    private static final Logger logger = LoggerFactory.getLogger(DataStore.class);
 
     private final String dataStoreName;
     private final DataStores dataStores;
@@ -36,10 +33,6 @@ public class DataStore {
     public String getName() {
         return this.dataStoreName;
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // data stores management
-    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Finds all documents from a data store.
@@ -250,10 +243,9 @@ public class DataStore {
      * <p>If document does not exist on data store, Extension Broker app returns an error HTTP 404
      *
      * @param documentId id of document
-     * @return result of the execution of the command on data store
      * @throws ServiceException if there is an issue with the exchange
      */
-    public boolean removeById(String documentId) throws ServiceException {
-        return dataStores.removeById(dataStoreName, documentId);
+    public void removeById(String documentId) throws ServiceException {
+        dataStores.removeById(dataStoreName, documentId);
     }
 }

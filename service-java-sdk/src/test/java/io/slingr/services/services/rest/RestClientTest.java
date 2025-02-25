@@ -6,8 +6,6 @@ import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -17,8 +15,6 @@ import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")
 public class RestClientTest {
-    @SuppressWarnings("unused")
-    private static final Logger logger = LoggerFactory.getLogger(RestClientTest.class);
     private RestClient restClient;
 
     @Before
@@ -64,7 +60,6 @@ public class RestClientTest {
         assertEquals("https://postman-echo.com/get/?foo1=bar1+bar3", response.object("url"));
 
     }
-
 
     @Test
     public void useSSLIsTrue() {
@@ -128,7 +123,6 @@ public class RestClientTest {
 
     }
 
-
     @Test
     public void testDefaultGetRequestWithBasicAuthentication() {
 
@@ -144,7 +138,6 @@ public class RestClientTest {
 
         assertEquals(HttpStatus.SC_OK, response.object("status"));
     }
-
 
     @Test
     public void testDefaultGetRequestDigestAuthentication() {
@@ -197,5 +190,4 @@ public class RestClientTest {
         }
         executorService.shutdown();
     }
-
 }

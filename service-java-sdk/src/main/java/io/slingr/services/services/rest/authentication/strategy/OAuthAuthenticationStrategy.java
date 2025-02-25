@@ -33,5 +33,4 @@ public class OAuthAuthenticationStrategy implements AuthenticationStrategy {
             }
         });
     }
-
 }

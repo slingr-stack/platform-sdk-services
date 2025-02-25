@@ -25,7 +25,6 @@ public class OAuthTwitterAuthenticationStrategy implements AuthenticationStrateg
     private final String apiKey;
     private final String apiSecret;
 
-
     public  OAuthTwitterAuthenticationStrategy(Map<String, String> params) {
         this.oauth_token = params.get("oauth_token");
         this.oauth_token_secret = params.get("oauth_token_secret");
@@ -46,13 +45,12 @@ public class OAuthTwitterAuthenticationStrategy implements AuthenticationStrateg
                     getTargetUrl(requestContext),
                     otherHeaders,
                     apiKey,
-                    apiSecret.concat("&").concat(encode(oauth_token_secret)),
-                    true));
+                    apiSecret.concat("&").concat(encode(oauth_token_secret))
+            ));
         });
     }
 
-
-    private String getOauthHeader(String method, String url, Map<String, String> headers, String apiKey, String secretKey, boolean includeParams) {
+    private String getOauthHeader(String method, String url, Map<String, String> headers, String apiKey, String secretKey) {
         if (headers == null) {
             headers = new HashMap<>();
         }
@@ -66,13 +64,11 @@ public class OAuthTwitterAuthenticationStrategy implements AuthenticationStrateg
         if (url.contains("?")) {
             int i = url.indexOf("?");
             cleanUrl = url.substring(0, i);
-            if (includeParams) {
-                String[] params = url.substring(i + 1).split("&");
-                for (String param : params) {
-                    String[] p = param.split("=");
-                    if (p.length == 2) {
-                        otherParams.put(p[0], p[1]);
-                    }
+            String[] params = url.substring(i + 1).split("&");
+            for (String param : params) {
+                String[] p = param.split("=");
+                if (p.length == 2) {
+                    otherParams.put(p[0], p[1]);
                 }
             }
         }
@@ -132,14 +128,11 @@ public class OAuthTwitterAuthenticationStrategy implements AuthenticationStrateg
 
     }
 
-    // Internal methods
-
     private String getTargetUrl(ClientRequestContext requestContext) {
         StringBuilder url = new StringBuilder(requestContext.getUri().toString());
         Object entity = requestContext.getEntity();
 
-        if (entity instanceof Json) {
-            Json json = (Json) entity;
+        if (entity instanceof Json json) {
             if (!json.isEmpty("url")) {
                 url.append(json.string("url"));
             }
@@ -154,6 +147,4 @@ public class OAuthTwitterAuthenticationStrategy implements AuthenticationStrateg
         }
         return url.toString();
     }
-
-
 }

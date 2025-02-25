@@ -128,13 +128,13 @@ public class Files {
 
         try {
             String contentType = "";
-            if(file.getHeaders() != null) {
-                final String ct = file.getHeaders().string(Parameter.CONTENT_TYPE);
+            if(file.headers() != null) {
+                final String ct = file.headers().string(Parameter.CONTENT_TYPE);
                 if(StringUtils.isNotBlank(ct)) {
                     contentType = ct;
                 }
             }
-            return upload(filename, file.getFile(), contentType);
+            return upload(filename, file.file(), contentType);
         } catch (ServiceException rex){
             throw rex;
         } catch (Exception ex){
@@ -182,7 +182,7 @@ public class Files {
         }
         try {
             final DownloadedFile response = api.downloadFile(fileId);
-            if(response == null || response.getFile() == null){
+            if(response == null || response.file() == null){
                 throw ServiceException.permanent(ErrorCode.CLIENT, String.format("File [%s] not found on application.", fileId));
             }
             if(debug) {
@@ -206,13 +206,13 @@ public class Files {
      */
     public String extractContent(DownloadedFile fileDownloaded, boolean base64) throws ServiceException {
         ExtensionBroker.isNotNull(fileDownloaded, "Invalid file");
-        ExtensionBroker.isNotNull(fileDownloaded.getFile(), "Empty file content");
+        ExtensionBroker.isNotNull(fileDownloaded.file(), "Empty file content");
 
         try {
             if (base64) {
-                return Base64Utils.encode(fileDownloaded.getFile());
+                return Base64Utils.encode(fileDownloaded.file());
             } else {
-                return Strings.readAsString(fileDownloaded.getFile());
+                return Strings.readAsString(fileDownloaded.file());
             }
         } catch (ServiceException ex) {
             throw ex;
