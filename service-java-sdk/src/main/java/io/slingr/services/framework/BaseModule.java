@@ -327,10 +327,7 @@ public class BaseModule implements IService, IBaseService {
             listener.serviceStopped(cause);
         }
 
-        Executors.newSingleThreadScheduledExecutor().schedule(() -> {
-            logger.info(String.format("Services stopped [%s]", cause));
-            System.exit(0);
-        }, 2, TimeUnit.SECONDS);
+        logger.info(String.format("Services stopped [%s]", cause));
     }
 
     @Override
