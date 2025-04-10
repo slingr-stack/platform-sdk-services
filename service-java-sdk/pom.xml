@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.slingr-stack</groupId>
     <artifactId>slingr-services</artifactId>
-    <version>1.6.5</version>
+    <version>1.6.6</version>
     <name>Slingr Services Framework</name>
     <description>Framework to generate services to use on Slingr platform</description>
     <packaging>jar</packaging>
@@ -15,24 +15,24 @@
         <org.glassfish.jersey.inject>2.40</org.glassfish.jersey.inject>
         <jetty.version>11.0.25</jetty.version> <!-- We can not update more than this without code refactor -->
         <jericho-html.version>3.4</jericho-html.version>
-        <commons-io.version>2.16.1</commons-io.version>
+        <commons-io.version>2.18.0</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-collections.version>4.5.0-M1</commons-collections.version>
         <commons-lang3.version>3.15.0</commons-lang3.version>
+        <commons-collections.version>4.5.0-M1</commons-collections.version>
         <javax.mail.version>1.5.0-b01</javax.mail.version>
         <slf4j.version>2.0.13</slf4j.version>
-        <log4j.version>1.2.17</log4j.version>
+        <log4j.version>2.23.1</log4j.version>
         <javapoet.version>1.13.0</javapoet.version>
         <oauth.signpost.version>2.1.1</oauth.signpost.version>
         <!-- Tests properties -->
         <junit.version>4.13.2</junit.version>
-        <mockito.version>2.0.2-beta</mockito.version>
+        <mockito.version>5.17.0</mockito.version>
         <wiremock-standalone.version>3.9.1</wiremock-standalone.version>
         <!-- Build properties -->
-        <jdk.version>17</jdk.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <maven.compiler.release>17</maven.compiler.release>
+        <jdk.version>21</jdk.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.compiler.version>3.12.1</project.build.compiler.version>
         <project.build.source.version>3.0.1</project.build.source.version>
@@ -169,7 +169,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
+            <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
         </dependency>
         <dependency>
