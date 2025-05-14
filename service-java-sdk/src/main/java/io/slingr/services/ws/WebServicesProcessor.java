@@ -17,6 +17,10 @@ import io.slingr.services.ws.exchange.FunctionRequest;
 import io.slingr.services.ws.exchange.UploadedFile;
 import io.slingr.services.ws.exchange.WebServiceRequest;
 import io.slingr.services.ws.exchange.WebServiceResponse;
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
@@ -24,10 +28,6 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.servlet.MultipartConfigElement;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Part;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -39,7 +39,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Receives the web services requests, calls to the respective processor and returns the response to the HTTP client.
- *
  */
 public class WebServicesProcessor extends AbstractHandler {
     private static final Logger logger = LoggerFactory.getLogger(WebServicesProcessor.class);
@@ -65,30 +64,36 @@ public class WebServicesProcessor extends AbstractHandler {
     /**
      * Instances a new web services processor
      *
-     * @param baseService object that will receive the close signal
-     * @param token token used to exchange information between the service and the Extension Broker
+     * @param baseService     object that will receive the close signal
+     * @param token           token used to exchange information between the service and the Extension Broker
      * @param localDeployment true if is executed on local environment
-     * @param debug true if the service shows information useful for debug
+     * @param debug           true if the service shows information useful for debug
      */
     public WebServicesProcessor(IBaseService baseService, String token, boolean localDeployment, boolean debug) {
-        if(baseService == null) {
+        if (baseService == null) {
             throw new IllegalArgumentException("Base service is required to instance a web service processor");
         }
         this.baseService = baseService;
         this.token = token;
         this.localDeployment = localDeployment;
         this.debug = debug;
-        if (!localDeployment) {
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> baseService.stopService("Signal SIGTERM received from kubernetes. Shutting down...")));
-        }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.info("Signal SIGTERM received from Kubernetes. Shutting down...");
+            baseService.stopService("SIGTERM received");
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ignored) {}
+            logger.info("Exiting JVM...");
+            System.exit(0);
+        }));
     }
 
     /**
      * Handle a web services request.
      *
-     * @param path the target of the servletRequest
-     * @param baseRequest the original unwrapped request object.
-     * @param servletRequest the request either as the {@link Request} object or a wrapper of that servlet request.
+     * @param path            the target of the servletRequest
+     * @param baseRequest     the original unwrapped request object.
+     * @param servletRequest  the request either as the {@link Request} object or a wrapper of that servlet request.
      * @param servletResponse the response as the {@link Response} object or a wrapper of that servlet request.
      * @throws IOException if unable to handle the request or response processing
      */
@@ -98,7 +103,7 @@ public class WebServicesProcessor extends AbstractHandler {
         ServiceContext.initContext(servletRequest.getHeader(Parameter.METADATA_APP), servletRequest.getHeader(Parameter.METADATA_ENV));
         try {
             final WebServiceRequest webServiceRequest = prepareRequest(path, servletRequest);
-            if(debug){
+            if (debug) {
                 logger.info(String.format("%s request %s", Service.DEBUG, webServiceRequest));
             }
             final WebServiceResponse response = processRequest(webServiceRequest);
@@ -118,10 +123,10 @@ public class WebServicesProcessor extends AbstractHandler {
      */
     private WebServiceResponse processRequest(WebServiceRequest request) {
         final WebServiceResponse response;
-        if(request.getPath().equals(ApiUri.URL_SYSTEM_ALIVE) ||
+        if (request.getPath().equals(ApiUri.URL_SYSTEM_ALIVE) ||
                 request.getPath().equals(ApiUri.URL_SYSTEM_TERMINATE) ||
                 request.getPath().equals(ApiUri.URL_CONFIGURATION) ||
-                request.getPath().equals(ApiUri.URL_FUNCTION)){
+                request.getPath().equals(ApiUri.URL_FUNCTION)) {
             response = processApiRequest(request);
         } else {
             response = processWSRequest(request);
@@ -141,10 +146,10 @@ public class WebServicesProcessor extends AbstractHandler {
 
         // check request token
         boolean validToken = true;
-        if(!token.equals(request.getHeader(Parameter.TOKEN))){
+        if (!token.equals(request.getHeader(Parameter.TOKEN))) {
             // avoid errors on local environment
-            if(this.localDeployment){
-                if(firstLocalDeploymentWarning.compareAndSet(false, true)) {
+            if (this.localDeployment) {
+                if (firstLocalDeploymentWarning.compareAndSet(false, true)) {
                     logger.warn("Invalid or empty token on request. Ignored exceptions of this kind because the service is running in local deployment.");
                 }
             } else {
@@ -156,35 +161,35 @@ public class WebServicesProcessor extends AbstractHandler {
         }
 
         boolean processedRequest = false;
-        if(validToken){
+        if (validToken) {
             // process request using the Service API specification v1
-            if(ApiUri.URL_SYSTEM_ALIVE.equals(request.getPath())) {
-                body = Json.map().set("started", true);
+            if (ApiUri.URL_SYSTEM_ALIVE.equals(request.getPath())) {
+                body = Json.map().set("started", true).set("status", "OK");
                 processedRequest = true;
-            } else if(ApiUri.URL_SYSTEM_TERMINATE.equals(request.getPath())) {
+            } else if (ApiUri.URL_SYSTEM_TERMINATE.equals(request.getPath())) {
                 baseService.stopService("termination signal received");
 
                 body = "ok";
                 headers.set(Parameter.CONTENT_TYPE, ContentTypeFormat.PLAIN_TEXT.getMimeType());
 
                 processedRequest = true;
-            } else if(ApiUri.URL_CONFIGURATION.equals(request.getPath())) {
+            } else if (ApiUri.URL_CONFIGURATION.equals(request.getPath())) {
                 body = baseService.getConfiguration();
 
                 processedRequest = true;
-            } else if(ApiUri.URL_FUNCTION.equals(request.getPath())) {
+            } else if (ApiUri.URL_FUNCTION.equals(request.getPath())) {
                 final FunctionRequest functionRequest = new FunctionRequest(request.getBody(), false, 0, DEFAULT_MAX_REDELIVERS);
                 return executeFunction(functionRequest);
             }
         }
 
-        if(validToken && !processedRequest){
+        if (validToken && !processedRequest) {
             code = 404;
             body = "Invalid API request";
             headers.set(Parameter.CONTENT_TYPE, ContentTypeFormat.PLAIN_TEXT.getMimeType());
         }
 
-        if(body == null){
+        if (body == null) {
             body = Json.map();
         }
 
@@ -198,7 +203,7 @@ public class WebServicesProcessor extends AbstractHandler {
      * @return response of the function execution
      */
     private WebServiceResponse executeFunction(FunctionRequest functionRequest) {
-        if(functionRequest == null){
+        if (functionRequest == null) {
             return new WebServiceResponse(400, "Invalid API request", ContentTypeFormat.PLAIN_TEXT.getMimeType());
         }
         Json originalRequest = null;
@@ -209,11 +214,11 @@ public class WebServicesProcessor extends AbstractHandler {
                     .set(Parameter.DATE, System.currentTimeMillis())
                     .setIfNotNull(Parameter.DATA, response)
             );
-        } catch (ServiceException ee){
+        } catch (ServiceException ee) {
             int maxRedelivers = Math.min(this.maxRedelivers, ee.isRetryable() ? this.retryableMaxRedelivers : this.permanentMaxRedelivers);
             maxRedelivers = Math.min(maxRedelivers, functionRequest.getRedeliveredMaxCounter());
 
-            if(originalRequest != null && maxRedelivers > functionRequest.getRedeliveredCounter()){
+            if (originalRequest != null && maxRedelivers > functionRequest.getRedeliveredCounter()) {
                 // retry request
                 try {
                     Thread.sleep(ee.isRetryable() ? this.retryableDelay : this.permanentDelay);
@@ -228,7 +233,7 @@ public class WebServicesProcessor extends AbstractHandler {
                     .set(Parameter.DATE, System.currentTimeMillis())
                     .setIfNotNull(Parameter.DATA, ee.toJson())
             );
-        } catch (Exception ex){
+        } catch (Exception ex) {
             return new WebServiceResponse(500, Json.map()
                     .set(Parameter.DATE, System.currentTimeMillis())
                     .setIfNotNull(Parameter.DATA, ServiceException.json(ErrorCode.GENERAL, String.format("Exception when execute function: %s", ex.getMessage()), functionRequest.toJson(), ex))
@@ -244,9 +249,9 @@ public class WebServicesProcessor extends AbstractHandler {
     private WebServiceResponse processWSRequest(WebServiceRequest request) {
         try {
             return baseService.executeWebServices(request);
-        } catch (ServiceException ee){
+        } catch (ServiceException ee) {
             return new WebServiceResponse(ee.getReturnCode(), ee.toJson());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             return new WebServiceResponse(500, ServiceException.json(ErrorCode.GENERAL, String.format("Exception when execute web service: %s", ex.getMessage()), request.toJson(), ex));
         }
     }
@@ -254,7 +259,7 @@ public class WebServicesProcessor extends AbstractHandler {
     /**
      * Convert the {@link Request} to a {@link WebServiceRequest} object
      *
-     * @param path the target of the servletRequest
+     * @param path           the target of the servletRequest
      * @param servletRequest the request either as the {@link Request} object or a wrapper of that servlet request.
      * @return the equivalent {@link WebServiceRequest} to the received {@link Request}
      */
@@ -267,14 +272,14 @@ public class WebServicesProcessor extends AbstractHandler {
         String rawBody = null;
         try {
             InputStream bodyInputStream = null;
-            if(ContentTypeFormat.isMultipartContentType(servletRequest.getContentType())){
+            if (ContentTypeFormat.isMultipartContentType(servletRequest.getContentType())) {
 
-                final MultipartConfigElement multipartConfigElement = new MultipartConfigElement((String)null);
+                final MultipartConfigElement multipartConfigElement = new MultipartConfigElement((String) null);
                 servletRequest.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, multipartConfigElement);
                 servletRequest.setCharacterEncoding(StandardCharsets.ISO_8859_1.name());
 
                 for (Part part : servletRequest.getParts()) {
-                    if(bodyInputStream == null && ContentTypeFormat.isJsonContentType(part.getContentType())){
+                    if (bodyInputStream == null && ContentTypeFormat.isJsonContentType(part.getContentType())) {
                         bodyInputStream = part.getInputStream();
                     } else {
                         final Json headers = Json.map();
@@ -290,9 +295,9 @@ public class WebServicesProcessor extends AbstractHandler {
                 bodyInputStream = servletRequest.getInputStream();
             }
 
-            if(bodyInputStream != null){
+            if (bodyInputStream != null) {
                 rawBody = Strings.readAsString(bodyInputStream);
-                if(StringUtils.isNoneEmpty(rawBody)) {
+                if (StringUtils.isNoneEmpty(rawBody)) {
                     body = JsonConverter.convertString(rawBody, servletRequest.getContentType(), false);
                     if (body == null) {
                         body = rawBody;
@@ -300,7 +305,7 @@ public class WebServicesProcessor extends AbstractHandler {
                 }
             }
 
-        } catch (Exception ex){
+        } catch (Exception ex) {
             logger.warn(String.format("Invalid body on web service servletRequest body: %s", ex.getMessage()), ex);
         }
 
@@ -313,72 +318,72 @@ public class WebServicesProcessor extends AbstractHandler {
         // recollect metadata
         try {
             requestInfo.set("method", servletRequest.getMethod());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             // do nothing
         }
         try {
             requestInfo.set("path", servletRequest.getPathInfo());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             // do nothing
         }
         try {
             requestInfo.set("query", servletRequest.getQueryString());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             // do nothing
         }
         try {
             requestInfo.set("contentType", servletRequest.getContentType());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             // do nothing
         }
         try {
             requestInfo.set("url", servletRequest.getRequestURL());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             // do nothing
         }
         try {
             requestInfo.set("uri", servletRequest.getRequestURI());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             // do nothing
         }
         try {
             requestInfo.set("encoding", servletRequest.getCharacterEncoding());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             // do nothing
         }
         try {
             requestInfo.set("localAddress", servletRequest.getLocalAddr());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             // do nothing
         }
         try {
             requestInfo.set("localName", servletRequest.getLocalName());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             // do nothing
         }
         try {
             requestInfo.set("scheme", servletRequest.getScheme());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             // do nothing
         }
         try {
             requestInfo.set("serverName", servletRequest.getServerName());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             // do nothing
         }
         try {
             requestInfo.set("remoteHost", servletRequest.getRemoteHost());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             // do nothing
         }
         try {
             requestInfo.set("remoteAddress", servletRequest.getRemoteAddr());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             // do nothing
         }
         try {
             requestInfo.set("protocol", servletRequest.getProtocol());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             // do nothing
         }
 
@@ -390,12 +395,12 @@ public class WebServicesProcessor extends AbstractHandler {
     /**
      * Process the {@link WebServiceResponse} object and send to an HTTP client via {@link Response}
      *
-     * @param response the equivalent {@link WebServiceResponse} to the received response
+     * @param response        the equivalent {@link WebServiceResponse} to the received response
      * @param servletResponse the response as the {@link Response} object or a wrapper of that servlet request.
      * @throws IOException if unable to handle the request or response processing
      */
     private void sendResponse(WebServiceResponse response, HttpServletResponse servletResponse) throws IOException {
-        if(debug){
+        if (debug) {
             logger.info(String.format("%s response %s", Service.DEBUG, response.toString()));
         }
 
@@ -405,21 +410,21 @@ public class WebServicesProcessor extends AbstractHandler {
 
         // content type
         String contentType = response.getStringHeader(Parameter.CONTENT_TYPE);
-        if(StringUtils.isBlank(contentType)){
+        if (StringUtils.isBlank(contentType)) {
             contentType = ContentTypeFormat.JSON.getMimeType();
         }
         servletResponse.setContentType(contentType);
 
         // content
         final Object body = response.getBody();
-        if(body != null) {
-            if(body instanceof InputStream){
+        if (body != null) {
+            if (body instanceof InputStream) {
                 FilesUtils.copyStreamAndFlush((InputStream) body, servletResponse.getOutputStream());
-            } else if(body instanceof byte[]){
+            } else if (body instanceof byte[]) {
                 FilesUtils.copyStreamAndFlush(new ByteArrayInputStream((byte[]) body), servletResponse.getOutputStream());
-            } else if(body instanceof ByteArrayOutputStream){
+            } else if (body instanceof ByteArrayOutputStream) {
                 ((ByteArrayOutputStream) body).writeTo(servletResponse.getOutputStream());
-            } else  {
+            } else {
                 servletResponse.getWriter().print(body);
             }
         }
@@ -433,7 +438,7 @@ public class WebServicesProcessor extends AbstractHandler {
      *
      * @param maxRedelivers maximum retries of a request that throws an exception
      */
-    void setupDefaultExceptionsProperties(int maxRedelivers){
+    void setupDefaultExceptionsProperties(int maxRedelivers) {
         this.maxRedelivers = maxRedelivers >= 0 ? maxRedelivers : DEFAULT_MAX_REDELIVERS;
     }
 
@@ -441,9 +446,9 @@ public class WebServicesProcessor extends AbstractHandler {
      * Setup the parameters to deal with permanent exceptions
      *
      * @param maxRedelivers maximum retries of a request that throws a permanent exception
-     * @param delay delay between retries
+     * @param delay         delay between retries
      */
-    void setupPermanentExceptionsProperties(int maxRedelivers, long delay){
+    void setupPermanentExceptionsProperties(int maxRedelivers, long delay) {
         this.permanentMaxRedelivers = maxRedelivers >= 0 ? maxRedelivers : DEFAULT_PERMANENT_MAX_REDELIVERS;
         this.permanentDelay = delay >= 0 ? delay : DEFAULT_PERMANENT_DELAY;
     }
@@ -452,9 +457,9 @@ public class WebServicesProcessor extends AbstractHandler {
      * Setup the parameters to deal with retryable exceptions
      *
      * @param maxRedelivers maximum retries of a request that throws a retryable exception
-     * @param delay delay between retries
+     * @param delay         delay between retries
      */
-    void setupRetryableExceptionsProperties(int maxRedelivers, long delay){
+    void setupRetryableExceptionsProperties(int maxRedelivers, long delay) {
         this.retryableMaxRedelivers = maxRedelivers >= 0 ? maxRedelivers : DEFAULT_RETRYABLE_MAX_REDELIVERS;
         this.retryableDelay = delay >= 0 ? delay : DEFAULT_RETRYABLE_DELAY;
     }
