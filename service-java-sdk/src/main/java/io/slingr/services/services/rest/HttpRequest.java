@@ -27,7 +27,6 @@ public class HttpRequest implements JsonSource {
     private boolean forceDownload = false;
     private boolean downloadSync = false;
     private boolean forceDisableCookies = false;
-    private boolean bodyAsFile = false;
     private int maxRedirects = RestClient.DEFAULT_MAX_REDIRECTS;
     private Boolean encodeUrl = null;
     private boolean followAuthorizationHeader = false;
@@ -468,14 +467,6 @@ public class HttpRequest implements JsonSource {
         this.multipart = multipart;
     }
 
-    public boolean isBodyAsFile() {
-        return bodyAsFile;
-    }
-
-    public void setBodyAsFile(boolean bodyAsFile) {
-        this.bodyAsFile = bodyAsFile;
-    }
-
     /**
      * Gets the value that determines if disable cookies.
      *
@@ -703,10 +694,6 @@ public class HttpRequest implements JsonSource {
                     }
                 } else {
                     request.setMultipart(false);
-                }
-                final Boolean bodyAsFile = settings.bool(Parameter.HTTP_FILE_AS_BODY);
-                if (bodyAsFile != null) {
-                    request.setBodyAsFile(bodyAsFile);
                 }
             }
         }

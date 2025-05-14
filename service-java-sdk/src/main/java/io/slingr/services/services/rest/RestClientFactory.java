@@ -678,9 +678,7 @@ public class RestClientFactory {
             }
 
             String contentType = headers.string(Parameter.CONTENT_TYPE);
-            if (content instanceof InputStream) {
-                postData = Entity.entity(content, contentType);
-            }else if (content instanceof JsonSource || content instanceof Map || content instanceof List || content instanceof Multipart) {
+            if (content instanceof JsonSource || content instanceof Map || content instanceof List || content instanceof Multipart) {
                 content = Json.fromObject(content);
 
                 if (StringUtils.isNotBlank(contentType)) {

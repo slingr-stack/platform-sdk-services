@@ -12,9 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
 
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
@@ -1843,39 +1840,5 @@ public abstract class RestClient {
         }
 
         return factory.request(method, target, content, headersToSend, request);
-    }
-
-    protected Object resolveBodyContent(Object body, Json headers, Files files) {
-        try {
-            String fileId = (String) body;
-            final Json descriptor = files.metadata(fileId);
-            if (descriptor != null && !descriptor.isEmpty()) {
-                InputStream inputStream = files.download(fileId).file();
-                byte[] contentBytes = readStreamContent(inputStream);
-                int contentLength = contentBytes.length;
-                logger.info("Calculated Content-Length: " + contentLength);
-                if (!headers.contains("Content-Type")) {
-                    String contentType = descriptor.string("contentType");
-                    if (StringUtils.isNotBlank(contentType)) {
-                        headers.set("Content-Type", contentType);
-                    }
-                }
-                return new ByteArrayInputStream(contentBytes);
-            }
-        } catch (Exception e) {
-            logger.warn(String.format("Exception when trying to set request body: %s", e.getMessage()), e);
-        }
-        return body;
-    }
-
-    private byte[] readStreamContent(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        byte[] data = new byte[4096];
-        int bytesRead;
-        while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
-            buffer.write(data, 0, bytesRead);
-        }
-        buffer.flush();
-        return buffer.toByteArray();
     }
 }

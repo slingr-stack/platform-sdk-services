@@ -117,7 +117,6 @@ public final class Parameter {
     public static final String HTTP_REQUEST_FOLLOW_ORIGINAL_HTTP_METHOD = "followOriginalHttpMethod";
     public static final String HTTP_USE_SSL = "useSSL";
     public static final String HTTP_USE_MULTI_PART = "multipart";
-    public static final String HTTP_FILE_AS_BODY = "bodyAsFile";
 
     // events
     public static final String EVENT_PROCESSED_JOB = "job";
