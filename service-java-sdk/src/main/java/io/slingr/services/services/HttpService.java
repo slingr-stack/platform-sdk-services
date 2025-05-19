@@ -228,6 +228,11 @@ public class HttpService extends RestClient {
             if (request.isMultipart()) {
                 return httpMultipart(request, files);
             } else {
+                if (request.isBodyAsFile()) {
+                    Object body = request.getBody();
+                    Json headers = request.getHeaders();
+                    request.setBody(resolveBodyContent(body, headers, files));
+                }
                 Json response = httpPost(request);
                 processCallback(response, functionId);
                 return response;
