@@ -263,7 +263,7 @@ public class RestClientFactory {
             Json responseAsJson = JsonConverter.convertString(removeUTF8BOM(responseAsString), contentType, true);
 
             boolean errorResponse = response.getStatus() < 200 || response.getStatus() > 299;
-            if (errorResponse && !fullResponse && responseAsJson != null && (responseAsJson.isMap() && responseAsJson.json("data") != null && responseAsJson.json("data").isMap() && responseAsJson.json("data").bool(Parameter.EXCEPTION_FLAG))) {
+            if (errorResponse && !fullResponse && responseAsJson != null && (responseAsJson.isMap() && responseAsJson.json("data") != null && responseAsJson.json("data").isMap() && (responseAsJson.json("data").bool(Parameter.EXCEPTION_FLAG) != null && responseAsJson.json("data").bool(Parameter.EXCEPTION_FLAG)))) {
                 // a Service Exception error when process the request
                 response.close();
 
