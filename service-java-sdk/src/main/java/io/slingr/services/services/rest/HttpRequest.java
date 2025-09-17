@@ -34,6 +34,7 @@ public class HttpRequest implements JsonSource {
     private boolean removeRefererHeaderOnRedirect = false;
     private boolean followOriginalHttpMethod = false;
     private boolean useSSL = true;
+    private boolean callback = false;
 
     public HttpRequest(HttpRequestBuilder builder) {
         this.restMethod = builder.restMethod;
@@ -53,6 +54,7 @@ public class HttpRequest implements JsonSource {
         this.followAuthorizationHeader = builder.followAuthorizationHeader;
         this.followOriginalHttpMethod = builder.followOriginalHttpMethod;
         this.useSSL = builder.useSSL;
+        this.callback = builder.callback;
     }
 
     /**
@@ -554,6 +556,14 @@ public class HttpRequest implements JsonSource {
         this.useSSL = useSSL;
     }
 
+    public boolean isCallback() {
+        return callback;
+    }
+
+    public void setCallback(boolean callback) {
+        this.callback = callback;
+    }
+
     @Override
     public Json toJson() {
         final Json json = Json.map()
@@ -575,6 +585,7 @@ public class HttpRequest implements JsonSource {
                 .setIf(isRemoveRefererHeaderOnRedirect(), Parameter.HTTP_REQUEST_REMOVE_REFERER_HEADER_ON_REDIRECT, isRemoveRefererHeaderOnRedirect())
                 .setIf(isFollowOriginalHttpMethod(), Parameter.HTTP_REQUEST_FOLLOW_ORIGINAL_HTTP_METHOD, isFollowOriginalHttpMethod())
                 .setIf(isUseSSL(), Parameter.HTTP_USE_SSL, isUseSSL())
+                .setIf(isCallback(), Parameter.HTTP_REQUEST_DEFAULT_CALLBACK, isCallback())
                 .setIf(isMultipart(), Parameter.HTTP_USE_MULTI_PART, isMultipart());
 
         if(!RestClient.DEFAULT_FILE_NAME.equals(getFilename()) && StringUtils.isNotBlank(getFilename())){
@@ -604,6 +615,14 @@ public class HttpRequest implements JsonSource {
             final Json params = json.json(Parameter.HTTP_REQUEST_PARAMS);
             if (params != null && params.isMap()) {
                 params.forEachMap((k, o) -> request.getParams().set(k, o));
+            }
+
+            if (json.contains(Parameter.HTTP_REQUEST_CALLBACK)) {
+                final boolean callback = json.bool(Parameter.HTTP_REQUEST_CALLBACK);
+                if (callback) {
+                    request.setCallback(true);
+                    json.remove(Parameter.HTTP_REQUEST_DEFAULT_CALLBACK);
+                }
             }
 
             final Json headers = json.json(Parameter.HTTP_REQUEST_HEADERS);
@@ -737,6 +756,7 @@ public class HttpRequest implements JsonSource {
         private Boolean encodeUrl = null;
         private boolean followAuthorizationHeader = false;
         private boolean useSSL = true;
+        private boolean callback = false;
 
         public HttpRequestBuilder() {
 
@@ -839,6 +859,11 @@ public class HttpRequest implements JsonSource {
 
         public HttpRequestBuilder setFollowOriginalHttpMethod(boolean followOriginalHttpMethod) {
             this.followOriginalHttpMethod = followOriginalHttpMethod;
+            return this;
+        }
+
+        public HttpRequestBuilder  setCallback(boolean callback) {
+            this.callback = callback;
             return this;
         }
     }

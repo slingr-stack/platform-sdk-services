@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.slingr-stack</groupId>
     <artifactId>slingr-services</artifactId>
-    <version>1.6.7</version>
+    <version>1.6.8</version>
     <name>Slingr Services Framework</name>
     <description>Framework to generate services to use on Slingr platform</description>
     <packaging>jar</packaging>
@@ -203,7 +203,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${project.build.compiler.version}</version>
                 <configuration>
-                    <release>17</release>
+                    <release>${maven.compiler.release}</release>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <!-- Disable annotation processing for ourselves. -->
                     <compilerArgument>-proc:none</compilerArgument>

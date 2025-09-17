@@ -1,8 +1,8 @@
 package io.slingr.services.services;
 
 import io.slingr.services.configurations.ServiceContext;
-import io.slingr.services.exceptions.ServiceException;
 import io.slingr.services.exceptions.ErrorCode;
+import io.slingr.services.exceptions.ServiceException;
 import io.slingr.services.services.exchange.Parameter;
 import io.slingr.services.services.rest.DownloadedFile;
 import io.slingr.services.services.rest.HttpRequest;
@@ -18,7 +18,10 @@ import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 
 /**
  * <p>Helper to exchange information with an external HTTP service
@@ -27,6 +30,8 @@ import java.util.concurrent.Executors;
  */
 public class HttpService extends RestClient {
     private static final Logger logger = LoggerFactory.getLogger(HttpService.class);
+
+    private static final ExecutorService POOL_THREAD_CALLBACK_EXECUTOR = Executors.newCachedThreadPool();
 
     public static final String FILE_DOWNLOADED_EVENT = "fileDownloaded";
     public static final String WEBHOOK_EVENT = "webhook";
@@ -37,7 +42,7 @@ public class HttpService extends RestClient {
     private IHttpExceptionConverter exceptionConverter = null;
 
     /**
-     * Creates a http service over an external service
+     * Creates an http service over an external service
      *
      * @param apiUri base URI to build the requests to the API.
      * @param events events manager.
@@ -101,22 +106,22 @@ public class HttpService extends RestClient {
                 if (request.isDownloadSync()) {
                     // download file synchronously
                     response = downloadFileAndUploadToPlatform(request);
-                    processCallback(response, fromFunctionId);
                     return response;
                 } else {
                     String app = ServiceContext.getCurrentApp();
                     String env = ServiceContext.getCurrentEnv();
                     // download file asynchronously
-                    Executors.newSingleThreadExecutor().execute(() -> {
-                        try {
-                            ServiceContext.initContext(app, env);
-                            final Json uploadedFileToPlatform = downloadFileAndUploadToPlatform(request);
-                            this.events.send(null, FILE_DOWNLOADED_EVENT, uploadedFileToPlatform, fromFunctionId, null, null, 1);
-                        } catch (Exception e) {
-                            logger.warn(String.format("Exception when try to send the 'fileDownloaded' event - exception: %s", e.getMessage()), e);
-                        }
-                    });
-
+                    try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
+                        executor.execute(() -> {
+                            try {
+                                ServiceContext.initContext(app, env);
+                                final Json uploadedFileToPlatform = downloadFileAndUploadToPlatform(request);
+                                this.events.send(new Date().toInstant().toEpochMilli(), FILE_DOWNLOADED_EVENT, uploadedFileToPlatform, fromFunctionId, null, null, 1);
+                            } catch (Exception e) {
+                                logger.warn("Exception when try to send the 'fileDownloaded' event - exception: {}", e.getMessage(), e);
+                            }
+                        });
+                    }
                     if (request.isFullResponse()) {
                         return Json.map()
                                 .set("body", "ok")
@@ -128,8 +133,12 @@ public class HttpService extends RestClient {
                 }
             } else {
                 // return get in body
-                response = httpGet(request);
-                processCallback(response, fromFunctionId);
+                if (request.isCallback()) {
+                    response = Json.map().set("status", "ok");
+                    processCallback(() -> httpGet(request), fromFunctionId);
+                } else {
+                    response = httpGet(request);
+                }
                 return response;
             }
         } catch (Exception ex) {
@@ -233,8 +242,13 @@ public class HttpService extends RestClient {
                     Json headers = request.getHeaders();
                     request.setBody(resolveBodyContent(body, headers, files));
                 }
-                Json response = httpPost(request);
-                processCallback(response, functionId);
+                Json response;
+                if (request.isCallback()) {
+                    response = Json.map().set("status", "ok");
+                    processCallback(() -> httpPost(request), functionId);
+                } else {
+                    response = httpPost(request);
+                }
                 return response;
             }
         } catch (Exception ex) {
@@ -273,8 +287,13 @@ public class HttpService extends RestClient {
             if (request.isMultipart()) {
                 return httpMultipart(request, files);
             } else {
-                Json response = httpPut(request);
-                processCallback(response, functionId);
+                Json response;
+                if (request.isCallback()) {
+                    response = Json.map().set("status", "ok");
+                    processCallback(() -> httpPut(request), functionId);
+                } else {
+                    response = httpPut(request);
+                }
                 return response;
             }
         } catch (Exception ex) {
@@ -310,8 +329,13 @@ public class HttpService extends RestClient {
      */
     public Json defaultDeleteRequest(HttpRequest request, String functionId) {
         try {
-            Json response = httpDelete(request);
-            processCallback(response, functionId);
+            Json response;
+            if (request.isCallback()) {
+                response = Json.map().set("status", "ok");
+                processCallback(() -> httpDelete(request), functionId);
+            } else {
+                response = httpDelete(request);
+            }
             return response;
         } catch (Exception ex) {
             throw convertToServiceException(ex);
@@ -346,8 +370,13 @@ public class HttpService extends RestClient {
      */
     public Json defaultHeadRequest(HttpRequest request, String functionId) {
         try {
-            Json response = httpHead(request);
-            processCallback(response, functionId);
+            Json response;
+            if (request.isCallback()) {
+                response = Json.map().set("status", "ok");
+                processCallback(() -> httpHead(request), functionId);
+            } else {
+                response = httpHead(request);
+            }
             return response;
         } catch (Exception ex) {
             throw convertToServiceException(ex);
@@ -382,8 +411,13 @@ public class HttpService extends RestClient {
      */
     public Json defaultPatchRequest(HttpRequest request, String functionId) {
         try {
-            Json response = httpPatch(request);
-            processCallback(response, functionId);
+            Json response;
+            if (request.isCallback()) {
+                response = Json.map().set("status", "ok");
+                processCallback(() -> httpPatch(request), functionId);
+            } else {
+                response = httpPatch(request);
+            }
             return response;
         } catch (Exception ex) {
             throw convertToServiceException(ex);
@@ -418,8 +452,13 @@ public class HttpService extends RestClient {
      */
     public Json defaultOptionsRequest(HttpRequest request, String functionId) {
         try {
-            Json response = httpOptions(request);
-            processCallback(response, functionId);
+            Json response;
+            if (request.isCallback()) {
+                response = Json.map().set("status", "ok");
+                processCallback(() -> httpOptions(request), functionId);
+            } else {
+                response = httpOptions(request);
+            }
             return response;
         } catch (Exception ex) {
             throw convertToServiceException(ex);
@@ -557,12 +596,13 @@ public class HttpService extends RestClient {
         return new WebServiceResponse(code, StringUtils.isBlank(response) ? "ok" : response, ContentType.TEXT_PLAIN.toString());
     }
 
-    private void processCallback(Json response, String functionId){
-        Executors.newSingleThreadExecutor().execute(() -> {
+    private void processCallback(Supplier<Json> jsonSupplier, String functionId) {
+        POOL_THREAD_CALLBACK_EXECUTOR.execute(() -> {
             try {
+                final Json response = jsonSupplier.get();
                 this.events.send(CALLBACK_EVENT, response, functionId);
             } catch (Exception e) {
-                logger.warn(String.format("Exception when try to send the 'callback' event - exception: %s", e.getMessage()), e);
+                logger.warn("Exception when try to send the 'callback' event - exception: {}", e.getMessage(), e);
             }
         });
     }
