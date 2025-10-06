@@ -18,6 +18,8 @@ const axiosInstance = require('axios').create(
         httpsAgent: new https.Agent({
             rejectUnauthorized: false
         }),
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity
     }
 );
 // require('axios-retry')(
