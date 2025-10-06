@@ -371,8 +371,8 @@ const loadSvcWebServices = () => {
     loadDeveloperWebServices();
 
     webServicesServer.use(compression());
-    webServicesServer.use(bodyParser.urlencoded({ extended: true, limit: '100mb' })); // configure app to use bodyParser()
-    webServicesServer.use(bodyParser.json({ limit: '100mb' })); // this will let us get the data from a POST
+    webServicesServer.use(bodyParser.urlencoded({ extended: true, limit: '50gb' })); // configure app to use bodyParser()
+    webServicesServer.use(bodyParser.json({ limit: '50gb' })); // this will let us get the data from a POST
     webServicesServer.use('/api', apiRouter); // all of our routes will be prefixed with /api
     webServicesServer.use('/', webhookRouter); // all of our routes will be prefixed with nothing
 
