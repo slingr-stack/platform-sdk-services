@@ -18,6 +18,9 @@ const axiosInstance = require('axios').create(
         httpsAgent: new https.Agent({
             rejectUnauthorized: false
         }),
+        // Set max content length to 100MB to support large file uploads
+        maxContentLength: 100 * 1024 * 1024,
+        maxBodyLength: 100 * 1024 * 1024
     }
 );
 // require('axios-retry')(

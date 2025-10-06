@@ -99,8 +99,9 @@ public class RestClientFactory {
             clientConfig.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
             clientConfig.property(ClientProperties.FOLLOW_REDIRECTS, true);
 
-            // the request entity will be buffered in the memory in order to determine content length that will be sent as a Content-Length header in the request
-            clientConfig.property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
+            // Use chunked encoding for large file uploads to avoid memory issues
+            // For regular requests, content length will still be calculated
+            clientConfig.property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.CHUNKED);
 
             final ConnectorProvider provider = new ApacheConnectorProvider();
             clientConfig.connectorProvider(provider);
