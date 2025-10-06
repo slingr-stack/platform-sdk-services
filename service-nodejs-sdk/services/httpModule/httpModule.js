@@ -18,7 +18,6 @@ const axiosInstance = require('axios').create(
         httpsAgent: new https.Agent({
             rejectUnauthorized: false
         }),
-        // Remove size limit to support large file uploads (e.g., ZIP files with 200+ samples)
         maxContentLength: Infinity,
         maxBodyLength: Infinity
     }
