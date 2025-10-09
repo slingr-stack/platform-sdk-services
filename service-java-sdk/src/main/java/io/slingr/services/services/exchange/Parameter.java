@@ -109,7 +109,8 @@ public final class Parameter {
     public static final String HTTP_REQUEST_FORCE_DOWNLOAD = "forceDownload";
     public static final String HTTP_REQUEST_DOWNLOAD_SYNC = "downloadSync";
     public static final String HTTP_REQUEST_AUTHORIZATION = "authorization";
-    public static final String HTTP_REQUEST_CALLBACK = "defaultCallback";
+    public static final String HTTP_REQUEST_CALLBACK = "callback";
+    public static final String HTTP_REQUEST_DEFAULT_CALLBACK = "defaultCallback";
     public static final String HTTP_REQUEST_FORCE_DISABLE_COOKIES = "forceDisableCookies";
     public static final String HTTP_ENCODE_URL = "encodeUrl";
     public static final String HTTP_REQUEST_FOLLOW_AUTHORIZATION_HEADER = "followAuthorizationHeader";
